@@ -1253,7 +1253,9 @@
         "llama_llama_3_2_1b_instruct_q4_k_m": "Winziges Modell für Edge-Geräte",
         "llama_llama_3_2_3b_instruct_q4_k_m": "Kleines, aber fähiges mehrsprachiges Modell",
         "llama_llama_3_1_8b_instruct_q4_k_m": "Leistungsstarkes Modell mit hoher Performance",
-        "openai_oss_gpt_oss_20b_mxfp4": "Open-Weight-Modell von OpenAI für Consumer-Hardware"
+        "openai_oss_gpt_oss_20b_mxfp4": "Open-Weight-Modell von OpenAI für Consumer-Hardware",
+        "gemma_gemma_3_4b_it_q4_k_m": "Googles Open-Weight-Modell, gutes Gleichgewicht aus Geschwindigkeit und Qualität",
+        "gemma_gemma_3_1b_it_q4_k_m": "Ultraschnelles Google-Modell, ideal für kurze Diktat-Bereinigung"
       }
     }
   },

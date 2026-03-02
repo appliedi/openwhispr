@@ -1619,7 +1619,7 @@
       "newConversation": "Novo",
       "copyToClipboard": "Copiar para área de transferência",
       "copied": "Copiado!",
-      "emptyState": "Pressione a tecla do agente para iniciar uma conversa",
+      "emptyState": "Segure {{hotkey}} para iniciar uma conversa",
       "errorPrefix": "Erro"
     },
     "titleBar": {
@@ -1628,7 +1628,8 @@
       "close": "Fechar"
     },
     "input": {
-      "idle": "Segure a tecla para falar",
+      "holdToSpeak": "Segure para falar",
+      "toClose": "fechar",
       "listening": "Ouvindo...",
       "transcribing": "Transcrevendo...",
       "thinking": "Pensando..."

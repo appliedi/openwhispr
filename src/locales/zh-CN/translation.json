@@ -945,11 +945,7 @@
         "enterprise": {
           "name": "企业版",
           "price": "自定义",
-          "features": [
-            "云端同步",
-            "团队功能（即将推出）",
-            "SSO 与合规"
-          ],
+          "features": ["云端同步", "团队功能（即将推出）", "SSO 与合规"],
           "cta": "联系我们"
         },
         "currentPlan": "当前套餐"
@@ -1619,7 +1615,7 @@
       "newConversation": "新建",
       "copyToClipboard": "复制到剪贴板",
       "copied": "已复制！",
-      "emptyState": "按下助手热键开始对话",
+      "emptyState": "按住 {{hotkey}} 开始对话",
       "errorPrefix": "错误"
     },
     "titleBar": {
@@ -1628,7 +1624,8 @@
       "close": "关闭"
     },
     "input": {
-      "idle": "按住快捷键说话",
+      "holdToSpeak": "按住说话",
+      "toClose": "关闭",
       "listening": "正在聆听...",
       "transcribing": "正在转录...",
       "thinking": "正在思考..."

@@ -623,8 +623,14 @@ class WindowManager {
     if (!this.agentWindow || this.agentWindow.isDestroyed()) return;
 
     const clamped = {
-      width: Math.max(AGENT_OVERLAY_CONFIG.minWidth, Math.min(width, AGENT_OVERLAY_CONFIG.maxWidth)),
-      height: Math.max(AGENT_OVERLAY_CONFIG.minHeight, Math.min(height, AGENT_OVERLAY_CONFIG.maxHeight)),
+      width: Math.max(
+        AGENT_OVERLAY_CONFIG.minWidth,
+        Math.min(width, AGENT_OVERLAY_CONFIG.maxWidth)
+      ),
+      height: Math.max(
+        AGENT_OVERLAY_CONFIG.minHeight,
+        Math.min(height, AGENT_OVERLAY_CONFIG.maxHeight)
+      ),
     };
 
     const bounds = this.agentWindow.getBounds();

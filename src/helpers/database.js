@@ -563,11 +563,7 @@ class DatabaseManager {
         .prepare("SELECT * FROM agent_conversations WHERE id = ?")
         .get(result.lastInsertRowid);
     } catch (error) {
-      debugLogger.error(
-        "Error creating agent conversation",
-        { error: error.message },
-        "database"
-      );
+      debugLogger.error("Error creating agent conversation", { error: error.message }, "database");
       throw error;
     }
   }
@@ -579,11 +575,7 @@ class DatabaseManager {
         .prepare("SELECT * FROM agent_conversations ORDER BY updated_at DESC LIMIT ?")
         .all(limit);
     } catch (error) {
-      debugLogger.error(
-        "Error getting agent conversations",
-        { error: error.message },
-        "database"
-      );
+      debugLogger.error("Error getting agent conversations", { error: error.message }, "database");
       throw error;
     }
   }
@@ -600,11 +592,7 @@ class DatabaseManager {
         .all(id);
       return { ...conversation, messages };
     } catch (error) {
-      debugLogger.error(
-        "Error getting agent conversation",
-        { error: error.message },
-        "database"
-      );
+      debugLogger.error("Error getting agent conversation", { error: error.message }, "database");
       throw error;
     }
   }
@@ -613,16 +601,10 @@ class DatabaseManager {
     try {
       if (!this.db) throw new Error("Database not initialized");
       this.db.prepare("DELETE FROM agent_messages WHERE conversation_id = ?").run(id);
-      const result = this.db
-        .prepare("DELETE FROM agent_conversations WHERE id = ?")
-        .run(id);
+      const result = this.db.prepare("DELETE FROM agent_conversations WHERE id = ?").run(id);
       return { success: result.changes > 0 };
     } catch (error) {
-      debugLogger.error(
-        "Error deleting agent conversation",
-        { error: error.message },
-        "database"
-      );
+      debugLogger.error("Error deleting agent conversation", { error: error.message }, "database");
       throw error;
     }
   }
@@ -650,24 +632,16 @@ class DatabaseManager {
     try {
       if (!this.db) throw new Error("Database not initialized");
       const result = this.db
-        .prepare(
-          "INSERT INTO agent_messages (conversation_id, role, content) VALUES (?, ?, ?)"
-        )
+        .prepare("INSERT INTO agent_messages (conversation_id, role, content) VALUES (?, ?, ?)")
         .run(conversationId, role, content);
       this.db
-        .prepare(
-          "UPDATE agent_conversations SET updated_at = CURRENT_TIMESTAMP WHERE id = ?"
-        )
+        .prepare("UPDATE agent_conversations SET updated_at = CURRENT_TIMESTAMP WHERE id = ?")
         .run(conversationId);
       return this.db
         .prepare("SELECT * FROM agent_messages WHERE id = ?")
         .get(result.lastInsertRowid);
     } catch (error) {
-      debugLogger.error(
-        "Error adding agent message",
-        { error: error.message },
-        "database"
-      );
+      debugLogger.error("Error adding agent message", { error: error.message }, "database");
       throw error;
     }
   }
@@ -679,11 +653,7 @@ class DatabaseManager {
         .prepare("SELECT * FROM agent_messages WHERE conversation_id = ? ORDER BY created_at ASC")
         .all(conversationId);
     } catch (error) {
-      debugLogger.error(
-        "Error getting agent messages",
-        { error: error.message },
-        "database"
-      );
+      debugLogger.error("Error getting agent messages", { error: error.message }, "database");
       throw error;
     }
   }

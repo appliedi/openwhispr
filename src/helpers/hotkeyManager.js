@@ -155,11 +155,7 @@ class HotkeyManager {
     if (!slot || !slot.hotkey) return;
 
     const hk = slot.hotkey;
-    if (
-      !isGlobeLikeHotkey(hk) &&
-      !isRightSideModifier(hk) &&
-      !isModifierOnlyHotkey(hk)
-    ) {
+    if (!isGlobeLikeHotkey(hk) && !isRightSideModifier(hk) && !isModifierOnlyHotkey(hk)) {
       const accel = normalizeToAccelerator(hk);
       try {
         globalShortcut.unregister(accel);

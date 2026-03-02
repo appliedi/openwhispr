@@ -2035,32 +2035,14 @@ class IPCHandlers {
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let buffer = "";
 
         try {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop() || "";
-
-            for (const line of lines) {
-              const trimmed = line.trim();
-              if (!trimmed) continue;
-
-              // Handle Vercel AI SDK data stream format
-              // Text chunks are prefixed with "0:" followed by a JSON string
-              if (trimmed.startsWith("0:")) {
-                try {
-                  const text = JSON.parse(trimmed.slice(2));
-                  if (text) event.sender.send("agent-stream-chunk", text);
-                } catch {
-                  // skip malformed chunks
-                }
-              }
-            }
+            const text = decoder.decode(value, { stream: true });
+            if (text) event.sender.send("agent-stream-chunk", text);
           }
         } finally {
           reader.releaseLock();

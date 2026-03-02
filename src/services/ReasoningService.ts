@@ -1113,9 +1113,7 @@ class ReasoningService extends BaseReasoningService {
       messages,
       stream: true,
       temperature: config.temperature ?? 0.3,
-      max_tokens:
-        config.maxTokens ||
-        Math.max(4096, TOKEN_LIMITS.MAX_TOKENS),
+      max_tokens: config.maxTokens || Math.max(4096, TOKEN_LIMITS.MAX_TOKENS),
     };
 
     logger.logReasoning("AGENT_STREAM_REQUEST", {
@@ -1140,7 +1138,10 @@ class ReasoningService extends BaseReasoningService {
       try {
         const errorData = JSON.parse(errorText);
         errorMessage =
-          errorData.error?.message || errorData.message || errorData.error || `API error: ${response.status}`;
+          errorData.error?.message ||
+          errorData.message ||
+          errorData.error ||
+          `API error: ${response.status}`;
       } catch {
         errorMessage = errorText || `API error: ${response.status}`;
       }
@@ -1214,7 +1215,9 @@ class ReasoningService extends BaseReasoningService {
         if (chunks.length > 0) {
           yield chunks.shift()!;
         } else if (!done) {
-          await new Promise<void>((r) => { waiting = r; });
+          await new Promise<void>((r) => {
+            waiting = r;
+          });
           waiting = null;
         }
       }

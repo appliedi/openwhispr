@@ -1619,7 +1619,7 @@
       "newConversation": "Nouveau",
       "copyToClipboard": "Copier dans le presse-papiers",
       "copied": "Copié !",
-      "emptyState": "Appuyez sur le raccourci agent pour démarrer une conversation",
+      "emptyState": "Maintenez {{hotkey}} pour démarrer une conversation",
       "errorPrefix": "Erreur"
     },
     "titleBar": {
@@ -1628,7 +1628,8 @@
       "close": "Fermer"
     },
     "input": {
-      "idle": "Maintenez la touche pour parler",
+      "holdToSpeak": "Maintenez pour parler",
+      "toClose": "fermer",
       "listening": "Écoute...",
       "transcribing": "Transcription...",
       "thinking": "Réflexion..."

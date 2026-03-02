@@ -945,11 +945,7 @@
         "enterprise": {
           "name": "企業版",
           "price": "自訂",
-          "features": [
-            "雲端同步",
-            "團隊功能（即將推出）",
-            "SSO 與合規"
-          ],
+          "features": ["雲端同步", "團隊功能（即將推出）", "SSO 與合規"],
           "cta": "聯絡我們"
         },
         "currentPlan": "目前方案"
@@ -1619,7 +1615,7 @@
       "newConversation": "新建",
       "copyToClipboard": "複製到剪貼簿",
       "copied": "已複製！",
-      "emptyState": "按下助手熱鍵開始對話",
+      "emptyState": "按住 {{hotkey}} 開始對話",
       "errorPrefix": "錯誤"
     },
     "titleBar": {
@@ -1628,7 +1624,8 @@
       "close": "關閉"
     },
     "input": {
-      "idle": "按住快捷鍵說話",
+      "holdToSpeak": "按住說話",
+      "toClose": "關閉",
       "listening": "正在聆聽...",
       "transcribing": "正在轉錄...",
       "thinking": "正在思考..."

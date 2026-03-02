@@ -925,11 +925,7 @@
         "enterprise": {
           "name": "Enterprise",
           "price": "Custom",
-          "features": [
-            "Cloud sync",
-            "Team features (coming soon)",
-            "SSO & compliance"
-          ],
+          "features": ["Cloud sync", "Team features (coming soon)", "SSO & compliance"],
           "cta": "Contact Us"
         },
         "currentPlan": "Current plan"
@@ -1619,7 +1615,7 @@
       "newConversation": "New",
       "copyToClipboard": "Copy to clipboard",
       "copied": "Copied!",
-      "emptyState": "Press your agent hotkey to start a conversation",
+      "emptyState": "Hold {{hotkey}} to start a conversation",
       "errorPrefix": "Error"
     },
     "titleBar": {
@@ -1628,7 +1624,8 @@
       "close": "Close"
     },
     "input": {
-      "idle": "Hold hotkey to speak",
+      "holdToSpeak": "Hold to speak",
+      "toClose": "close",
       "listening": "Listening...",
       "transcribing": "Transcribing...",
       "thinking": "Thinking..."

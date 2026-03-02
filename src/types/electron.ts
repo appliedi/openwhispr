@@ -894,10 +894,7 @@ declare global {
         }>;
       } | null>;
       deleteAgentConversation?: (id: number) => Promise<{ success: boolean }>;
-      updateAgentConversationTitle?: (
-        id: number,
-        title: string
-      ) => Promise<{ success: boolean }>;
+      updateAgentConversationTitle?: (id: number, title: string) => Promise<{ success: boolean }>;
       addAgentMessage?: (
         conversationId: number,
         role: "user" | "assistant" | "system",
@@ -909,9 +906,7 @@ declare global {
         content: string;
         created_at: string;
       }>;
-      getAgentMessages?: (
-        conversationId: number
-      ) => Promise<
+      getAgentMessages?: (conversationId: number) => Promise<
         Array<{
           id: number;
           conversation_id: number;

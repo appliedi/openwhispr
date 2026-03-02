@@ -925,11 +925,7 @@
         "enterprise": {
           "name": "Enterprise",
           "price": "カスタム",
-          "features": [
-            "クラウド同期",
-            "チーム機能（近日公開）",
-            "SSO & コンプライアンス"
-          ],
+          "features": ["クラウド同期", "チーム機能（近日公開）", "SSO & コンプライアンス"],
           "cta": "お問い合わせ"
         },
         "currentPlan": "現在のプラン"
@@ -1619,7 +1615,7 @@
       "newConversation": "新規",
       "copyToClipboard": "クリップボードにコピー",
       "copied": "コピーしました！",
-      "emptyState": "エージェントホットキーを押して会話を開始",
+      "emptyState": "{{hotkey}} を長押しして会話を開始",
       "errorPrefix": "エラー"
     },
     "titleBar": {
@@ -1628,7 +1624,8 @@
       "close": "閉じる"
     },
     "input": {
-      "idle": "ホットキーを押し続けて話す",
+      "holdToSpeak": "長押しして話す",
+      "toClose": "閉じる",
       "listening": "聞いています...",
       "transcribing": "文字起こし中...",
       "thinking": "考え中..."

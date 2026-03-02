@@ -925,11 +925,7 @@
         "enterprise": {
           "name": "Enterprise",
           "price": "Individuell",
-          "features": [
-            "Cloud-Synchronisation",
-            "Team-Funktionen (demnächst)",
-            "SSO & Compliance"
-          ],
+          "features": ["Cloud-Synchronisation", "Team-Funktionen (demnächst)", "SSO & Compliance"],
           "cta": "Kontakt aufnehmen"
         },
         "currentPlan": "Aktueller Tarif"
@@ -1619,7 +1615,7 @@
       "newConversation": "Neu",
       "copyToClipboard": "In Zwischenablage kopieren",
       "copied": "Kopiert!",
-      "emptyState": "Drücke die Agent-Tastenkombination, um eine Unterhaltung zu starten",
+      "emptyState": "{{hotkey}} gedrückt halten, um eine Unterhaltung zu starten",
       "errorPrefix": "Fehler"
     },
     "titleBar": {
@@ -1628,7 +1624,8 @@
       "close": "Schließen"
     },
     "input": {
-      "idle": "Taste gedrückt halten zum Sprechen",
+      "holdToSpeak": "Gedrückt halten zum Sprechen",
+      "toClose": "schließen",
       "listening": "Hört zu...",
       "transcribing": "Transkribiert...",
       "thinking": "Denkt nach..."

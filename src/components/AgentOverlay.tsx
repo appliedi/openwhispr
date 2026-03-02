@@ -58,7 +58,12 @@ export default function AgentOverlay() {
       conversationIdRef.current = conv?.id ?? null;
     }
 
-    const userMsg: Message = { id: crypto.randomUUID(), role: "user", content: text, isStreaming: false };
+    const userMsg: Message = {
+      id: crypto.randomUUID(),
+      role: "user",
+      content: text,
+      isStreaming: false,
+    };
     setMessages((prev) => [...prev, userMsg]);
 
     if (conversationIdRef.current) {
@@ -83,7 +88,10 @@ export default function AgentOverlay() {
     ];
 
     const assistantId = crypto.randomUUID();
-    setMessages((prev) => [...prev, { id: assistantId, role: "assistant", content: "", isStreaming: true }]);
+    setMessages((prev) => [
+      ...prev,
+      { id: assistantId, role: "assistant", content: "", isStreaming: true },
+    ]);
     setAgentState("streaming");
 
     const isCloudAgent = settings.isSignedIn && settings.cloudAgentMode === "openwhispr";
@@ -132,7 +140,13 @@ export default function AgentOverlay() {
     am.setSkipReasoning(true);
     am.setContext("agent");
     am.setCallbacks({
-      onStateChange: ({ isRecording, isProcessing }: { isRecording: boolean; isProcessing: boolean }) => {
+      onStateChange: ({
+        isRecording,
+        isProcessing,
+      }: {
+        isRecording: boolean;
+        isProcessing: boolean;
+      }) => {
         if (isRecording) setAgentState("listening");
         else if (isProcessing) setAgentState("transcribing");
       },

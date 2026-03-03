@@ -1876,17 +1876,14 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       return false;
     }
 
-    // For notes context, check user preference first
+    // For notes context, require explicit opt-in to streaming
     if (this.context === "notes") {
-      const userPref = localStorage.getItem("notesStreamingPreference");
-      if (userPref === "streaming") return true;
-      if (userPref === "batch") return false;
+      return localStorage.getItem("notesStreamingPreference") === "streaming";
     }
 
     // Config-driven: check mode for this context
     if (this.sttConfig) {
-      const contextConfig =
-        this.context === "notes" ? this.sttConfig.notes : this.sttConfig.dictation;
+      const contextConfig = this.sttConfig.dictation;
       return contextConfig?.mode === "streaming";
     }
 

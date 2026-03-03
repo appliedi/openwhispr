@@ -890,7 +890,6 @@
           "name": "Gratuit",
           "price": "$0",
           "period": "pour toujours",
-          "trialNote": "Inclut 7 jours gratuits d'OpenWhispr Pro",
           "features": [
             "2 000 mots/semaine",
             "Modèles IA locaux",
@@ -1027,6 +1026,28 @@
       },
       "resetAppData": "Réinitialiser les données de l'application",
       "resetAppDataDescription": "Supprime définitivement tous les paramètres, transcriptions et données en cache"
+    },
+    "dictionary": {
+      "title": "Dictionnaire personnalisé",
+      "description": "Apprenez à l'IA votre vocabulaire — noms, jargon et termes qu'elle pourrait autrement manquer",
+      "addWordOrPhrase": "Ajouter un mot ou une expression",
+      "placeholder": "Ajouter un mot ou une expression...",
+      "add": "Ajouter",
+      "pressEnterToAdd": "Appuyez sur Entrée pour ajouter",
+      "autoLearnTitle": "Apprentissage automatique à partir des corrections",
+      "autoLearnDescription": "Lorsque vous corrigez une transcription dans l'application cible, le mot corrigé est automatiquement ajouté à votre dictionnaire.",
+      "yourWords": "Vos mots",
+      "clearDictionaryTitle": "Effacer le dictionnaire ?",
+      "clearDictionaryDescription": "Cela supprimera tous les mots de votre dictionnaire personnalisé. Cette action est irréversible.",
+      "clearAll": "Tout effacer",
+      "agentNameAutoManaged": "Géré automatiquement — synchronisé avec le nom de l'agent",
+      "removeWord": "Supprimer le mot",
+      "noWords": "Aucun mot pour l'instant",
+      "wordsAppearHere": "Les mots que vous ajoutez apparaîtront ici",
+      "howItWorksTitle": "Comment ça fonctionne",
+      "howItWorksDescription": "Les mots sont fournis comme indices de contexte au modèle vocal, l'aidant à reconnaître les termes peu courants. Pour les mots difficiles, essayez d'ajouter du contexte comme « The word is Synty » en plus du mot lui-même.",
+      "tipLabel": "Astuce",
+      "tipDescription": "Séparez plusieurs mots par des virgules. Ajoutez des phrases de contexte comme « The word is Synty » pour une meilleure reconnaissance."
     },
     "general": {
       "appearance": {
@@ -1187,6 +1208,7 @@
         "openai_gpt_4o_mini_transcribe": "Transcription rapide et précise",
         "openai_gpt_4o_transcribe": "Transcription la plus précise",
         "openai_whisper_1": "Modèle Whisper original",
+        "groq_whisper_large_v3": "Reconnaissance vocale haute précision",
         "groq_whisper_large_v3_turbo": "Vitesse 216x en temps réel",
         "mistral_voxtral_mini_latest": "Transcription multilingue rapide"
       },
@@ -1208,8 +1230,10 @@
         "groq_openai_gpt_oss_20b": "Modèle open source rapide, 1000 T/s",
         "groq_llama_3_3_70b_versatile": "Modèle polyvalent de Meta, 280 T/s",
         "groq_llama_3_1_8b_instant": "Ultra-rapide 560 T/s, contexte 131K",
-        "groq_mixtral_8x7b_32768": "Contexte 32K, mélange d'experts",
-        "groq_gemma2_9b_it": "Modèle efficace de Google"
+        "groq_llama_4_scout": "Multimodal efficace de Meta, 750 T/s",
+        "groq_compound": "Système compound de Groq, 450 T/s",
+        "groq_compound_mini": "Système compound rapide, 3x latence réduite",
+        "groq_kimi_k2_0905": "Moonshot AI 1T MoE, contexte 256K"
       },
       "local": {
         "qwen_qwen3_8b_q4_k_m": "Dernier Qwen3 avec prise en charge du mode réflexion",
@@ -1228,7 +1252,9 @@
         "llama_llama_3_2_1b_instruct_q4_k_m": "Modèle minuscule pour appareils edge",
         "llama_llama_3_2_3b_instruct_q4_k_m": "Petit modèle multilingue mais performant",
         "llama_llama_3_1_8b_instruct_q4_k_m": "Modèle puissant avec d'excellentes performances",
-        "openai_oss_gpt_oss_20b_mxfp4": "Modèle open-weight d'OpenAI pour matériel grand public"
+        "openai_oss_gpt_oss_20b_mxfp4": "Modèle open-weight d'OpenAI pour matériel grand public",
+        "gemma_gemma_3_4b_it_q4_k_m": "Modèle open-weight de Google, excellent équilibre vitesse/qualité",
+        "gemma_gemma_3_1b_it_q4_k_m": "Modèle Google ultra-rapide, idéal pour le nettoyage de courtes dictées"
       }
     }
   },
@@ -1407,7 +1433,19 @@
       "errorOccurred": "Une erreur est survenue",
       "noProviderTitle": "Aucun fournisseur de transcription configuré",
       "noProviderDescription": "Ajoutez une clé API ou téléchargez un modèle local pour commencer à transcrire.",
-      "noProviderAction": "Ouvrir les paramètres de transcription"
+      "noProviderAction": "Ouvrir les paramètres de transcription",
+      "fileTooLarge": "Ce fichier dépasse la limite de 500 MB.",
+      "largeFileNote": "Les fichiers volumineux sont découpés et transcrits en parallèle.",
+      "chunkProgress": "Transcription de la partie {{completed}} sur {{total}}...",
+      "paidPlanRequired": "La transcription cloud pour les fichiers de plus de 25 Mo nécessite un abonnement payant. Les fichiers volumineux sont traités avec OpenWhispr Cloud pour des résultats fiables et de haute qualité.",
+      "byokTooLarge": "Les clés API tierces ne prennent en charge que les fichiers jusqu'à 25 Mo.",
+      "byokTooLargeDetail": "Pour les fichiers de plus de 25 Mo, OpenWhispr Cloud gère le découpage, le traitement parallèle et le réassemblage — pour des résultats fiables sans dépendre des limites des fournisseurs tiers.",
+      "byokTooLargeNeedsAccount": "Créez un compte et passez à un abonnement payant pour transcrire des fichiers plus volumineux avec OpenWhispr Cloud.",
+      "byokTooLargeNeedsUpgrade": "Passez à un abonnement payant pour transcrire des fichiers plus volumineux avec OpenWhispr Cloud.",
+      "switchToCloudForLargeFiles": "Passez à OpenWhispr Cloud pour transcrire ce fichier.",
+      "createAccount": "Créer un compte",
+      "upgrade": "Mettre à niveau",
+      "switchToCloud": "OpenWhispr Cloud"
     },
     "meeting": {
       "title": "Notes de réunion",
@@ -1524,6 +1562,7 @@
     "reasoningBanner": "Accélérez le traitement IA avec le GPU",
     "enableButton": "Activer le GPU",
     "active": "Accélération GPU active",
+    "ready": "Accélération GPU prête",
     "activating": "Activation du GPU...",
     "activationFailed": "Impossible d'activer le GPU",
     "retry": "Réessayer",
@@ -1539,7 +1578,9 @@
       "hotkeyUnavailable": {
         "title": "Raccourci indisponible",
         "description": "Le raccourci sélectionné n’a pas pu être enregistré. Veuillez en choisir un autre dans les paramètres."
-      }
+      },
+      "addedToDict": "{{words}} ajouté à votre dictionnaire",
+      "undo": "Annuler"
     },
     "mic": {
       "hotkeyToSpeak": "Appuyez sur {{hotkey}} pour parler",

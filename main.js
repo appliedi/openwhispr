@@ -164,12 +164,14 @@ const UpdateManager = require("./src/updater");
 const GlobeKeyManager = require("./src/helpers/globeKeyManager");
 const DevServerManager = require("./src/helpers/devServerManager");
 const WindowsKeyManager = require("./src/helpers/windowsKeyManager");
+const TextEditMonitor = require("./src/helpers/textEditMonitor");
 const WhisperCudaManager = require("./src/helpers/whisperCudaManager");
 const GoogleCalendarManager = require("./src/helpers/googleCalendarManager");
 const MeetingProcessDetector = require("./src/helpers/meetingProcessDetector");
 const AudioActivityDetector = require("./src/helpers/audioActivityDetector");
 const MeetingDetectionEngine = require("./src/helpers/meetingDetectionEngine");
 const { i18nMain, changeLanguage } = require("./src/helpers/i18nMain");
+const { ensureYdotool } = require("./src/helpers/ensureYdotool");
 
 // Manager instances - initialized after app.whenReady()
 let debugLogger = null;
@@ -184,9 +186,11 @@ let trayManager = null;
 let updateManager = null;
 let globeKeyManager = null;
 let windowsKeyManager = null;
+let textEditMonitor = null;
 let whisperCudaManager = null;
 let googleCalendarManager = null;
 let meetingDetectionEngine = null;
+let ipcHandlers = null;
 let globeKeyAlertShown = false;
 let authBridgeServer = null;
 
@@ -259,9 +263,11 @@ function initializeCoreManagers() {
   );
   updateManager = new UpdateManager();
   windowsKeyManager = new WindowsKeyManager();
+  textEditMonitor = new TextEditMonitor();
+  windowManager.textEditMonitor = textEditMonitor;
 
   // IPC handlers must be registered before window content loads
-  new IPCHandlers({
+  ipcHandlers = new IPCHandlers({
     environmentManager,
     databaseManager,
     clipboardManager,
@@ -270,6 +276,7 @@ function initializeCoreManagers() {
     windowManager,
     updateManager,
     windowsKeyManager,
+    textEditMonitor,
     whisperCudaManager,
     googleCalendarManager,
     meetingDetectionEngine,
@@ -279,6 +286,9 @@ function initializeCoreManagers() {
 
 // Phase 2: Non-critical setup after windows are visible
 function initializeDeferredManagers() {
+  ensureYdotool().catch((err) => {
+    require("./src/helpers/debugLogger").warn("ydotool setup error", { error: err?.message }, "clipboard");
+  });
   clipboardManager.preWarmAccessibility();
   trayManager = new TrayManager();
   globeKeyManager = new GlobeKeyManager();
@@ -570,6 +580,7 @@ async function startApp() {
   updateManager.checkForUpdatesOnStartup();
 
   if (process.platform === "darwin") {
+    const { isGlobeLikeHotkey } = require("./src/helpers/hotkeyManager");
     let globeKeyDownTime = 0;
     let globeKeyIsRecording = false;
     let globeLastStopTime = 0;
@@ -590,9 +601,11 @@ async function startApp() {
         windowManager.controlPanelWindow.webContents.send("globe-key-pressed");
       }
 
-      // Handle dictation if Globe is the current hotkey
-      if (currentHotkey === "GLOBE") {
+      // Handle dictation if Globe/Fn is the current hotkey
+      if (isGlobeLikeHotkey(currentHotkey)) {
         if (mainWindowLive) {
+          // Capture target app PID BEFORE showing the overlay
+          if (textEditMonitor) textEditMonitor.captureTargetPid();
           const activationMode = windowManager.getActivationMode();
           if (activationMode === "push") {
             const now = Date.now();
@@ -631,8 +644,7 @@ async function startApp() {
         windowManager.controlPanelWindow.webContents.send("globe-key-released");
       }
 
-      // Handle push-to-talk release if Globe is the current hotkey
-      if (hotkeyManager.getCurrentHotkey && hotkeyManager.getCurrentHotkey() === "GLOBE") {
+      if (hotkeyManager.getCurrentHotkey && isGlobeLikeHotkey(hotkeyManager.getCurrentHotkey())) {
         const activationMode = windowManager.getActivationMode();
         if (activationMode === "push") {
           globeKeyDownTime = 0;
@@ -666,6 +678,7 @@ async function startApp() {
       if (!isLiveWindow(windowManager.mainWindow)) return;
 
       const activationMode = windowManager.getActivationMode();
+      if (textEditMonitor) textEditMonitor.captureTargetPid();
       if (activationMode === "push") {
         const now = Date.now();
         if (now - rightModLastStopTime < POST_STOP_COOLDOWN_MS) return;
@@ -733,12 +746,14 @@ async function startApp() {
   if (process.platform === "win32") {
     debugLogger.debug("[Push-to-Talk] Windows Push-to-Talk setup starting");
 
-    const isValidHotkey = (hotkey) => hotkey && hotkey !== "GLOBE";
+    const {
+      isGlobeLikeHotkey: isGlobeLike,
+      isModifierOnlyHotkey,
+    } = require("./src/helpers/hotkeyManager");
+    const isValidHotkey = (hotkey) => hotkey && !isGlobeLike(hotkey);
 
     const isRightSideMod = (hotkey) =>
       /^Right(Control|Ctrl|Alt|Option|Shift|Super|Win|Meta|Command|Cmd)$/i.test(hotkey);
-
-    const { isModifierOnlyHotkey } = require("./src/helpers/hotkeyManager");
 
     const needsNativeListener = (hotkey, mode) => {
       if (!isValidHotkey(hotkey)) return false;
@@ -963,6 +978,12 @@ if (gotSingleInstanceLock) {
     }
     if (googleCalendarManager) {
       googleCalendarManager.stop();
+    }
+    if (ipcHandlers) {
+      ipcHandlers._cleanupTextEditMonitor();
+    }
+    if (textEditMonitor) {
+      textEditMonitor.stopMonitoring();
     }
     if (updateManager) {
       updateManager.cleanup();

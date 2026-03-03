@@ -74,7 +74,7 @@ export default function App() {
   const [isCommandMenuOpen, setIsCommandMenuOpen] = useState(false);
   const commandMenuRef = useRef(null);
   const buttonRef = useRef(null);
-  const { toast, toastCount } = useToast();
+  const { toast, dismiss, toastCount } = useToast();
   const { t } = useTranslation();
   const { hotkey } = useHotkey();
   const { isDragging, handleMouseDown, handleMouseUp } = useWindowDrag();
@@ -112,11 +112,45 @@ export default function App() {
       });
     });
 
+    const unsubscribeCorrections = window.electronAPI?.onCorrectionsLearned?.((words) => {
+      if (words && words.length > 0) {
+        const wordList = words.map((w) => `\u201c${w}\u201d`).join(", ");
+        let toastId;
+        toastId = toast({
+          title: t("app.toasts.addedToDict", { words: wordList }),
+          variant: "success",
+          duration: 6000,
+          action: (
+            <button
+              onClick={async () => {
+                try {
+                  const result = await window.electronAPI?.undoLearnedCorrections?.(words);
+                  if (result?.success) {
+                    dismiss(toastId);
+                  }
+                } catch {
+                  // silently fail — word stays in dictionary
+                }
+              }}
+              className="text-[10px] font-medium px-2.5 py-1 rounded-sm whitespace-nowrap
+                text-emerald-100/90 hover:text-white
+                bg-emerald-500/15 hover:bg-emerald-500/25
+                border border-emerald-400/20 hover:border-emerald-400/35
+                transition-all duration-150"
+            >
+              {t("app.toasts.undo")}
+            </button>
+          ),
+        });
+      }
+    });
+
     return () => {
       unsubscribeFallback?.();
       unsubscribeFailed?.();
+      unsubscribeCorrections?.();
     };
-  }, [toast, t]);
+  }, [toast, dismiss, t]);
 
   useEffect(() => {
     if (isCommandMenuOpen || toastCount > 0) {

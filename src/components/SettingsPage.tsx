@@ -71,7 +71,11 @@ export type SettingsSectionType =
   | "transcription"
   | "intelligence"
   | "privacyData"
-  | "system";
+  | "system"
+  | "dictionary"
+  | "aiModels"
+  | "agentConfig"
+  | "prompts";
 
 interface SettingsPageProps {
   activeSection?: SettingsSectionType;
@@ -461,6 +465,7 @@ function AiModelsSection({
                   onClick={() => {
                     if (!isCloudMode) {
                       setCloudReasoningMode("openwhispr");
+                      window.electronAPI?.llamaServerStop?.();
                       toast({
                         title: t("settingsPage.aiModels.toasts.switchedCloud.title"),
                         description: t("settingsPage.aiModels.toasts.switchedCloud.description"),
@@ -660,6 +665,8 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
     customReasoningApiKey,
     setCustomReasoningApiKey,
     setDictationKey,
+    autoLearnCorrections,
+    setAutoLearnCorrections,
     updateTranscriptionSettings,
     updateReasoningSettings,
     cloudTranscriptionMode,
@@ -710,6 +717,65 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
   useClipboard(showAlertDialog);
   const { agentName, setAgentName } = useAgentName();
   const [agentNameInput, setAgentNameInput] = useState(agentName);
+  const [newDictionaryWord, setNewDictionaryWord] = useState("");
+
+  const handleAddDictionaryWord = useCallback(() => {
+    const existingWords = new Set(customDictionary.map((w) => w.toLowerCase()));
+    const words = newDictionaryWord
+      .split(",")
+      .map((w) => w.trim())
+      .filter((w) => {
+        const normalized = w.toLowerCase();
+        if (!w || existingWords.has(normalized)) return false;
+        existingWords.add(normalized);
+        return true;
+      });
+    if (words.length > 0) {
+      setCustomDictionary([...customDictionary, ...words]);
+      setNewDictionaryWord("");
+    }
+  }, [newDictionaryWord, customDictionary, setCustomDictionary]);
+
+  const handleRemoveDictionaryWord = useCallback(
+    (word: string) => {
+      if (word === agentName) return;
+      setCustomDictionary(customDictionary.filter((w) => w !== word));
+    },
+    [customDictionary, setCustomDictionary, agentName]
+  );
+
+  const handleSaveAgentName = useCallback(() => {
+    const trimmed = agentNameInput.trim();
+    const previousName = agentName;
+
+    setAgentName(trimmed);
+    setAgentNameInput(trimmed);
+
+    let nextDictionary = customDictionary.filter((w) => w !== previousName);
+    if (trimmed) {
+      const hasName = nextDictionary.some((w) => w.toLowerCase() === trimmed.toLowerCase());
+      if (!hasName) {
+        nextDictionary = [trimmed, ...nextDictionary];
+      }
+    }
+    setCustomDictionary(nextDictionary);
+
+    showAlertDialog({
+      title: t("settingsPage.agentConfig.dialogs.updatedTitle"),
+      description: t("settingsPage.agentConfig.dialogs.updatedDescription", {
+        name: trimmed,
+      }),
+    });
+  }, [
+    agentNameInput,
+    agentName,
+    customDictionary,
+    setAgentName,
+    setCustomDictionary,
+    showAlertDialog,
+    t,
+  ]);
+
   const { theme, setTheme } = useTheme();
   const usage = useUsage();
   const hasShownApproachingToast = useRef(false);
@@ -1794,6 +1860,335 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
           />
         );
 
+      case "dictionary":
+        return (
+          <div className="space-y-5">
+            <SectionHeader
+              title={t("settingsPage.dictionary.title")}
+              description={t("settingsPage.dictionary.description")}
+            />
+
+            {/* Add Words */}
+            <SettingsPanel>
+              <SettingsPanelRow>
+                <div className="space-y-2">
+                  <p className="text-[12px] font-medium text-foreground">
+                    {t("settingsPage.dictionary.addWordOrPhrase")}
+                  </p>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder={t("settingsPage.dictionary.placeholder")}
+                      value={newDictionaryWord}
+                      onChange={(e) => setNewDictionaryWord(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleAddDictionaryWord();
+                        }
+                      }}
+                      className="flex-1 h-8 text-[12px]"
+                    />
+                    <Button
+                      onClick={handleAddDictionaryWord}
+                      disabled={!newDictionaryWord.trim()}
+                      size="sm"
+                      className="h-8"
+                    >
+                      {t("settingsPage.dictionary.add")}
+                    </Button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground/50">
+                    {t("settingsPage.dictionary.pressEnterToAdd")}
+                  </p>
+                </div>
+              </SettingsPanelRow>
+            </SettingsPanel>
+
+            {/* Auto-learn from corrections */}
+            <div>
+              <SettingsPanel>
+                <SettingsPanelRow>
+                  <div className="flex items-center justify-between w-full">
+                    <div>
+                      <p className="text-[12px] font-medium text-foreground">
+                        {t("settingsPage.dictionary.autoLearnTitle", {
+                          defaultValue: "Auto-learn from corrections",
+                        })}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground/50 mt-0.5">
+                        {t("settingsPage.dictionary.autoLearnDescription", {
+                          defaultValue:
+                            "When you correct a transcription in the target app, the corrected word is automatically added to your dictionary.",
+                        })}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setAutoLearnCorrections(!autoLearnCorrections)}
+                      className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
+                        autoLearnCorrections ? "bg-primary" : "bg-muted-foreground/20"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                          autoLearnCorrections ? "translate-x-[18px]" : "translate-x-[3px]"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </SettingsPanelRow>
+              </SettingsPanel>
+            </div>
+
+            {/* Word List */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[12px] font-medium text-foreground">
+                  {t("settingsPage.dictionary.yourWords")}
+                  {customDictionary.length > 0 && (
+                    <span className="ml-1.5 text-muted-foreground/50 font-normal text-[11px]">
+                      {customDictionary.length}
+                    </span>
+                  )}
+                </p>
+                {customDictionary.length > 0 && (
+                  <button
+                    onClick={() => {
+                      showConfirmDialog({
+                        title: t("settingsPage.dictionary.clearDictionaryTitle"),
+                        description: t("settingsPage.dictionary.clearDictionaryDescription"),
+                        confirmText: t("settingsPage.dictionary.clearAll"),
+                        variant: "destructive",
+                        onConfirm: () =>
+                          setCustomDictionary(customDictionary.filter((w) => w === agentName)),
+                      });
+                    }}
+                    className="text-[10px] text-muted-foreground/40 hover:text-destructive transition-colors"
+                  >
+                    {t("settingsPage.dictionary.clearAll")}
+                  </button>
+                )}
+              </div>
+
+              {customDictionary.length > 0 ? (
+                <SettingsPanel>
+                  <SettingsPanelRow>
+                    <div className="flex flex-wrap gap-1">
+                      {customDictionary.map((word) => {
+                        const isAgentName = word === agentName;
+                        return (
+                          <span
+                            key={word}
+                            className={`group inline-flex items-center gap-0.5 py-0.5 rounded-[5px] text-[11px] border transition-all ${
+                              isAgentName
+                                ? "pl-2 pr-2 bg-primary/10 dark:bg-primary/15 text-primary border-primary/20 dark:border-primary/30"
+                                : "pl-2 pr-1 bg-primary/5 dark:bg-primary/10 text-foreground border-border/30 dark:border-border-subtle hover:border-destructive/40 hover:bg-destructive/5"
+                            }`}
+                            title={
+                              isAgentName
+                                ? t("settingsPage.dictionary.agentNameAutoManaged")
+                                : undefined
+                            }
+                          >
+                            {word}
+                            {!isAgentName && (
+                              <button
+                                onClick={() => handleRemoveDictionaryWord(word)}
+                                className="ml-0.5 p-0.5 rounded-sm text-muted-foreground/40 hover:text-destructive transition-colors"
+                                title={t("settingsPage.dictionary.removeWord")}
+                              >
+                                <svg
+                                  width="9"
+                                  height="9"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2.5"
+                                  strokeLinecap="round"
+                                >
+                                  <path d="M18 6L6 18M6 6l12 12" />
+                                </svg>
+                              </button>
+                            )}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </SettingsPanelRow>
+                </SettingsPanel>
+              ) : (
+                <div className="rounded-lg border border-dashed border-border/40 dark:border-border-subtle py-6 flex flex-col items-center justify-center text-center">
+                  <p className="text-[11px] text-muted-foreground/50">
+                    {t("settingsPage.dictionary.noWords")}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground/40 mt-0.5">
+                    {t("settingsPage.dictionary.wordsAppearHere")}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* How it works */}
+            <div>
+              <SectionHeader title={t("settingsPage.dictionary.howItWorksTitle")} />
+              <SettingsPanel>
+                <SettingsPanelRow>
+                  <p className="text-[12px] text-muted-foreground leading-relaxed">
+                    {t("settingsPage.dictionary.howItWorksDescription")}
+                  </p>
+                </SettingsPanelRow>
+                <SettingsPanelRow>
+                  <p className="text-[12px] text-muted-foreground leading-relaxed">
+                    <span className="font-medium text-foreground">
+                      {t("settingsPage.dictionary.tipLabel")}
+                    </span>{" "}
+                    {t("settingsPage.dictionary.tipDescription")}
+                  </p>
+                </SettingsPanelRow>
+              </SettingsPanel>
+            </div>
+          </div>
+        );
+
+      case "aiModels":
+        return (
+          <AiModelsSection
+            isSignedIn={isSignedIn ?? false}
+            cloudReasoningMode={cloudReasoningMode}
+            setCloudReasoningMode={setCloudReasoningMode}
+            useReasoningModel={useReasoningModel}
+            setUseReasoningModel={(value) => {
+              setUseReasoningModel(value);
+              updateReasoningSettings({ useReasoningModel: value });
+            }}
+            reasoningModel={reasoningModel}
+            setReasoningModel={setReasoningModel}
+            reasoningProvider={reasoningProvider}
+            setReasoningProvider={setReasoningProvider}
+            cloudReasoningBaseUrl={cloudReasoningBaseUrl}
+            setCloudReasoningBaseUrl={setCloudReasoningBaseUrl}
+            openaiApiKey={openaiApiKey}
+            setOpenaiApiKey={setOpenaiApiKey}
+            anthropicApiKey={anthropicApiKey}
+            setAnthropicApiKey={setAnthropicApiKey}
+            geminiApiKey={geminiApiKey}
+            setGeminiApiKey={setGeminiApiKey}
+            groqApiKey={groqApiKey}
+            setGroqApiKey={setGroqApiKey}
+            customReasoningApiKey={customReasoningApiKey}
+            setCustomReasoningApiKey={setCustomReasoningApiKey}
+            showAlertDialog={showAlertDialog}
+            toast={toast}
+          />
+        );
+
+      case "agentConfig":
+        return (
+          <div className="space-y-5">
+            <SectionHeader
+              title={t("settingsPage.agentConfig.title")}
+              description={t("settingsPage.agentConfig.description")}
+            />
+
+            {/* Agent Name */}
+            <div>
+              <p className="text-[13px] font-medium text-foreground mb-3">
+                {t("settingsPage.agentConfig.agentName")}
+              </p>
+              <SettingsPanel>
+                <SettingsPanelRow>
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder={t("settingsPage.agentConfig.placeholder")}
+                        value={agentNameInput}
+                        onChange={(e) => setAgentNameInput(e.target.value)}
+                        className="flex-1 text-center text-base font-mono"
+                      />
+                      <Button
+                        onClick={handleSaveAgentName}
+                        disabled={!agentNameInput.trim()}
+                        size="sm"
+                      >
+                        {t("settingsPage.agentConfig.save")}
+                      </Button>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground/60">
+                      {t("settingsPage.agentConfig.helper")}
+                    </p>
+                  </div>
+                </SettingsPanelRow>
+              </SettingsPanel>
+            </div>
+
+            {/* How it works */}
+            <div>
+              <SectionHeader title={t("settingsPage.agentConfig.howItWorksTitle")} />
+              <SettingsPanel>
+                <SettingsPanelRow>
+                  <p className="text-[12px] text-muted-foreground leading-relaxed">
+                    {t("settingsPage.agentConfig.howItWorksDescription", { agentName })}
+                  </p>
+                </SettingsPanelRow>
+              </SettingsPanel>
+            </div>
+
+            {/* Examples */}
+            <div>
+              <SectionHeader title={t("settingsPage.agentConfig.examplesTitle")} />
+              <SettingsPanel>
+                <SettingsPanelRow>
+                  <div className="space-y-2.5">
+                    {[
+                      {
+                        input: `Hey ${agentName}, write a formal email about the budget`,
+                        mode: t("settingsPage.agentConfig.instructionMode"),
+                      },
+                      {
+                        input: `Hey ${agentName}, make this more professional`,
+                        mode: t("settingsPage.agentConfig.instructionMode"),
+                      },
+                      {
+                        input: `Hey ${agentName}, convert this to bullet points`,
+                        mode: t("settingsPage.agentConfig.instructionMode"),
+                      },
+                      {
+                        input: t("settingsPage.agentConfig.cleanupExample"),
+                        mode: t("settingsPage.agentConfig.cleanupMode"),
+                      },
+                    ].map((example, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <span
+                          className={`shrink-0 mt-0.5 text-[10px] font-medium uppercase tracking-wider px-1.5 py-px rounded ${
+                            example.mode === t("settingsPage.agentConfig.instructionMode")
+                              ? "bg-primary/10 text-primary dark:bg-primary/15"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {example.mode}
+                        </span>
+                        <p className="text-[12px] text-muted-foreground leading-relaxed">
+                          "{example.input}"
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </SettingsPanelRow>
+              </SettingsPanel>
+            </div>
+          </div>
+        );
+
+      case "prompts":
+        return (
+          <div className="space-y-5">
+            <SectionHeader
+              title={t("settingsPage.prompts.title")}
+              description={t("settingsPage.prompts.description")}
+            />
+
+            <PromptStudio />
+          </div>
+        );
+
       case "intelligence":
         return (
           <div className="space-y-6">
@@ -1849,24 +2244,7 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
                             className="flex-1 text-center text-base font-mono"
                           />
                           <Button
-                            onClick={() => {
-                              const trimmed = agentNameInput.trim();
-                              const oldName = agentName;
-                              setAgentName(trimmed);
-                              setAgentNameInput(trimmed);
-                              let dict = customDictionary.filter((w) => w !== oldName);
-                              if (trimmed && !dict.includes(trimmed)) dict = [trimmed, ...dict];
-                              setCustomDictionary(dict);
-                              showAlertDialog({
-                                title: t("settingsPage.agentConfig.dialogs.updatedTitle"),
-                                description: t(
-                                  "settingsPage.agentConfig.dialogs.updatedDescription",
-                                  {
-                                    name: trimmed,
-                                  }
-                                ),
-                              });
-                            }}
+                            onClick={handleSaveAgentName}
                             disabled={!agentNameInput.trim()}
                             size="sm"
                           >

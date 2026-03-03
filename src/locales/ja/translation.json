@@ -93,7 +93,7 @@
     "updatePayment": "お支払い方法を更新",
     "updatePaymentDescription": "無制限の Pro 文字起こしに戻りましょう。",
     "upgradeToPro": "Pro にアップグレード",
-    "upgradeDescription": "無制限の文字起こし。月額 $9。",
+    "upgradeDescription": "月額 $8 からの有料プランにアップグレード。",
     "useApiKey": "自分の API キーを使用",
     "useApiKeyDescription": "自分のキーで無制限に利用できます。",
     "switchToLocal": "ローカルに切り替え",
@@ -890,7 +890,6 @@
           "name": "無料",
           "price": "$0",
           "period": "永久",
-          "trialNote": "OpenWhispr Pro の 7 日間無料トライアル付き",
           "features": [
             "週 2,000 ワード",
             "ローカル AI モデル",
@@ -1023,6 +1022,28 @@
       },
       "resetAppData": "アプリデータをリセット",
       "resetAppDataDescription": "すべての設定、文字起こし履歴、キャッシュデータを完全に削除"
+    },
+    "dictionary": {
+      "title": "カスタム辞書",
+      "description": "AIにあなたの語彙を教えましょう — 名前、専門用語、見逃しがちな用語など",
+      "addWordOrPhrase": "単語またはフレーズを追加",
+      "placeholder": "単語またはフレーズを追加...",
+      "add": "追加",
+      "pressEnterToAdd": "Enterキーで追加",
+      "autoLearnTitle": "修正から自動学習",
+      "autoLearnDescription": "対象アプリで文字起こしを修正すると、修正された単語が自動的に辞書に追加されます。",
+      "yourWords": "あなたの単語",
+      "clearDictionaryTitle": "辞書をクリアしますか？",
+      "clearDictionaryDescription": "カスタム辞書からすべての単語が削除されます。この操作は元に戻せません。",
+      "clearAll": "すべてクリア",
+      "agentNameAutoManaged": "自動管理 — エージェント名と同期",
+      "removeWord": "単語を削除",
+      "noWords": "まだ単語がありません",
+      "wordsAppearHere": "追加した単語がここに表示されます",
+      "howItWorksTitle": "仕組み",
+      "howItWorksDescription": "単語は音声モデルへのコンテキストヒントとして提供され、一般的でない用語の認識を助けます。難しい単語には、単語自体に加えて \"The word is Synty\" のようなコンテキストを追加してみてください。",
+      "tipLabel": "ヒント",
+      "tipDescription": "複数の単語はカンマで区切ってください。より良い認識のために \"The word is Synty\" のようなコンテキストフレーズを追加してください。"
     },
     "general": {
       "appearance": {
@@ -1184,6 +1205,7 @@
         "openai_gpt_4o_transcribe": "最も正確な文字起こし",
         "openai_whisper_1": "オリジナル Whisper モデル",
         "groq_whisper_large_v3_turbo": "リアルタイムの 216 倍速",
+        "groq_whisper_large_v3": "Large v3 モデル、高速かつ高精度",
         "mistral_voxtral_mini_latest": "高速多言語文字起こし"
       },
       "cloud": {
@@ -1204,8 +1226,10 @@
         "groq_openai_gpt_oss_20b": "高速オープンソースモデル、1000 T/秒",
         "groq_llama_3_3_70b_versatile": "Meta の汎用モデル、280 T/秒",
         "groq_llama_3_1_8b_instant": "超高速 560 T/秒、131K コンテキスト",
-        "groq_mixtral_8x7b_32768": "32K コンテキスト、Mixture of Experts",
-        "groq_gemma2_9b_it": "Google の高効率モデル"
+        "groq_llama_4_scout": "Meta の効率的マルチモーダル、750 T/秒",
+        "groq_compound": "Groq の Compound システム、450 T/秒",
+        "groq_compound_mini": "高速 Compound システム、3x 低レイテンシー",
+        "groq_kimi_k2_0905": "Moonshot AI 1T MoE、256K コンテキスト"
       },
       "local": {
         "qwen_qwen3_8b_q4_k_m": "思考モード対応の最新 Qwen3",
@@ -1224,7 +1248,9 @@
         "llama_llama_3_2_1b_instruct_q4_k_m": "エッジデバイス向け超小型モデル",
         "llama_llama_3_2_3b_instruct_q4_k_m": "小型ながら高性能な多言語モデル",
         "llama_llama_3_1_8b_instruct_q4_k_m": "優れた性能を持つ強力なモデル",
-        "openai_oss_gpt_oss_20b_mxfp4": "一般消費者向けハードウェア用 OpenAI オープンウェイトモデル"
+        "openai_oss_gpt_oss_20b_mxfp4": "一般消費者向けハードウェア用 OpenAI オープンウェイトモデル",
+        "gemma_gemma_3_4b_it_q4_k_m": "Google のオープンウェイトモデル、速度と品質の優れたバランス",
+        "gemma_gemma_3_1b_it_q4_k_m": "超高速 Google モデル、短い口述のクリーンアップに最適"
       }
     }
   },
@@ -1345,7 +1371,19 @@
       "errorOccurred": "エラーが発生しました",
       "noProviderTitle": "文字起こしプロバイダーが設定されていません",
       "noProviderDescription": "API キーを追加するか、ローカルモデルをダウンロードして文字起こしを開始してください。",
-      "noProviderAction": "文字起こし設定を開く"
+      "noProviderAction": "文字起こし設定を開く",
+      "fileTooLarge": "このファイルは 500 MB の制限を超えています。",
+      "largeFileNote": "大容量ファイルは分割され、並列で文字起こしされます。",
+      "chunkProgress": "パート {{completed}} / {{total}} を文字起こし中...",
+      "paidPlanRequired": "25 MB を超えるファイルのクラウド文字起こしには有料プランが必要です。大容量ファイルは OpenWhispr Cloud で信頼性の高い高品質な結果を得られます。",
+      "byokTooLarge": "サードパーティの API キーは 25 MB までのファイルのみ対応しています。",
+      "byokTooLargeDetail": "25 MB を超えるファイルは、OpenWhispr Cloud が分割・並列処理・結合を行います。サードパーティの制限に依存せず、信頼性の高い結果が得られます。",
+      "byokTooLargeNeedsAccount": "アカウントを作成し、有料プランにアップグレードすると、OpenWhispr Cloud でより大きなファイルを文字起こしできます。",
+      "byokTooLargeNeedsUpgrade": "有料プランにアップグレードすると、OpenWhispr Cloud でより大きなファイルを文字起こしできます。",
+      "switchToCloudForLargeFiles": "このファイルを文字起こしするには OpenWhispr Cloud に切り替えてください。",
+      "createAccount": "アカウント作成",
+      "upgrade": "アップグレード",
+      "switchToCloud": "OpenWhispr Cloud"
     },
     "meeting": {
       "title": "議事録",
@@ -1520,6 +1558,7 @@
     "reasoningBanner": "GPU で AI 処理を高速化",
     "enableButton": "GPU を有効化",
     "active": "GPU アクセラレーション有効",
+    "ready": "GPUアクセラレーション準備完了",
     "activating": "GPU を有効化中...",
     "activationFailed": "GPU を有効化できませんでした",
     "retry": "再試行",
@@ -1535,7 +1574,9 @@
       "hotkeyUnavailable": {
         "title": "ホットキーが使用できません",
         "description": "選択したホットキーを登録できませんでした。設定から別のホットキーを選択してください。"
-      }
+      },
+      "addedToDict": "{{words}} を辞書に追加しました",
+      "undo": "元に戻す"
     },
     "mic": {
       "hotkeyToSpeak": "{{hotkey}} を押して話す",

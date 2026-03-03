@@ -93,7 +93,7 @@
     "updatePayment": "Aggiorna metodo di pagamento",
     "updatePaymentDescription": "Torna alle trascrizioni Pro illimitate.",
     "upgradeToPro": "Passa a Pro",
-    "upgradeDescription": "Trascrizioni illimitate. $9/mese.",
+    "upgradeDescription": "Passa a un piano a pagamento a partire da soli $8/mese.",
     "useApiKey": "Usa la tua chiave API",
     "useApiKeyDescription": "Porta la tua chiave per un uso illimitato.",
     "switchToLocal": "Passa a locale",
@@ -910,7 +910,6 @@
           "name": "Gratuito",
           "price": "$0",
           "period": "per sempre",
-          "trialNote": "Include 7 giorni gratuiti di OpenWhispr Pro",
           "features": [
             "2.000 parole/settimana",
             "Modelli IA locali",
@@ -1027,6 +1026,28 @@
       },
       "resetAppData": "Reimposta dati app",
       "resetAppDataDescription": "Elimina definitivamente tutte le impostazioni, le trascrizioni e i dati in cache"
+    },
+    "dictionary": {
+      "title": "Dizionario personalizzato",
+      "description": "Insegna all'IA il tuo vocabolario — nomi, gergo e termini che potrebbe altrimenti non riconoscere",
+      "addWordOrPhrase": "Aggiungi parola o frase",
+      "placeholder": "Aggiungi una parola o frase...",
+      "add": "Aggiungi",
+      "pressEnterToAdd": "Premi Invio per aggiungere",
+      "autoLearnTitle": "Apprendimento automatico dalle correzioni",
+      "autoLearnDescription": "Quando correggi una trascrizione nell'app di destinazione, la parola corretta viene aggiunta automaticamente al tuo dizionario.",
+      "yourWords": "Le tue parole",
+      "clearDictionaryTitle": "Svuotare il dizionario?",
+      "clearDictionaryDescription": "Verranno rimosse tutte le parole dal tuo dizionario personalizzato. Questa azione non può essere annullata.",
+      "clearAll": "Cancella tutto",
+      "agentNameAutoManaged": "Gestito automaticamente — sincronizzato con il nome dell'agente",
+      "removeWord": "Rimuovi parola",
+      "noWords": "Nessuna parola ancora",
+      "wordsAppearHere": "Le parole aggiunte appariranno qui",
+      "howItWorksTitle": "Come funziona",
+      "howItWorksDescription": "Le parole vengono fornite come suggerimenti di contesto al modello vocale, aiutandolo a riconoscere termini poco comuni. Per parole difficili, prova ad aggiungere contesto come \"The word is Synty\" insieme alla parola stessa.",
+      "tipLabel": "Suggerimento",
+      "tipDescription": "Separa più parole con le virgole. Aggiungi frasi di contesto come \"The word is Synty\" per un migliore riconoscimento."
     },
     "general": {
       "appearance": {
@@ -1188,6 +1209,7 @@
         "openai_gpt_4o_transcribe": "Trascrizione più accurata",
         "openai_whisper_1": "Modello Whisper originale",
         "groq_whisper_large_v3_turbo": "Velocità 216x in tempo reale",
+        "groq_whisper_large_v3": "Modello Large v3, veloce e preciso",
         "mistral_voxtral_mini_latest": "Trascrizione multilingue veloce"
       },
       "cloud": {
@@ -1208,8 +1230,10 @@
         "groq_openai_gpt_oss_20b": "Modello open source veloce, 1000 T/sec",
         "groq_llama_3_3_70b_versatile": "Modello versatile di Meta, 280 T/sec",
         "groq_llama_3_1_8b_instant": "Ultra-veloce 560 T/sec, contesto 131K",
-        "groq_mixtral_8x7b_32768": "Contesto 32K, miscela di esperti",
-        "groq_gemma2_9b_it": "Modello efficiente di Google"
+        "groq_llama_4_scout": "Multimodale efficiente di Meta, 750 T/sec",
+        "groq_compound": "Sistema compound di Groq, 450 T/sec",
+        "groq_compound_mini": "Sistema compound veloce, 3x latenza ridotta",
+        "groq_kimi_k2_0905": "Moonshot AI 1T MoE, contesto 256K"
       },
       "local": {
         "qwen_qwen3_8b_q4_k_m": "Ultimo Qwen3 con supporto alla modalità pensiero",
@@ -1228,7 +1252,9 @@
         "llama_llama_3_2_1b_instruct_q4_k_m": "Modello minuscolo per dispositivi edge",
         "llama_llama_3_2_3b_instruct_q4_k_m": "Modello multilingue piccolo ma capace",
         "llama_llama_3_1_8b_instruct_q4_k_m": "Modello potente con ottime prestazioni",
-        "openai_oss_gpt_oss_20b_mxfp4": "Modello open-weight di OpenAI per hardware consumer"
+        "openai_oss_gpt_oss_20b_mxfp4": "Modello open-weight di OpenAI per hardware consumer",
+        "gemma_gemma_3_4b_it_q4_k_m": "Modello open-weight di Google, ottimo equilibrio tra velocità e qualità",
+        "gemma_gemma_3_1b_it_q4_k_m": "Modello Google ultraveloce, ideale per la pulizia di brevi dettature"
       }
     }
   },
@@ -1370,7 +1396,19 @@
       "errorOccurred": "Si è verificato un errore",
       "noProviderTitle": "Nessun provider di trascrizione configurato",
       "noProviderDescription": "Aggiungi una chiave API o scarica un modello locale per iniziare a trascrivere.",
-      "noProviderAction": "Apri impostazioni di trascrizione"
+      "noProviderAction": "Apri impostazioni di trascrizione",
+      "fileTooLarge": "Questo file supera il limite di 500 MB.",
+      "largeFileNote": "I file di grandi dimensioni vengono suddivisi e trascritti in parallelo.",
+      "chunkProgress": "Trascrizione parte {{completed}} di {{total}}...",
+      "paidPlanRequired": "La trascrizione cloud per file superiori a 25 MB richiede un piano a pagamento. I file di grandi dimensioni vengono elaborati con OpenWhispr Cloud per risultati affidabili e di alta qualità.",
+      "byokTooLarge": "Le chiavi API di terze parti supportano solo file fino a 25 MB.",
+      "byokTooLargeDetail": "Per file superiori a 25 MB, OpenWhispr Cloud gestisce la suddivisione, l'elaborazione parallela e il riassemblaggio — per risultati affidabili senza dipendere dai limiti dei provider di terze parti.",
+      "byokTooLargeNeedsAccount": "Crea un account e passa a un piano a pagamento per trascrivere file più grandi con OpenWhispr Cloud.",
+      "byokTooLargeNeedsUpgrade": "Passa a un piano a pagamento per trascrivere file più grandi con OpenWhispr Cloud.",
+      "switchToCloudForLargeFiles": "Passa a OpenWhispr Cloud per trascrivere questo file.",
+      "createAccount": "Crea account",
+      "upgrade": "Aggiorna",
+      "switchToCloud": "OpenWhispr Cloud"
     },
     "meeting": {
       "title": "Note delle riunioni",
@@ -1524,6 +1562,7 @@
     "reasoningBanner": "Velocizza l'elaborazione IA con la GPU",
     "enableButton": "Attiva GPU",
     "active": "Accelerazione GPU attiva",
+    "ready": "Accelerazione GPU pronta",
     "activating": "Attivazione GPU...",
     "activationFailed": "Impossibile attivare la GPU",
     "retry": "Riprova",
@@ -1539,7 +1578,9 @@
       "hotkeyUnavailable": {
         "title": "Scorciatoia non disponibile",
         "description": "Non è stato possibile registrare la scorciatoia selezionata. Scegline un’altra nelle impostazioni."
-      }
+      },
+      "addedToDict": "{{words}} aggiunto al tuo dizionario",
+      "undo": "Annulla"
     },
     "mic": {
       "hotkeyToSpeak": "Premi {{hotkey}} per parlare",

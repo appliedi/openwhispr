@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Ensures the Windows key listener binary is available.
+ * Ensures the Windows text monitor binary is available.
  *
  * Strategy:
  * 1. If binary exists and is up-to-date, do nothing
@@ -16,17 +16,16 @@ const path = require("path");
 
 const isWindows = process.platform === "win32";
 if (!isWindows) {
-  // Only needed on Windows
   process.exit(0);
 }
 
 const projectRoot = path.resolve(__dirname, "..");
-const cSource = path.join(projectRoot, "resources", "windows-key-listener.c");
+const cSource = path.join(projectRoot, "resources", "windows-text-monitor.c");
 const outputDir = path.join(projectRoot, "resources", "bin");
-const outputBinary = path.join(outputDir, "windows-key-listener.exe");
+const outputBinary = path.join(outputDir, "windows-text-monitor.exe");
 
 function log(message) {
-  console.log(`[windows-key-listener] ${message}`);
+  console.log(`[windows-text-monitor] ${message}`);
 }
 
 function ensureDir(dirPath) {
@@ -35,13 +34,11 @@ function ensureDir(dirPath) {
   }
 }
 
-// Check if binary exists and is up-to-date
 function isBinaryUpToDate() {
   if (!fs.existsSync(outputBinary)) {
     return false;
   }
 
-  // If source doesn't exist, can't check if rebuild needed - assume binary is good
   if (!fs.existsSync(cSource)) {
     return true;
   }
@@ -55,11 +52,10 @@ function isBinaryUpToDate() {
   }
 }
 
-// Try to download prebuilt binary
 async function tryDownload() {
   log("Attempting to download prebuilt binary...");
 
-  const downloadScript = path.join(__dirname, "download-windows-key-listener.js");
+  const downloadScript = path.join(__dirname, "download-text-monitor.js");
   if (!fs.existsSync(downloadScript)) {
     log("Download script not found, skipping download");
     return false;
@@ -79,17 +75,10 @@ async function tryDownload() {
   return false;
 }
 
-/**
- * Quote a path for use in shell commands on Windows.
- * @param {string} p - Path to quote
- * @returns {string} - Quoted path safe for shell use
- */
 function quotePath(p) {
-  // Use double quotes and escape any existing quotes
   return `"${p.replace(/"/g, '\\"')}"`;
 }
 
-// Try to compile locally
 function tryCompile() {
   if (!fs.existsSync(cSource)) {
     log("C source not found, cannot compile locally");
@@ -98,39 +87,33 @@ function tryCompile() {
 
   log("Attempting local compilation...");
 
-  // For MSVC, we need to use a command string because /Fe: doesn't work well with spawn args
-  // For GCC/Clang, we can use shell: false with proper args array
   const compilers = [
-    // MSVC (Visual Studio) - uses command string due to /Fe: syntax
     {
       name: "MSVC",
       check: { command: "cl", args: [] },
       useShell: true,
       getCommand: () =>
-        `cl /O2 /nologo ${quotePath(cSource)} /Fe:${quotePath(outputBinary)} user32.lib`,
+        `cl /O2 /nologo ${quotePath(cSource)} /Fe:${quotePath(outputBinary)} ole32.lib oleaut32.lib`,
     },
-    // MinGW-w64 - can use shell: false
     {
       name: "MinGW-w64",
       check: { command: "gcc", args: ["--version"] },
       useShell: false,
       command: "gcc",
-      args: ["-O2", "-mwindows", cSource, "-o", outputBinary, "-luser32"],
+      args: ["-O2", cSource, "-o", outputBinary, "-lole32", "-loleaut32", "-luuid"],
     },
-    // Clang (LLVM) - can use shell: false
     {
       name: "Clang",
       check: { command: "clang", args: ["--version"] },
       useShell: false,
       command: "clang",
-      args: ["-O2", cSource, "-o", outputBinary, "-luser32"],
+      args: ["-O2", cSource, "-o", outputBinary, "-lole32", "-loleaut32", "-luuid"],
     },
   ];
 
   for (const compiler of compilers) {
     log(`Trying ${compiler.name}...`);
 
-    // Check if compiler is available
     const checkResult = spawnSync(compiler.check.command, compiler.check.args, {
       stdio: "pipe",
       shell: true,
@@ -173,13 +156,11 @@ function tryCompile() {
 async function main() {
   ensureDir(outputDir);
 
-  // Check if rebuild is needed
   if (isBinaryUpToDate()) {
     log("Binary is up to date, skipping build");
     return;
   }
 
-  // Try download first, then compile
   const downloaded = await tryDownload();
   if (downloaded) {
     return;
@@ -190,15 +171,15 @@ async function main() {
     return;
   }
 
-  // Neither worked - warn but don't fail
-  console.warn("[windows-key-listener] Could not obtain Windows key listener binary.");
-  console.warn("[windows-key-listener] Push-to-Talk on Windows will use fallback mode.");
+  console.warn("[windows-text-monitor] Could not obtain Windows text monitor binary.");
   console.warn(
-    "[windows-key-listener] To compile locally, install Visual Studio Build Tools or MinGW-w64."
+    "[windows-text-monitor] Auto-learn correction monitoring will be disabled on Windows."
+  );
+  console.warn(
+    "[windows-text-monitor] To compile locally, install Visual Studio Build Tools or MinGW-w64."
   );
 }
 
 main().catch((error) => {
-  console.error("[windows-key-listener] Unexpected error:", error);
-  // Don't fail the build
+  console.error("[windows-text-monitor] Unexpected error:", error);
 });

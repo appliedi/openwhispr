@@ -289,6 +289,10 @@ declare global {
       // Dictionary operations
       getDictionary: () => Promise<string[]>;
       setDictionary: (words: string[]) => Promise<{ success: boolean }>;
+      onDictionaryUpdated?: (callback: (words: string[]) => void) => () => void;
+      setAutoLearnEnabled?: (enabled: boolean) => void;
+      onCorrectionsLearned?: (callback: (words: string[]) => void) => () => void;
+      undoLearnedCorrections?: (words: string[]) => Promise<{ success: boolean }>;
 
       // Note operations
       saveNote: (
@@ -362,6 +366,7 @@ declare global {
 
       // Audio file operations
       selectAudioFile: () => Promise<{ canceled: boolean; filePath?: string }>;
+      getFileSize?: (filePath: string) => Promise<number>;
       transcribeAudioFile: (
         filePath: string,
         options?: {
@@ -769,6 +774,10 @@ declare global {
         error?: string;
         code?: string;
       }>;
+
+      onUploadTranscriptionProgress?: (
+        callback: (data: { stage: string; chunksTotal: number; chunksCompleted: number }) => void
+      ) => () => void;
 
       // BYOK audio file transcription
       transcribeAudioFileByok?: (options: {

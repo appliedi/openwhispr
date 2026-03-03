@@ -93,7 +93,7 @@
     "updatePayment": "Update payment method",
     "updatePaymentDescription": "Get back to unlimited Pro transcriptions.",
     "upgradeToPro": "Upgrade to Pro",
-    "upgradeDescription": "Unlimited transcriptions. $9/month.",
+    "upgradeDescription": "Upgrade to a paid plan from as little as $8/month.",
     "useApiKey": "Use your own API key",
     "useApiKeyDescription": "Bring your own key for unlimited use.",
     "switchToLocal": "Switch to local",
@@ -921,7 +921,6 @@
           "name": "Free",
           "price": "$0",
           "period": "forever",
-          "trialNote": "Includes 7 days free of OpenWhispr Pro",
           "features": [
             "2,000 words/week",
             "Local AI models",
@@ -1054,6 +1053,28 @@
       },
       "resetAppData": "Reset app data",
       "resetAppDataDescription": "Permanently delete all settings, transcriptions, and cached data"
+    },
+    "dictionary": {
+      "title": "Custom Dictionary",
+      "description": "Teach the AI your vocabulary — names, jargon, and terms it might otherwise miss",
+      "addWordOrPhrase": "Add word or phrase",
+      "placeholder": "Add a word or phrase...",
+      "add": "Add",
+      "pressEnterToAdd": "Press Enter to add",
+      "autoLearnTitle": "Auto-learn from corrections",
+      "autoLearnDescription": "When you correct a transcription in the target app, the corrected word is automatically added to your dictionary.",
+      "yourWords": "Your words",
+      "clearDictionaryTitle": "Clear dictionary?",
+      "clearDictionaryDescription": "This will remove all words from your custom dictionary. This action cannot be undone.",
+      "clearAll": "Clear all",
+      "agentNameAutoManaged": "Auto-managed — synced from agent name",
+      "removeWord": "Remove word",
+      "noWords": "No words yet",
+      "wordsAppearHere": "Words you add will appear here",
+      "howItWorksTitle": "How it works",
+      "howItWorksDescription": "Words are fed as context hints to the speech model, helping it recognize uncommon terms. For difficult words, try adding context like \"The word is Synty\" alongside the word itself.",
+      "tipLabel": "Tip",
+      "tipDescription": "Separate multiple words with commas. Add context phrases like \"The word is Synty\" for better recognition."
     },
     "general": {
       "appearance": {
@@ -1214,6 +1235,7 @@
         "openai_gpt_4o_mini_transcribe": "Fast and accurate transcription",
         "openai_gpt_4o_transcribe": "Most accurate transcription",
         "openai_whisper_1": "Original Whisper model",
+        "groq_whisper_large_v3": "High accuracy speech recognition",
         "groq_whisper_large_v3_turbo": "216x real-time speed",
         "mistral_voxtral_mini_latest": "Fast multilingual transcription"
       },
@@ -1235,8 +1257,10 @@
         "groq_openai_gpt_oss_20b": "Fast open-source model, 1000 T/sec",
         "groq_llama_3_3_70b_versatile": "Meta's versatile model, 280 T/sec",
         "groq_llama_3_1_8b_instant": "Ultra-fast 560 T/sec, 131K context",
-        "groq_mixtral_8x7b_32768": "32K context, mixture of experts",
-        "groq_gemma2_9b_it": "Google's efficient model"
+        "groq_llama_4_scout": "Meta's efficient multimodal, 750 T/sec",
+        "groq_compound": "Groq's compound system, 450 T/sec",
+        "groq_compound_mini": "Fast compound system, 3x lower latency",
+        "groq_kimi_k2_0905": "Moonshot AI's 1T MoE, 256K context"
       },
       "local": {
         "qwen_qwen3_8b_q4_k_m": "Latest Qwen3 with thinking mode support",
@@ -1255,7 +1279,9 @@
         "llama_llama_3_2_1b_instruct_q4_k_m": "Tiny model for edge devices",
         "llama_llama_3_2_3b_instruct_q4_k_m": "Small but capable multilingual model",
         "llama_llama_3_1_8b_instruct_q4_k_m": "Powerful model with great performance",
-        "openai_oss_gpt_oss_20b_mxfp4": "OpenAI's open-weight model for consumer hardware"
+        "openai_oss_gpt_oss_20b_mxfp4": "OpenAI's open-weight model for consumer hardware",
+        "gemma_gemma_3_4b_it_q4_k_m": "Google's open-weight model, great balance of speed and quality",
+        "gemma_gemma_3_1b_it_q4_k_m": "Ultra-fast Google model, best for short dictation cleanup"
       }
     }
   },
@@ -1434,7 +1460,19 @@
       "errorOccurred": "An error occurred",
       "noProviderTitle": "No transcription provider set up",
       "noProviderDescription": "Add an API key or download a local model to start transcribing.",
-      "noProviderAction": "Open Transcription Settings"
+      "noProviderAction": "Open Transcription Settings",
+      "fileTooLarge": "This file exceeds the 500 MB limit.",
+      "paidPlanRequired": "Cloud transcription for files over 25 MB requires a paid plan. Large files are processed with OpenWhispr Cloud for reliable, high-quality results.",
+      "largeFileNote": "Large files are split and transcribed in parallel.",
+      "chunkProgress": "Transcribing part {{completed}} of {{total}}...",
+      "byokTooLarge": "Third-party API keys only support files up to 25 MB.",
+      "byokTooLargeDetail": "For files over 25 MB, OpenWhispr Cloud handles splitting, parallel processing, and reassembly — so you get reliable results without depending on third-party provider limits.",
+      "byokTooLargeNeedsAccount": "Create an account and upgrade to a paid plan to transcribe larger files with OpenWhispr Cloud.",
+      "byokTooLargeNeedsUpgrade": "Upgrade to a paid plan to transcribe larger files with OpenWhispr Cloud.",
+      "switchToCloudForLargeFiles": "Switch to OpenWhispr Cloud to transcribe this file.",
+      "createAccount": "Create Account",
+      "upgrade": "Upgrade",
+      "switchToCloud": "OpenWhispr Cloud"
     },
     "meeting": {
       "title": "Meeting Notes",
@@ -1551,6 +1589,7 @@
     "reasoningBanner": "Speed up AI processing with GPU acceleration",
     "enableButton": "Enable GPU",
     "active": "GPU acceleration active",
+    "ready": "GPU acceleration ready",
     "activating": "Activating GPU...",
     "activationFailed": "GPU could not be activated",
     "retry": "Retry",
@@ -1566,7 +1605,9 @@
       "hotkeyUnavailable": {
         "title": "Hotkey unavailable",
         "description": "The selected hotkey could not be registered. Please choose a different one in settings."
-      }
+      },
+      "addedToDict": "Added {{words}} to your dictionary",
+      "undo": "Undo"
     },
     "mic": {
       "hotkeyToSpeak": "Press {{hotkey}} to speak",

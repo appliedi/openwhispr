@@ -13,6 +13,9 @@ const OpenAIRealtimeStreaming = require("./openaiRealtimeStreaming");
 
 const MISTRAL_TRANSCRIPTION_URL = "https://api.mistral.ai/v1/audio/transcriptions";
 
+// Debounce delay: wait for user to stop typing before processing corrections
+const AUTO_LEARN_DEBOUNCE_MS = 1500;
+
 const AUDIO_MIME_TYPES = {
   mp3: "audio/mpeg",
   wav: "audio/wav",
@@ -94,6 +97,7 @@ class IPCHandlers {
     this.windowManager = managers.windowManager;
     this.updateManager = managers.updateManager;
     this.windowsKeyManager = managers.windowsKeyManager;
+    this.textEditMonitor = managers.textEditMonitor;
     this.getTrayManager = managers.getTrayManager;
     this.whisperCudaManager = managers.whisperCudaManager;
     this.googleCalendarManager = managers.googleCalendarManager;
@@ -102,12 +106,113 @@ class IPCHandlers {
     this.assemblyAiStreaming = null;
     this.deepgramStreaming = null;
     this.openaiRealtimeStreaming = null;
+    this._autoLearnEnabled = true; // Default on, synced from renderer
+    this._autoLearnDebounceTimer = null;
+    this._autoLearnLatestData = null;
+    this._textEditHandler = null;
+    this._setupTextEditMonitor();
     this.setupHandlers();
 
     if (this.whisperManager?.serverManager) {
       this.whisperManager.serverManager.on("cuda-fallback", () => {
         this.broadcastToWindows("cuda-fallback-notification", {});
       });
+    }
+  }
+
+  _getDictionarySafe() {
+    try {
+      return this.databaseManager.getDictionary();
+    } catch {
+      return [];
+    }
+  }
+
+  _cleanupTextEditMonitor() {
+    if (this._autoLearnDebounceTimer) {
+      clearTimeout(this._autoLearnDebounceTimer);
+      this._autoLearnDebounceTimer = null;
+    }
+    this._autoLearnLatestData = null;
+    if (this.textEditMonitor && this._textEditHandler) {
+      this.textEditMonitor.removeListener("text-edited", this._textEditHandler);
+      this._textEditHandler = null;
+    }
+  }
+
+  _setupTextEditMonitor() {
+    if (!this.textEditMonitor) return;
+
+    this._textEditHandler = (data) => {
+      if (
+        !data ||
+        typeof data.originalText !== "string" ||
+        typeof data.newFieldValue !== "string"
+      ) {
+        debugLogger.debug("[AutoLearn] Invalid event payload, skipping");
+        return;
+      }
+
+      const { originalText, newFieldValue } = data;
+
+      debugLogger.debug("[AutoLearn] text-edited event", {
+        originalPreview: originalText.substring(0, 80),
+        newValuePreview: newFieldValue.substring(0, 80),
+      });
+
+      this._autoLearnLatestData = { originalText, newFieldValue };
+
+      if (this._autoLearnDebounceTimer) {
+        clearTimeout(this._autoLearnDebounceTimer);
+      }
+
+      this._autoLearnDebounceTimer = setTimeout(() => {
+        this._processCorrections();
+      }, AUTO_LEARN_DEBOUNCE_MS);
+    };
+
+    this.textEditMonitor.on("text-edited", this._textEditHandler);
+  }
+
+  _processCorrections() {
+    this._autoLearnDebounceTimer = null;
+    if (!this._autoLearnLatestData) return;
+    if (!this._autoLearnEnabled) {
+      debugLogger.debug("[AutoLearn] Disabled, skipping correction processing");
+      this._autoLearnLatestData = null;
+      return;
+    }
+
+    const { originalText, newFieldValue } = this._autoLearnLatestData;
+    this._autoLearnLatestData = null;
+
+    try {
+      const { extractCorrections } = require("../utils/correctionLearner");
+      const currentDict = this._getDictionarySafe();
+      const corrections = extractCorrections(originalText, newFieldValue, currentDict);
+      debugLogger.debug("[AutoLearn] Corrections result", {
+        corrections,
+        dictSize: currentDict.length,
+      });
+
+      if (corrections.length > 0) {
+        const updatedDict = [...currentDict, ...corrections];
+        const saveResult = this.databaseManager.setDictionary(updatedDict);
+
+        if (saveResult?.success === false) {
+          debugLogger.debug("[AutoLearn] Failed to save dictionary", { error: saveResult.error });
+          return;
+        }
+
+        this.broadcastToWindows("dictionary-updated", updatedDict);
+
+        // Show the overlay so the toast is visible (it may have been hidden after dictation)
+        this.windowManager.showDictationPanel();
+        this.broadcastToWindows("corrections-learned", corrections);
+        debugLogger.debug("[AutoLearn] Saved corrections", { corrections });
+      }
+    } catch (error) {
+      debugLogger.debug("[AutoLearn] Error processing corrections", { error: error.message });
     }
   }
 
@@ -245,6 +350,19 @@ class IPCHandlers {
       return result;
     });
 
+    // Dictionary handlers
+    ipcMain.on("auto-learn-changed", (_event, enabled) => {
+      this._autoLearnEnabled = !!enabled;
+      if (!this._autoLearnEnabled) {
+        if (this._autoLearnDebounceTimer) {
+          clearTimeout(this._autoLearnDebounceTimer);
+          this._autoLearnDebounceTimer = null;
+        }
+        this._autoLearnLatestData = null;
+      }
+      debugLogger.debug("[AutoLearn] Setting changed", { enabled: this._autoLearnEnabled });
+    });
+
     ipcMain.handle("db-get-dictionary", async () => {
       return this.databaseManager.getDictionary();
     });
@@ -254,6 +372,34 @@ class IPCHandlers {
         throw new Error("words must be an array");
       }
       return this.databaseManager.setDictionary(words);
+    });
+
+    ipcMain.handle("undo-learned-corrections", async (_event, words) => {
+      try {
+        if (!Array.isArray(words) || words.length === 0) {
+          return { success: false };
+        }
+        const validWords = words.filter((w) => typeof w === "string" && w.trim().length > 0);
+        if (validWords.length === 0) {
+          return { success: false };
+        }
+        const currentDict = this._getDictionarySafe();
+        const removeSet = new Set(validWords.map((w) => w.toLowerCase()));
+        const updatedDict = currentDict.filter((w) => !removeSet.has(w.toLowerCase()));
+        const saveResult = this.databaseManager.setDictionary(updatedDict);
+        if (saveResult?.success === false) {
+          debugLogger.debug("[AutoLearn] Undo failed to save dictionary", {
+            error: saveResult.error,
+          });
+          return { success: false };
+        }
+        this.broadcastToWindows("dictionary-updated", updatedDict);
+        debugLogger.debug("[AutoLearn] Undo: removed words", { words: validWords });
+        return { success: true };
+      } catch (err) {
+        debugLogger.debug("[AutoLearn] Undo failed", { error: err.message });
+        return { success: false };
+      }
     });
 
     ipcMain.handle(
@@ -435,6 +581,16 @@ class IPCHandlers {
       return { canceled: false, filePath: result.filePaths[0] };
     });
 
+    ipcMain.handle("get-file-size", async (_event, filePath) => {
+      const fs = require("fs");
+      try {
+        const stats = fs.statSync(filePath);
+        return stats.size;
+      } catch {
+        return 0;
+      }
+    });
+
     ipcMain.handle("transcribe-audio-file", async (event, filePath, options = {}) => {
       const fs = require("fs");
       try {
@@ -467,7 +623,29 @@ class IPCHandlers {
           await new Promise((resolve) => setTimeout(resolve, 80));
         }
       }
-      return this.clipboardManager.pasteText(text, { ...options, webContents: event.sender });
+      const result = await this.clipboardManager.pasteText(text, {
+        ...options,
+        webContents: event.sender,
+      });
+      const targetPid = this.textEditMonitor?.lastTargetPid || null;
+      debugLogger.debug("[AutoLearn] Paste completed", {
+        autoLearnEnabled: this._autoLearnEnabled,
+        hasMonitor: !!this.textEditMonitor,
+        targetPid,
+      });
+      if (this.textEditMonitor && this._autoLearnEnabled) {
+        setTimeout(() => {
+          try {
+            debugLogger.debug("[AutoLearn] Starting monitoring", {
+              textPreview: text.substring(0, 80),
+            });
+            this.textEditMonitor.startMonitoring(text, 30000, { targetPid });
+          } catch (err) {
+            debugLogger.debug("[AutoLearn] Failed to start monitoring", { error: err.message });
+          }
+        }, 500);
+      }
+      return result;
     });
 
     ipcMain.handle("check-accessibility-permission", async () => {
@@ -826,10 +1004,14 @@ class IPCHandlers {
       // When exiting capture mode with a new hotkey, use that to avoid reading stale state
       const effectiveHotkey = !enabled && newHotkey ? newHotkey : hotkeyManager.getCurrentHotkey();
 
-      const { isModifierOnlyHotkey, isRightSideModifier } = require("./hotkeyManager");
+      const {
+        isGlobeLikeHotkey,
+        isModifierOnlyHotkey,
+        isRightSideModifier,
+      } = require("./hotkeyManager");
       const usesNativeListener = (hotkey) =>
         !hotkey ||
-        hotkey === "GLOBE" ||
+        isGlobeLikeHotkey(hotkey) ||
         isModifierOnlyHotkey(hotkey) ||
         isRightSideModifier(hotkey);
 
@@ -885,7 +1067,7 @@ class IPCHandlers {
           );
           const needsListener =
             effectiveHotkey &&
-            effectiveHotkey !== "GLOBE" &&
+            !isGlobeLikeHotkey(effectiveHotkey) &&
             (activationMode === "push" || isModifierOnlyHotkey(effectiveHotkey));
           if (needsListener) {
             debugLogger.log(`[IPC] Restarting Windows key listener for hotkey: ${effectiveHotkey}`);
@@ -1395,8 +1577,15 @@ class IPCHandlers {
     ipcMain.handle("llama-gpu-reset", async () => {
       try {
         const modelManager = require("./modelManagerBridge").default;
+        const previousModelId = modelManager.currentServerModelId;
         modelManager.serverManager.resetGpuDetection();
         await modelManager.stopServer();
+
+        // Restart server with previous model so Vulkan binary is picked up
+        if (previousModelId) {
+          modelManager.prewarmServer(previousModelId).catch(() => {});
+        }
+
         return { success: true };
       } catch (error) {
         return { success: false, error: error.message };
@@ -2085,12 +2274,138 @@ class IPCHandlers {
 
     ipcMain.handle("transcribe-audio-file-cloud", async (event, filePath) => {
       const fs = require("fs");
+      const os = require("os");
+      const { splitAudioFile } = require("./ffmpegUtils");
+      const FILE_SIZE_LIMIT = 25 * 1024 * 1024;
+      const CONCURRENCY_LIMIT = 5;
       try {
         const apiUrl = getApiUrl();
         if (!apiUrl) throw new Error("OpenWhispr API URL not configured");
 
         const cookieHeader = await getSessionCookies(event);
         if (!cookieHeader) throw new Error("No session cookies available");
+
+        const fileSize = fs.statSync(filePath).size;
+
+        if (fileSize > FILE_SIZE_LIMIT) {
+          debugLogger.debug("Large file detected, using client-side chunking", {
+            fileSize,
+            filePath: path.basename(filePath),
+          });
+
+          const chunkDir = path.join(os.tmpdir(), `ow-chunks-${Date.now()}`);
+          fs.mkdirSync(chunkDir, { recursive: true });
+
+          try {
+            event.sender.send("upload-transcription-progress", {
+              stage: "splitting",
+              chunksTotal: 0,
+              chunksCompleted: 0,
+            });
+
+            const chunkPaths = await splitAudioFile(filePath, chunkDir, {
+              segmentDuration: 240, // ~3.75 MB/chunk, under Vercel's 4.5 MB payload limit
+            });
+            const totalChunks = chunkPaths.length;
+
+            debugLogger.debug("Audio split into chunks", { totalChunks });
+
+            event.sender.send("upload-transcription-progress", {
+              stage: "transcribing",
+              chunksTotal: totalChunks,
+              chunksCompleted: 0,
+            });
+
+            const results = new Array(totalChunks).fill(null);
+            let completedCount = 0;
+
+            const transcribeChunk = async (index) => {
+              const chunkBuffer = fs.readFileSync(chunkPaths[index]);
+              const chunkName = path.basename(chunkPaths[index]);
+
+              const { body, boundary } = buildMultipartBody(chunkBuffer, chunkName, "audio/mpeg", {
+                source: "file_upload",
+                clientType: "desktop",
+                appVersion: app.getVersion(),
+                clientVersion: app.getVersion(),
+                sessionId: this.sessionId,
+              });
+
+              const url = new URL(`${apiUrl}/api/transcribe`);
+              const data = await postMultipart(url, body, boundary, { Cookie: cookieHeader });
+
+              if (data.statusCode === 401) {
+                throw Object.assign(new Error("Session expired"), { code: "AUTH_EXPIRED" });
+              }
+              if (data.statusCode === 429) {
+                throw Object.assign(new Error("Daily word limit reached"), {
+                  code: "LIMIT_REACHED",
+                  ...data.data,
+                });
+              }
+              if (data.statusCode !== 200) {
+                throw new Error(data.data?.error || `API error: ${data.statusCode}`);
+              }
+
+              results[index] = data.data;
+              completedCount++;
+
+              event.sender.send("upload-transcription-progress", {
+                stage: "transcribing",
+                chunksTotal: totalChunks,
+                chunksCompleted: completedCount,
+              });
+            };
+
+            const indices = Array.from({ length: totalChunks }, (_, i) => i);
+            const executing = new Set();
+
+            for (const index of indices) {
+              const p = transcribeChunk(index).then(
+                () => executing.delete(p),
+                (err) => {
+                  executing.delete(p);
+                  if (err.code === "AUTH_EXPIRED" || err.code === "LIMIT_REACHED") throw err;
+                  debugLogger.warn(`Chunk ${index} failed`, { error: err.message });
+                }
+              );
+              executing.add(p);
+              if (executing.size >= CONCURRENCY_LIMIT) {
+                await Promise.race(executing);
+              }
+            }
+            await Promise.all(executing);
+
+            const succeeded = results.filter((r) => r !== null);
+            if (succeeded.length === 0) {
+              throw new Error("All chunks failed to transcribe");
+            }
+
+            const fullText = results
+              .filter((r) => r !== null)
+              .map((r) => r.text)
+              .join(" ")
+              .replace(/\s+/g, " ")
+              .trim();
+
+            const failed = results.filter((r) => r === null).length;
+            if (failed > 0) {
+              debugLogger.warn("Some chunks failed", { failed, total: totalChunks });
+            }
+
+            return {
+              success: true,
+              text: fullText,
+              ...(failed > 0 ? { warning: `${failed} of ${totalChunks} chunks failed` } : {}),
+            };
+          } finally {
+            try {
+              fs.rmSync(chunkDir, { recursive: true, force: true });
+            } catch (cleanupErr) {
+              debugLogger.warn("Failed to cleanup chunk dir", { error: cleanupErr.message });
+            }
+          }
+        }
 
         const audioBuffer = fs.readFileSync(filePath);
         const ext = path.extname(filePath).toLowerCase().replace(".", "");
@@ -2126,6 +2441,9 @@ class IPCHandlers {
         return { success: true, text: data.data.text };
       } catch (error) {
         debugLogger.error("Cloud audio file transcription error", { error: error.message });
+        if (error.code === "AUTH_EXPIRED" || error.code === "LIMIT_REACHED") {
+          return { success: false, error: error.message, code: error.code, ...error };
+        }
         return { success: false, error: error.message };
       }
     });
@@ -2134,9 +2452,18 @@ class IPCHandlers {
       "transcribe-audio-file-byok",
       async (event, { filePath, apiKey, baseUrl, model }) => {
         const fs = require("fs");
+        const BYOK_FILE_SIZE_LIMIT = 25 * 1024 * 1024; // 25 MB
         try {
           if (!apiKey) throw new Error("No API key configured. Add your key in Settings.");
           if (!baseUrl) throw new Error("No transcription endpoint configured.");
+
+          const fileSize = fs.statSync(filePath).size;
+          if (fileSize > BYOK_FILE_SIZE_LIMIT) {
+            return {
+              success: false,
+              error: "File too large. Maximum size for bring-your-own-key is 25 MB.",
+            };
+          }
 
           const audioBuffer = fs.readFileSync(filePath);
           const ext = path.extname(filePath).toLowerCase().replace(".", "");

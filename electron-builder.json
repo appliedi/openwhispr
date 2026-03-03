@@ -88,7 +88,9 @@
     "resources/bin/macos-globe-listener",
     "resources/bin/macos-fast-paste",
     "resources/bin/macos-mic-check",
+    "resources/bin/macos-text-monitor",
     "resources/bin/linux-fast-paste",
+    "resources/bin/linux-text-monitor",
     {
       "from": "resources/bin/",
       "to": "bin/",
@@ -98,6 +100,7 @@
         "llama-server-*",
         "sherpa-onnx-*",
         "windows-key-listener*",
+        "windows-text-monitor*",
         "windows-fast-paste*",
         "*.dylib",
         "*.dll",
@@ -158,6 +161,7 @@
   },
   "deb": {
     "afterRemove": "resources/linux/after-remove.sh",
+    "depends": ["ydotool"],
     "fpm": [
       "--deb-suggests",
       "xdotool",
@@ -169,6 +173,8 @@
   },
   "rpm": {
     "fpm": [
+      "--rpm-tag",
+      "Requires: ydotool",
       "--rpm-tag",
       "Suggests: xdotool",
       "--rpm-tag",

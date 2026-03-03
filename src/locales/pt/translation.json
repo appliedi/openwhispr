@@ -882,7 +882,6 @@
           "name": "Grátis",
           "price": "$0",
           "period": "para sempre",
-          "trialNote": "Inclui 7 dias grátis de OpenWhispr Pro",
           "features": [
             "2.000 palavras/semana",
             "Modelos de IA locais",
@@ -999,6 +998,28 @@
       },
       "resetAppData": "Redefinir dados do app",
       "resetAppDataDescription": "Excluir permanentemente todas as configurações, transcrições e dados em cache"
+    },
+    "dictionary": {
+      "title": "Dicionário personalizado",
+      "description": "Ensine à IA o seu vocabulário — nomes, jargões e termos que ela poderia não reconhecer",
+      "addWordOrPhrase": "Adicionar palavra ou frase",
+      "placeholder": "Adicionar uma palavra ou frase...",
+      "add": "Adicionar",
+      "pressEnterToAdd": "Pressione Enter para adicionar",
+      "autoLearnTitle": "Aprender automaticamente com correções",
+      "autoLearnDescription": "Quando você corrige uma transcrição no aplicativo de destino, a palavra corrigida é adicionada automaticamente ao seu dicionário.",
+      "yourWords": "Suas palavras",
+      "clearDictionaryTitle": "Limpar dicionário?",
+      "clearDictionaryDescription": "Isso removerá todas as palavras do seu dicionário personalizado. Esta ação não pode ser desfeita.",
+      "clearAll": "Limpar tudo",
+      "agentNameAutoManaged": "Gerenciado automaticamente — sincronizado com o nome do agente",
+      "removeWord": "Remover palavra",
+      "noWords": "Nenhuma palavra ainda",
+      "wordsAppearHere": "Palavras que você adicionar aparecerão aqui",
+      "howItWorksTitle": "Como funciona",
+      "howItWorksDescription": "As palavras são fornecidas como dicas de contexto ao modelo de fala, ajudando-o a reconhecer termos incomuns. Para palavras difíceis, tente adicionar contexto como \"The word is Synty\" junto com a própria palavra.",
+      "tipLabel": "Dica",
+      "tipDescription": "Separe várias palavras com vírgulas. Adicione frases de contexto como \"The word is Synty\" para melhor reconhecimento."
     },
     "general": {
       "appearance": {
@@ -1160,6 +1181,7 @@
         "openai_gpt_4o_transcribe": "Transcrição mais precisa",
         "openai_whisper_1": "Modelo Whisper original",
         "groq_whisper_large_v3_turbo": "Velocidade 216x em tempo real",
+        "groq_whisper_large_v3": "Modelo Large v3, rápido e preciso",
         "mistral_voxtral_mini_latest": "Transcrição multilíngue rápida"
       },
       "cloud": {
@@ -1180,8 +1202,10 @@
         "groq_openai_gpt_oss_20b": "Modelo open source rápido, 1000 T/seg",
         "groq_llama_3_3_70b_versatile": "Modelo versátil da Meta, 280 T/seg",
         "groq_llama_3_1_8b_instant": "Ultrarápido 560 T/seg, contexto de 131K",
-        "groq_mixtral_8x7b_32768": "Contexto de 32K, mistura de especialistas",
-        "groq_gemma2_9b_it": "Modelo eficiente do Google"
+        "groq_llama_4_scout": "Multimodal eficiente da Meta, 750 T/seg",
+        "groq_compound": "Sistema compound da Groq, 450 T/seg",
+        "groq_compound_mini": "Sistema compound rápido, 3x menor latência",
+        "groq_kimi_k2_0905": "Moonshot AI 1T MoE, contexto 256K"
       },
       "local": {
         "qwen_qwen3_8b_q4_k_m": "Qwen3 mais recente com suporte ao modo de pensamento",
@@ -1200,7 +1224,9 @@
         "llama_llama_3_2_1b_instruct_q4_k_m": "Modelo minúsculo para dispositivos de borda",
         "llama_llama_3_2_3b_instruct_q4_k_m": "Modelo multilíngue pequeno, mas capaz",
         "llama_llama_3_1_8b_instruct_q4_k_m": "Modelo poderoso com excelente desempenho",
-        "openai_oss_gpt_oss_20b_mxfp4": "Modelo open-weight da OpenAI para hardware de consumo"
+        "openai_oss_gpt_oss_20b_mxfp4": "Modelo open-weight da OpenAI para hardware de consumo",
+        "gemma_gemma_3_4b_it_q4_k_m": "Modelo open-weight do Google, ótimo equilíbrio entre velocidade e qualidade",
+        "gemma_gemma_3_1b_it_q4_k_m": "Modelo Google ultrarrápido, ideal para limpeza de ditados curtos"
       }
     }
   },
@@ -1219,7 +1245,7 @@
     "updatePayment": "Atualizar forma de pagamento",
     "updatePaymentDescription": "Volte às transcrições ilimitadas do Pro.",
     "upgradeToPro": "Fazer upgrade para Pro",
-    "upgradeDescription": "Transcrições ilimitadas. $9/mês.",
+    "upgradeDescription": "Atualize para um plano pago a partir de apenas $8/mês.",
     "useApiKey": "Use sua própria chave API",
     "useApiKeyDescription": "Traga sua própria chave para uso ilimitado.",
     "switchToLocal": "Mudar para local",
@@ -1370,7 +1396,19 @@
       "errorOccurred": "Ocorreu um erro",
       "noProviderTitle": "Nenhum provedor de transcrição configurado",
       "noProviderDescription": "Adicione uma chave API ou baixe um modelo local para começar a transcrever.",
-      "noProviderAction": "Abrir configurações de transcrição"
+      "noProviderAction": "Abrir configurações de transcrição",
+      "fileTooLarge": "Este arquivo excede o limite de 500 MB.",
+      "largeFileNote": "Arquivos grandes são divididos e transcritos em paralelo.",
+      "chunkProgress": "Transcrevendo parte {{completed}} de {{total}}...",
+      "paidPlanRequired": "A transcrição na nuvem para arquivos acima de 25 MB requer um plano pago. Arquivos grandes são processados com o OpenWhispr Cloud para resultados confiáveis e de alta qualidade.",
+      "byokTooLarge": "Chaves API de terceiros suportam apenas arquivos de até 25 MB.",
+      "byokTooLargeDetail": "Para arquivos acima de 25 MB, o OpenWhispr Cloud cuida da divisão, processamento paralelo e remontagem — para resultados confiáveis sem depender dos limites de provedores de terceiros.",
+      "byokTooLargeNeedsAccount": "Crie uma conta e mude para um plano pago para transcrever arquivos maiores com o OpenWhispr Cloud.",
+      "byokTooLargeNeedsUpgrade": "Mude para um plano pago para transcrever arquivos maiores com o OpenWhispr Cloud.",
+      "switchToCloudForLargeFiles": "Mude para o OpenWhispr Cloud para transcrever este arquivo.",
+      "createAccount": "Criar conta",
+      "upgrade": "Fazer upgrade",
+      "switchToCloud": "OpenWhispr Cloud"
     },
     "meeting": {
       "title": "Notas de reunião",
@@ -1524,6 +1562,7 @@
     "reasoningBanner": "Acelere o processamento de IA com GPU",
     "enableButton": "Ativar GPU",
     "active": "Aceleração GPU ativa",
+    "ready": "Aceleração GPU pronta",
     "activating": "Ativando GPU...",
     "activationFailed": "Não foi possível ativar a GPU",
     "retry": "Tentar novamente",
@@ -1539,7 +1578,9 @@
       "hotkeyUnavailable": {
         "title": "Atalho indisponível",
         "description": "Não foi possível registrar o atalho selecionado. Escolha outro nas configurações."
-      }
+      },
+      "addedToDict": "{{words}} adicionado ao seu dicionário",
+      "undo": "Desfazer"
     },
     "mic": {
       "hotkeyToSpeak": "Pressione {{hotkey}} para falar",

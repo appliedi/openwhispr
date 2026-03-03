@@ -38,6 +38,18 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // Dictionary functions
   getDictionary: () => ipcRenderer.invoke("db-get-dictionary"),
   setDictionary: (words) => ipcRenderer.invoke("db-set-dictionary", words),
+  onDictionaryUpdated: (callback) => {
+    const listener = (_event, words) => callback?.(words);
+    ipcRenderer.on("dictionary-updated", listener);
+    return () => ipcRenderer.removeListener("dictionary-updated", listener);
+  },
+  setAutoLearnEnabled: (enabled) => ipcRenderer.send("auto-learn-changed", enabled),
+  onCorrectionsLearned: (callback) => {
+    const listener = (_event, words) => callback?.(words);
+    ipcRenderer.on("corrections-learned", listener);
+    return () => ipcRenderer.removeListener("corrections-learned", listener);
+  },
+  undoLearnedCorrections: (words) => ipcRenderer.invoke("undo-learned-corrections", words),
 
   // Note functions
   saveNote: (title, content, noteType, sourceFile, audioDuration, folderId) =>
@@ -74,6 +86,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // Audio file operations
   selectAudioFile: () => ipcRenderer.invoke("select-audio-file"),
+  getFileSize: (filePath) => ipcRenderer.invoke("get-file-size", filePath),
   transcribeAudioFile: (filePath, options) =>
     ipcRenderer.invoke("transcribe-audio-file", filePath, options),
   getPathForFile: (file) => webUtils.getPathForFile(file),
@@ -339,6 +352,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   transcribeAudioFileCloud: (filePath) =>
     ipcRenderer.invoke("transcribe-audio-file-cloud", filePath),
   transcribeAudioFileByok: (options) => ipcRenderer.invoke("transcribe-audio-file-byok", options),
+  onUploadTranscriptionProgress: registerListener(
+    "upload-transcription-progress",
+    (callback) => (_event, data) => callback(data)
+  ),
 
   // Referral stats
   getReferralStats: () => ipcRenderer.invoke("get-referral-stats"),

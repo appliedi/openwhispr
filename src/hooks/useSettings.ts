@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useRef } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef } from "react";
 import { useSettingsStore, initializeSettings } from "../stores/settingsStore";
 import logger from "../utils/logger";
+import { useLocalStorage } from "./useLocalStorage";
 import type { LocalTranscriptionProvider } from "../types/electron";
 
 export interface TranscriptionSettings {
@@ -74,6 +75,41 @@ function useSettingsInternal() {
         "settings"
       );
     });
+  }, []);
+
+  // Listen for dictionary updates from main process (auto-learn corrections)
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.electronAPI?.onDictionaryUpdated) return;
+    const unsubscribe = window.electronAPI.onDictionaryUpdated((words: string[]) => {
+      if (Array.isArray(words)) {
+        store.setCustomDictionary(words);
+      }
+    });
+    return unsubscribe;
+  }, [store.setCustomDictionary]);
+
+  // Auto-learn corrections from user edits in external apps
+  const [autoLearnCorrections, setAutoLearnCorrectionsRaw] = useLocalStorage(
+    "autoLearnCorrections",
+    true,
+    {
+      serialize: String,
+      deserialize: (value: string) => value !== "false",
+    }
+  );
+
+  const setAutoLearnCorrections = useCallback(
+    (enabled: boolean) => {
+      setAutoLearnCorrectionsRaw(enabled);
+      window.electronAPI?.setAutoLearnEnabled?.(enabled);
+    },
+    [setAutoLearnCorrectionsRaw]
+  );
+
+  // Sync auto-learn state to main process on mount
+  useEffect(() => {
+    window.electronAPI?.setAutoLearnEnabled?.(autoLearnCorrections);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Sync startup pre-warming preferences to main process
@@ -183,6 +219,8 @@ function useSettingsInternal() {
     selectedMicDeviceId: store.selectedMicDeviceId,
     setPreferBuiltInMic: store.setPreferBuiltInMic,
     setSelectedMicDeviceId: store.setSelectedMicDeviceId,
+    autoLearnCorrections,
+    setAutoLearnCorrections,
     cloudBackupEnabled: store.cloudBackupEnabled,
     setCloudBackupEnabled: store.setCloudBackupEnabled,
     telemetryEnabled: store.telemetryEnabled,

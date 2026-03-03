@@ -1,8 +1,18 @@
-# OpenWhispr
+<p align="center">
+  <img src="src/assets/logo.svg" alt="OpenWhispr" width="120" />
+</p>
 
-[![Downloads](https://img.shields.io/github/downloads/OpenWhispr/openwhispr/total?style=flat&color=blue)](https://github.com/OpenWhispr/openwhispr/releases)
+<h1 align="center">OpenWhispr</h1>
 
-An open source desktop dictation application that converts speech to text using OpenAI Whisper. Features both local and cloud processing options for maximum flexibility and privacy.
+<p align="center">
+  <a href="https://github.com/OpenWhispr/openwhispr/blob/main/LICENSE"><img src="https://img.shields.io/github/license/OpenWhispr/openwhispr?style=flat" alt="License" /></a>
+  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey?style=flat" alt="Platform" />
+  <a href="https://github.com/OpenWhispr/openwhispr/releases/latest"><img src="https://img.shields.io/github/v/release/OpenWhispr/openwhispr?style=flat&sort=semver" alt="GitHub release" /></a>
+  <a href="https://github.com/OpenWhispr/openwhispr/releases"><img src="https://img.shields.io/github/downloads/OpenWhispr/openwhispr/total?style=flat&color=blue" alt="Downloads" /></a>
+  <a href="https://github.com/OpenWhispr/openwhispr/stargazers"><img src="https://img.shields.io/github/stars/OpenWhispr/openwhispr?style=flat" alt="GitHub stars" /></a>
+</p>
+
+<p align="center">Voice-to-text dictation app with local (Nvidia Parakeet/Whisper) and cloud models (BYOK).<br/>Privacy-first and available cross-platform.</p>
 
 ## Star History
 
@@ -41,7 +51,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - 🌐 **Globe Key Toggle (macOS)**: Optional Fn/Globe key listener for a hardware-level dictation trigger
 - ⌨️ **Compound Hotkeys**: Support for multi-key combinations like `Cmd+Shift+K`
 - 🎙️ **Push-to-Talk (Windows)**: Native low-level keyboard hook for true push-to-talk with compound hotkey support
-- 📖 **Custom Dictionary**: Add words, names, and technical terms to improve transcription accuracy
+- 📖 **Custom Dictionary**: Add words, names, and technical terms to improve transcription accuracy, with auto-learn that detects your corrections and updates the dictionary automatically
 - 🐧 **GNOME Wayland Support**: Native global shortcuts via D-Bus for GNOME Wayland users
 - 📝 **Notes System**: Create, edit, and organize transcription notes with folders, audio upload, and real-time dictation
 - 🤖 **AI Actions**: Apply AI-powered actions to notes with customizable processing templates
@@ -711,7 +721,7 @@ OpenWhispr is designed with privacy and security in mind:
 ## FAQ
 
 **Q: Is OpenWhispr really free?**
-A: Yes! OpenWhispr is open source and free to use. The free plan includes 2,000 words/week of cloud transcription, and local processing is completely free with no limits. Pro plan ($9/month) offers unlimited cloud transcription.
+A: Yes! OpenWhispr is open source and free to use. The free plan includes 2,000 words/week of cloud transcription, and local processing is completely free with no limits. Paid plans start from as little as $8/month.
 
 **Q: Which processing method should I use?**
 A: Use local processing for privacy and offline use. Use cloud processing for speed and convenience.
@@ -730,7 +740,7 @@ A: OpenWhispr supports 58 languages including English, Spanish, French, German, 
 
 ## Project Status
 
-OpenWhispr is actively maintained and ready for production use. Current version: 1.5.3
+OpenWhispr is actively maintained and ready for production use. Current version: 1.5.4
 
 - ✅ Core functionality complete
 - ✅ Cross-platform support (macOS, Windows, Linux)

@@ -1,44 +1,58 @@
-import { useEffect, useRef } from "react";
-import { authClient, isWithinGracePeriod } from "../lib/neonAuth";
+import { useEffect, useRef, useState, useCallback } from "react";
+import {
+  isAuthenticated,
+  getSessionUser,
+  isWithinGracePeriod,
+  type SessionUser,
+} from "../lib/clerkAuth";
 import logger from "../utils/logger";
 import { useSettingsStore } from "../stores/settingsStore";
 
-const useStaticSession = () => ({
-  data: null,
-  isPending: false,
-  error: null,
-  refetch: async () => null,
-});
-
 export function useAuth() {
-  const useSession = authClient?.useSession ?? useStaticSession;
-  const { data: session, isPending } = useSession();
-  const user = session?.user ?? null;
-  const rawIsSignedIn = Boolean(user);
-  const gracePeriodActive = isWithinGracePeriod();
+  const [user, setUser] = useState<SessionUser | null>(getSessionUser);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Only sync true to the store — signOut() handles setting false via localStorage + reload.
-  // The Neon SDK's useSession() flickers in Electron (renderer can't access main process cookies).
-  const isSignedIn = rawIsSignedIn || gracePeriodActive;
+  const hasToken = isAuthenticated();
+  const gracePeriodActive = isWithinGracePeriod();
+  const isSignedIn = hasToken || gracePeriodActive;
 
   const lastSyncedRef = useRef(false);
 
+  // Re-check auth state on mount and after storage changes
+  const refreshAuth = useCallback(() => {
+    setUser(getSessionUser());
+    setIsLoaded(true);
+  }, []);
+
   useEffect(() => {
-    if (!isPending && isSignedIn && !lastSyncedRef.current) {
+    refreshAuth();
+
+    // Listen for storage changes (e.g., after auth callback sets token)
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "openwhispr:sessionToken" || e.key === "openwhispr:sessionUser") {
+        refreshAuth();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [refreshAuth]);
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn && !lastSyncedRef.current) {
       logger.debug(
         "Auth state sync",
-        { isSignedIn, rawIsSignedIn, gracePeriod: gracePeriodActive },
+        { isSignedIn, hasToken, gracePeriod: gracePeriodActive },
         "auth"
       );
       useSettingsStore.getState().setIsSignedIn(true);
       lastSyncedRef.current = true;
     }
-  }, [isSignedIn, rawIsSignedIn, gracePeriodActive, isPending]);
+  }, [isSignedIn, hasToken, gracePeriodActive, isLoaded]);
 
   return {
     isSignedIn,
-    isLoaded: !isPending,
-    session,
+    isLoaded,
+    session: hasToken ? { token: true } : null,
     user,
   };
 }

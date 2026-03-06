@@ -5,7 +5,7 @@ import { withRetry, createApiRetryStrategy } from "../utils/retry";
 import { API_ENDPOINTS, TOKEN_LIMITS, buildApiUrl, normalizeBaseUrl } from "../config/constants";
 import logger from "../utils/logger";
 import { isSecureEndpoint } from "../utils/urlUtils";
-import { withSessionRefresh } from "../lib/neonAuth";
+import { withSessionRefresh } from "../lib/clerkAuth";
 import { getSettings, isCloudReasoningMode } from "../stores/settingsStore";
 
 class ReasoningService extends BaseReasoningService {

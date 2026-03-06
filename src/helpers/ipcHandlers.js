@@ -1861,22 +1861,35 @@ class IPCHandlers {
       return { granted };
     });
 
-    // Auth: clear all session cookies for sign-out.
-    // This clears every cookie in the renderer session rather than targeting
-    // individual auth cookies, which is acceptable because the app only sets
-    // cookies for Neon Auth. Avoids CSRF/Origin header issues that occur when
-    // the renderer tries to call the server-side sign-out endpoint directly.
+    // Auth: clear session data for sign-out.
     ipcMain.handle("auth-clear-session", async (event) => {
       try {
         const win = BrowserWindow.fromWebContents(event.sender);
         if (win) {
           await win.webContents.session.clearStorageData({ storages: ["cookies"] });
         }
+        this._sessionToken = null;
+        this._sessionUser = null;
         return { success: true };
       } catch (error) {
         debugLogger.error("Failed to clear auth session:", error);
         return { success: false, error: error.message };
       }
+    });
+
+    // Store/retrieve session token from renderer (set after Clerk auth callback)
+    ipcMain.handle("auth-set-session", async (_event, token, user) => {
+      this._sessionToken = token;
+      this._sessionUser = user;
+      debugLogger.debug("Session token updated", { hasToken: !!token }, "auth");
+      return { success: true };
+    });
+
+    ipcMain.handle("auth-get-session", async () => {
+      return {
+        token: this._sessionToken || null,
+        user: this._sessionUser || null,
+      };
     });
 
     // In production, VITE_* env vars aren't available in the main process because
@@ -1897,62 +1910,11 @@ class IPCHandlers {
       runtimeEnv.VITE_OPENWHISPR_API_URL ||
       "";
 
-    const getAuthUrl = () =>
-      process.env.NEON_AUTH_URL ||
-      process.env.VITE_NEON_AUTH_URL ||
-      runtimeEnv.VITE_NEON_AUTH_URL ||
-      "";
-
-    const getSessionCookiesFromWindow = async (win) => {
-      const scopedUrls = [getAuthUrl(), getApiUrl()].filter(Boolean);
-      const cookiesByName = new Map();
-
-      for (const url of scopedUrls) {
-        try {
-          const scopedCookies = await win.webContents.session.cookies.get({ url });
-          for (const cookie of scopedCookies) {
-            if (!cookiesByName.has(cookie.name)) {
-              cookiesByName.set(cookie.name, cookie.value);
-            }
-          }
-        } catch (error) {
-          debugLogger.warn("Failed to read scoped auth cookies", {
-            url,
-            error: error.message,
-          });
-        }
-      }
-
-      // Fallback for older sessions where cookies are not URL-scoped as expected.
-      if (cookiesByName.size === 0) {
-        const allCookies = await win.webContents.session.cookies.get({});
-        for (const cookie of allCookies) {
-          if (!cookiesByName.has(cookie.name)) {
-            cookiesByName.set(cookie.name, cookie.value);
-          }
-        }
-      }
-
-      const cookieHeader = [...cookiesByName.entries()]
-        .map(([name, value]) => `${name}=${value}`)
-        .join("; ");
-
-      debugLogger.debug(
-        "Resolved auth cookies for cloud request",
-        {
-          cookieCount: cookiesByName.size,
-          scopedUrls,
-        },
-        "auth"
-      );
-
-      return cookieHeader;
-    };
-
-    const getSessionCookies = async (event) => {
-      const win = BrowserWindow.fromWebContents(event.sender);
-      if (!win) return "";
-      return getSessionCookiesFromWindow(win);
+    // Get auth headers for cloud API requests (Bearer token)
+    const getAuthHeader = () => {
+      const token = this._sessionToken;
+      if (!token) return null;
+      return `Bearer ${token}`;
     };
 
     ipcMain.handle("cloud-transcribe", async (event, audioBuffer, opts = {}) => {
@@ -1960,8 +1922,8 @@ class IPCHandlers {
         const apiUrl = getApiUrl();
         if (!apiUrl) throw new Error("OpenWhispr API URL not configured");
 
-        const cookieHeader = await getSessionCookies(event);
-        if (!cookieHeader) throw new Error("No session cookies available");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
 
         const audioData = Buffer.from(audioBuffer);
         const { body, boundary } = buildMultipartBody(audioData, "audio.webm", "audio/webm", {
@@ -1981,7 +1943,7 @@ class IPCHandlers {
         );
 
         const url = new URL(`${apiUrl}/api/transcribe`);
-        const data = await postMultipart(url, body, boundary, { Cookie: cookieHeader });
+        const data = await postMultipart(url, body, boundary, { Authorization: authHeader });
 
         debugLogger.debug(
           "Cloud transcribe response",
@@ -2041,8 +2003,8 @@ class IPCHandlers {
         if (!result?.text) {
           const win = BrowserWindow.fromWebContents(event.sender);
           if (win) {
-            const cookieHeader = await getSessionCookiesFromWindow(win);
-            if (cookieHeader) {
+            const authHeader = getAuthHeader();
+            if (authHeader) {
               const apiUrl = getApiUrl();
               if (apiUrl) {
                 const { body, boundary } = buildMultipartBody(buffer, "audio.webm", "audio/webm", {
@@ -2052,7 +2014,7 @@ class IPCHandlers {
                 });
                 const url = new URL(`${apiUrl}/api/transcribe`);
                 const data = await postMultipart(url, body, boundary, {
-                  Cookie: cookieHeader,
+                  Authorization: authHeader,
                 });
                 if (data.statusCode === 200 && data.data?.text) {
                   result = { text: data.data.text, source: "openwhispr", model: "cloud" };
@@ -2107,8 +2069,8 @@ class IPCHandlers {
         const apiUrl = getApiUrl();
         if (!apiUrl) throw new Error("OpenWhispr API URL not configured");
 
-        const cookieHeader = await getSessionCookies(event);
-        if (!cookieHeader) throw new Error("No session cookies available");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
 
         debugLogger.debug(
           "Cloud reason request",
@@ -2124,7 +2086,7 @@ class IPCHandlers {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Cookie: cookieHeader,
+            Authorization: authHeader,
           },
           body: JSON.stringify({
             text,
@@ -2192,14 +2154,14 @@ class IPCHandlers {
           const apiUrl = getApiUrl();
           if (!apiUrl) throw new Error("OpenWhispr API URL not configured");
 
-          const cookieHeader = await getSessionCookies(event);
-          if (!cookieHeader) throw new Error("No session cookies available");
+          const authHeader = getAuthHeader();
+          if (!authHeader) throw new Error("No session token available");
 
           const response = await fetch(`${apiUrl}/api/streaming-usage`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Cookie: cookieHeader,
+              Authorization: authHeader,
             },
             body: JSON.stringify({
               text,
@@ -2240,11 +2202,11 @@ class IPCHandlers {
         const apiUrl = getApiUrl();
         if (!apiUrl) throw new Error("OpenWhispr API URL not configured");
 
-        const cookieHeader = await getSessionCookies(event);
-        if (!cookieHeader) throw new Error("No session cookies available");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
 
         const response = await fetch(`${apiUrl}/api/usage`, {
-          headers: { Cookie: cookieHeader },
+          headers: { Authorization: authHeader },
         });
 
         if (!response.ok) {
@@ -2267,10 +2229,10 @@ class IPCHandlers {
         const apiUrl = getApiUrl();
         if (!apiUrl) throw new Error("OpenWhispr API URL not configured");
 
-        const cookieHeader = await getSessionCookies(event);
-        if (!cookieHeader) throw new Error("No session cookies available");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
 
-        const headers = { Cookie: cookieHeader };
+        const headers = { Authorization: authHeader };
         const fetchOpts = { method: "POST", headers };
         if (body) {
           headers["Content-Type"] = "application/json";
@@ -2313,11 +2275,11 @@ class IPCHandlers {
         const apiUrl = getApiUrl();
         if (!apiUrl) throw new Error("OpenWhispr API URL not configured");
 
-        const cookieHeader = await getSessionCookies(event);
-        if (!cookieHeader) throw new Error("No session cookies available");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
 
         const response = await fetch(`${apiUrl}/api/stt-config`, {
-          headers: { Cookie: cookieHeader },
+          headers: { Authorization: authHeader },
         });
 
         if (!response.ok) {
@@ -2345,8 +2307,8 @@ class IPCHandlers {
         const apiUrl = getApiUrl();
         if (!apiUrl) throw new Error("OpenWhispr API URL not configured");
 
-        const cookieHeader = await getSessionCookies(event);
-        if (!cookieHeader) throw new Error("No session cookies available");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
 
         const fileSize = fs.statSync(filePath).size;
 
@@ -2395,7 +2357,7 @@ class IPCHandlers {
               });
 
               const url = new URL(`${apiUrl}/api/transcribe`);
-              const data = await postMultipart(url, body, boundary, { Cookie: cookieHeader });
+              const data = await postMultipart(url, body, boundary, { Authorization: authHeader });
 
               if (data.statusCode === 401) {
                 throw Object.assign(new Error("Session expired"), { code: "AUTH_EXPIRED" });
@@ -2484,7 +2446,7 @@ class IPCHandlers {
         });
 
         const url = new URL(`${apiUrl}/api/transcribe`);
-        const data = await postMultipart(url, body, boundary, { Cookie: cookieHeader });
+        const data = await postMultipart(url, body, boundary, { Authorization: authHeader });
 
         if (data.statusCode === 401) {
           return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
@@ -2574,14 +2536,14 @@ class IPCHandlers {
           throw new Error("OpenWhispr API URL not configured");
         }
 
-        const cookieHeader = await getSessionCookies(event);
-        if (!cookieHeader) {
-          throw new Error("No session cookies available");
+        const authHeader = getAuthHeader();
+        if (!authHeader) {
+          throw new Error("No session token available");
         }
 
         const response = await fetch(`${apiUrl}/api/referrals/stats`, {
           headers: {
-            Cookie: cookieHeader,
+            Authorization: authHeader,
           },
         });
 
@@ -2607,15 +2569,15 @@ class IPCHandlers {
           throw new Error("OpenWhispr API URL not configured");
         }
 
-        const cookieHeader = await getSessionCookies(event);
-        if (!cookieHeader) {
-          throw new Error("No session cookies available");
+        const authHeader = getAuthHeader();
+        if (!authHeader) {
+          throw new Error("No session token available");
         }
 
         const response = await fetch(`${apiUrl}/api/referrals/invite`, {
           method: "POST",
           headers: {
-            Cookie: cookieHeader,
+            Authorization: authHeader,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ email }),
@@ -2645,14 +2607,14 @@ class IPCHandlers {
           throw new Error("OpenWhispr API URL not configured");
         }
 
-        const cookieHeader = await getSessionCookies(event);
-        if (!cookieHeader) {
-          throw new Error("No session cookies available");
+        const authHeader = getAuthHeader();
+        if (!authHeader) {
+          throw new Error("No session token available");
         }
 
         const response = await fetch(`${apiUrl}/api/referrals/invites`, {
           headers: {
-            Cookie: cookieHeader,
+            Authorization: authHeader,
           },
         });
 
@@ -2793,15 +2755,15 @@ class IPCHandlers {
         throw new Error("OpenWhispr API URL not configured");
       }
 
-      const cookieHeader = await getSessionCookies(event);
-      if (!cookieHeader) {
-        throw new Error("No session cookies available");
+      const authHeader = getAuthHeader();
+      if (!authHeader) {
+        throw new Error("No session token available");
       }
 
       const tokenResponse = await fetch(`${apiUrl}/api/streaming-token`, {
         method: "POST",
         headers: {
-          Cookie: cookieHeader,
+          Authorization: authHeader,
         },
       });
 
@@ -2996,12 +2958,12 @@ class IPCHandlers {
       const win = BrowserWindow.fromId(windowId);
       if (!win || win.isDestroyed()) throw new Error("Window not available for token refresh");
 
-      const cookieHeader = await getSessionCookiesFromWindow(win);
-      if (!cookieHeader) throw new Error("No session cookies available");
+      const authHeader = getAuthHeader();
+      if (!authHeader) throw new Error("No session token available");
 
       const tokenResponse = await fetch(`${apiUrl}/api/deepgram-streaming-token`, {
         method: "POST",
-        headers: { Cookie: cookieHeader },
+        headers: { Authorization: authHeader },
       });
 
       if (!tokenResponse.ok) {
@@ -3024,15 +2986,15 @@ class IPCHandlers {
         throw new Error("OpenWhispr API URL not configured");
       }
 
-      const cookieHeader = await getSessionCookies(event);
-      if (!cookieHeader) {
-        throw new Error("No session cookies available");
+      const authHeader = getAuthHeader();
+      if (!authHeader) {
+        throw new Error("No session token available");
       }
 
       const tokenResponse = await fetch(`${apiUrl}/api/deepgram-streaming-token`, {
         method: "POST",
         headers: {
-          Cookie: cookieHeader,
+          Authorization: authHeader,
         },
       });
 

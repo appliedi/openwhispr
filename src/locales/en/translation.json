@@ -873,7 +873,7 @@
       },
       "disabled": "Disabled",
       "featuresDisabled": "Account Features Disabled",
-      "featuresDisabledDescription": "Set VITE_NEON_AUTH_URL in your .env file to enable account features.",
+      "featuresDisabledDescription": "Set VITE_OPENWHISPR_API_URL in your .env file to enable account features.",
       "notConfigured": "Authentication is not configured",
       "notSignedIn": "Not signed in",
       "notSignedInDescription": "Create an account to unlock premium features.",

@@ -29,7 +29,7 @@ import { findDefaultFolder, MEETINGS_FOLDER_NAME } from "./shared";
 import { useAuth } from "../../hooks/useAuth";
 import { useUsage } from "../../hooks/useUsage";
 import { useSettings } from "../../hooks/useSettings";
-import { withSessionRefresh } from "../../lib/neonAuth";
+import { withSessionRefresh } from "../../lib/clerkAuth";
 import reasoningService from "../../services/ReasoningService";
 import { getAllReasoningModels } from "../../models/ModelRegistry";
 import { useSettingsStore, selectIsCloudReasoningMode } from "../../stores/settingsStore";

@@ -860,7 +860,7 @@
       },
       "disabled": "已禁用",
       "featuresDisabled": "账户功能已禁用",
-      "featuresDisabledDescription": "在 .env 文件中设置 VITE_NEON_AUTH_URL 以启用账户功能。",
+      "featuresDisabledDescription": "在 .env 文件中设置 VITE_OPENWHISPR_API_URL 以启用账户功能。",
       "notConfigured": "身份验证未配置",
       "notSignedIn": "未登录",
       "notSignedInDescription": "创建账户以解锁高级功能。",

@@ -357,6 +357,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   resumeMediaPlayback: () => ipcRenderer.invoke("resume-media-playback"),
   openWhisperModelsFolder: () => ipcRenderer.invoke("open-whisper-models-folder"),
   authClearSession: () => ipcRenderer.invoke("auth-clear-session"),
+  authSetSession: (token, user) => ipcRenderer.invoke("auth-set-session", token, user),
+  authGetSession: () => ipcRenderer.invoke("auth-get-session"),
 
   // OpenWhispr Cloud API
   cloudTranscribe: (audioBuffer, opts) => ipcRenderer.invoke("cloud-transcribe", audioBuffer, opts),

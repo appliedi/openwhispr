@@ -860,7 +860,7 @@
       },
       "disabled": "Deaktiviert",
       "featuresDisabled": "Kontofunktionen deaktiviert",
-      "featuresDisabledDescription": "Setzen Sie VITE_NEON_AUTH_URL in Ihrer .env-Datei, um Kontofunktionen zu aktivieren.",
+      "featuresDisabledDescription": "Setzen Sie VITE_OPENWHISPR_API_URL in Ihrer .env-Datei, um Kontofunktionen zu aktivieren.",
       "notConfigured": "Authentifizierung ist nicht konfiguriert",
       "notSignedIn": "Nicht angemeldet",
       "notSignedInDescription": "Erstellen Sie ein Konto, um Premium-Funktionen freizuschalten.",

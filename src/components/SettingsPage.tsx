@@ -25,7 +25,8 @@ import {
   Mail,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
-import { NEON_AUTH_URL, signOut } from "../lib/neonAuth";
+import { signOut, isAuthenticated } from "../lib/clerkAuth";
+import { OPENWHISPR_API_URL } from "../config/constants";
 import MicPermissionWarning from "./ui/MicPermissionWarning";
 import MicrophoneSettings from "./ui/MicrophoneSettings";
 import PermissionCard from "./ui/PermissionCard";
@@ -1050,7 +1051,7 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
       case "account":
         return (
           <div className="space-y-5">
-            {!NEON_AUTH_URL ? (
+            {!OPENWHISPR_API_URL ? (
               <>
                 <SectionHeader
                   title={t("settingsPage.account.title")}
@@ -1167,7 +1168,7 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
       case "plansBilling":
         return (
           <div className="space-y-5">
-            {!NEON_AUTH_URL ? (
+            {!OPENWHISPR_API_URL ? (
               <>
                 <SectionHeader
                   title={t("settingsPage.account.pricing.title")}

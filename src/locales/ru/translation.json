@@ -860,7 +860,7 @@
       },
       "disabled": "Отключено",
       "featuresDisabled": "Функции аккаунта отключены",
-      "featuresDisabledDescription": "Установите VITE_NEON_AUTH_URL в файле .env для включения функций аккаунта.",
+      "featuresDisabledDescription": "Установите VITE_OPENWHISPR_API_URL в файле .env для включения функций аккаунта.",
       "notConfigured": "Аутентификация не настроена",
       "notSignedIn": "Вы не вошли в систему",
       "notSignedInDescription": "Создайте аккаунт, чтобы разблокировать премиум-функции.",

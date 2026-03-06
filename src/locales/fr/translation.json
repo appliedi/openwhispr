@@ -860,7 +860,7 @@
       },
       "disabled": "Désactivé",
       "featuresDisabled": "Fonctionnalités du compte désactivées",
-      "featuresDisabledDescription": "Définissez VITE_NEON_AUTH_URL dans votre fichier .env pour activer les fonctionnalités du compte.",
+      "featuresDisabledDescription": "Définissez VITE_OPENWHISPR_API_URL dans votre fichier .env pour activer les fonctionnalités du compte.",
       "notConfigured": "L'authentification n'est pas configurée",
       "notSignedIn": "Non connecté",
       "notSignedInDescription": "Créez un compte pour débloquer les fonctionnalités premium.",

@@ -28,7 +28,7 @@ import { useClipboard } from "../hooks/useClipboard";
 import { useSettings } from "../hooks/useSettings";
 import LanguageSelector from "./ui/LanguageSelector";
 import AuthenticationStep from "./AuthenticationStep";
-import EmailVerificationStep from "./EmailVerificationStep";
+// EmailVerificationStep removed — Clerk handles email verification
 import { setAgentName as saveAgentName } from "../utils/agentName";
 import { formatHotkeyLabel, getDefaultHotkey, isGlobeLikeHotkey } from "../utils/hotkeys";
 import { useAuth } from "../hooks/useAuth";
@@ -308,17 +308,6 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const renderStep = () => {
     switch (currentStep) {
       case 0: // Authentication (with Welcome)
-        if (pendingVerificationEmail) {
-          return (
-            <EmailVerificationStep
-              email={pendingVerificationEmail}
-              onVerified={() => {
-                setPendingVerificationEmail(null);
-                nextStep();
-              }}
-            />
-          );
-        }
         return (
           <AuthenticationStep
             onContinueWithoutAccount={() => {
@@ -328,8 +317,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             onAuthComplete={() => {
               nextStep();
             }}
-            onNeedsVerification={(email) => {
-              setPendingVerificationEmail(email);
+            onNeedsVerification={() => {
+              // Clerk handles email verification — no-op
             }}
           />
         );
@@ -658,10 +647,6 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           if (!permissionsHook.micPermissionGranted) {
             return false;
           }
-          const currentPlatform = permissionsHook.pasteToolsInfo?.platform;
-          if (currentPlatform === "darwin") {
-            return permissionsHook.accessibilityPermissionGranted;
-          }
           return true;
         }
 
@@ -693,10 +678,6 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         // For non-signed-in users, this is permissions step
         if (!permissionsHook.micPermissionGranted) {
           return false;
-        }
-        const currentPlatform = permissionsHook.pasteToolsInfo?.platform;
-        if (currentPlatform === "darwin") {
-          return permissionsHook.accessibilityPermissionGranted;
         }
         return true;
       }

@@ -718,6 +718,14 @@ declare global {
 
       // Auth
       authClearSession?: () => Promise<void>;
+      authSetSession?: (
+        token: string | null,
+        user: Record<string, unknown> | null
+      ) => Promise<{ success: boolean }>;
+      authGetSession?: () => Promise<{
+        token: string | null;
+        user: Record<string, unknown> | null;
+      }>;
 
       // OpenWhispr Cloud API
       cloudTranscribe?: (

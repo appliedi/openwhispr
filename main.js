@@ -271,7 +271,11 @@ function initializeCoreManagers() {
 // Phase 2: Non-critical setup after windows are visible
 function initializeDeferredManagers() {
   ensureYdotool().catch((err) => {
-    require("./src/helpers/debugLogger").warn("ydotool setup error", { error: err?.message }, "clipboard");
+    require("./src/helpers/debugLogger").warn(
+      "ydotool setup error",
+      { error: err?.message },
+      "clipboard"
+    );
   });
   clipboardManager.preWarmAccessibility();
   trayManager = new TrayManager();
@@ -309,52 +313,54 @@ app.on("open-url", (event, url) => {
   event.preventDefault();
   if (!url.startsWith(`${OAUTH_PROTOCOL}://`)) return;
 
-  handleOAuthDeepLink(url);
-
-  if (windowManager && isLiveWindow(windowManager.controlPanelWindow)) {
-    windowManager.controlPanelWindow.show();
-    windowManager.controlPanelWindow.focus();
-  }
+  handleAuthDeepLink(url);
 });
 
-// Extract the session verifier from the deep link and navigate the control
-// panel to its app URL with the verifier param so the Neon Auth SDK can
-// read it from window.location.search and complete authentication.
-function navigateControlPanelWithVerifier(verifier) {
-  if (!verifier) return;
-  if (!isLiveWindow(windowManager?.controlPanelWindow)) return;
-
-  const appUrl = DevServerManager.getAppUrl(true);
-
-  if (appUrl) {
-    const separator = appUrl.includes("?") ? "&" : "?";
-    const urlWithVerifier = `${appUrl}${separator}neon_auth_session_verifier=${encodeURIComponent(verifier)}`;
-    windowManager.controlPanelWindow.loadURL(urlWithVerifier);
-  } else {
-    const fileInfo = DevServerManager.getAppFilePath(true);
-    if (!fileInfo) return;
-    fileInfo.query.neon_auth_session_verifier = verifier;
-    windowManager.controlPanelWindow.loadFile(fileInfo.path, { query: fileInfo.query });
-  }
-
-  if (debugLogger) {
-    debugLogger.debug("Navigating control panel with OAuth verifier", {
-      appChannel: APP_CHANNEL,
-      oauthProtocol: OAUTH_PROTOCOL,
-    });
-  }
-  windowManager.controlPanelWindow.show();
-  windowManager.controlPanelWindow.focus();
-}
-
-function handleOAuthDeepLink(deepLinkUrl) {
+// Handle the auth deep link from the Clerk browser flow.
+// The URL contains token, userId, email, name, plan as query params.
+// Navigate the control panel to its app URL with these params so the
+// renderer can read them and complete authentication.
+function handleAuthDeepLink(deepLinkUrl) {
   try {
     const parsed = new URL(deepLinkUrl);
-    const verifier = parsed.searchParams.get("neon_auth_session_verifier");
-    if (!verifier) return;
-    navigateControlPanelWithVerifier(verifier);
+
+    // Pass all auth params to the control panel
+    const token = parsed.searchParams.get("token");
+    if (!token) {
+      if (debugLogger) debugLogger.warn("Auth deep link missing token", { url: deepLinkUrl });
+      return;
+    }
+
+    if (!isLiveWindow(windowManager?.controlPanelWindow)) return;
+
+    const appUrl = DevServerManager.getAppUrl(true);
+    const params = new URLSearchParams();
+    for (const [key, value] of parsed.searchParams.entries()) {
+      params.set(key, value);
+    }
+
+    if (appUrl) {
+      const separator = appUrl.includes("?") ? "&" : "?";
+      windowManager.controlPanelWindow.loadURL(`${appUrl}${separator}${params.toString()}`);
+    } else {
+      const fileInfo = DevServerManager.getAppFilePath(true);
+      if (!fileInfo) return;
+      for (const [key, value] of params.entries()) {
+        fileInfo.query[key] = value;
+      }
+      windowManager.controlPanelWindow.loadFile(fileInfo.path, { query: fileInfo.query });
+    }
+
+    if (debugLogger) {
+      debugLogger.debug("Auth deep link handled", {
+        appChannel: APP_CHANNEL,
+        oauthProtocol: OAUTH_PROTOCOL,
+      });
+    }
+    windowManager.controlPanelWindow.show();
+    windowManager.controlPanelWindow.focus();
   } catch (err) {
-    if (debugLogger) debugLogger.error("Failed to handle OAuth deep link:", err);
+    if (debugLogger) debugLogger.error("Failed to handle auth deep link:", err);
   }
 }
 
@@ -842,7 +848,7 @@ if (gotSingleInstanceLock) {
     // Check for OAuth protocol URL in command line arguments (Windows/Linux)
     const url = commandLine.find((arg) => arg.startsWith(`${OAUTH_PROTOCOL}://`));
     if (url) {
-      handleOAuthDeepLink(url);
+      handleAuthDeepLink(url);
     }
   });
 

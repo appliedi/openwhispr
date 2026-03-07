@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import {
   isAuthenticated,
+  getSessionToken,
   getSessionUser,
   isWithinGracePeriod,
   type SessionUser,
@@ -46,6 +47,13 @@ export function useAuth() {
       );
       useSettingsStore.getState().setIsSignedIn(true);
       lastSyncedRef.current = true;
+
+      // Restore session token to main process (lost on app restart)
+      const token = getSessionToken();
+      const savedUser = getSessionUser();
+      if (token && window.electronAPI?.authSetSession) {
+        window.electronAPI.authSetSession(token, savedUser as unknown as Record<string, unknown>);
+      }
     }
   }, [isSignedIn, hasToken, gracePeriodActive, isLoaded]);
 

@@ -87,8 +87,8 @@
   },
   "upgradePrompt": {
     "paymentFailed": "Nous n'avons pas pu traiter votre paiement",
-    "weeklyLimit": "Vous avez atteint votre limite hebdomadaire",
-    "pastDueDescription": "Vous êtes temporairement sur le plan gratuit — pas de souci, vous avez encore {{limit}} mots par semaine.\nMettez à jour votre moyen de paiement pour revenir à Pro illimité.",
+    "weeklyLimit": "Vous avez atteint votre limite quotidienne",
+    "pastDueDescription": "Vous êtes temporairement sur le plan gratuit — pas de souci, vous avez encore {{limit}} mots par jour.\nMettez à jour votre moyen de paiement pour revenir à Pro illimité.",
     "limitDescription": "{{used}} de {{limit}} mots utilisés.\nVotre transcription a été sauvegardée et collée.",
     "updatePayment": "Mettre à jour le moyen de paiement",
     "updatePaymentDescription": "Retrouvez les transcriptions Pro illimitées.",
@@ -98,7 +98,7 @@
     "useApiKeyDescription": "Apportez votre propre clé pour un usage illimité.",
     "switchToLocal": "Passer en local",
     "switchToLocalDescription": "Transcription hors ligne. Sans limites.",
-    "rollingWeeklyLimit": "Limite hebdomadaire glissante"
+    "rollingWeeklyLimit": "Limite quotidienne"
   },
   "windowControls": {
     "minimize": "Réduire",
@@ -196,13 +196,13 @@
       "availableButton": "Mise à jour disponible"
     },
     "limit": {
-      "weeklyTitle": "Limite hebdomadaire atteinte",
-      "weeklyDescription": "Votre limite se renouvelle de manière glissante. Passez à Pro ou utilisez votre propre clé API pour un usage illimité."
+      "weeklyTitle": "Limite quotidienne atteinte",
+      "weeklyDescription": "Votre limite se renouvelle quotidiennement. Passez à Pro ou utilisez votre propre clé API pour un usage illimité."
     },
     "billing": {
       "pastDueTitle": "Nous n'avons pas pu traiter votre paiement",
       "pastDueDescription": "Pas de souci : vous êtes temporairement sur le plan gratuit. Mettez à jour votre paiement dans Paramètres pour revenir à Pro.",
-      "bannerDescription": "Vous êtes pour le moment sur le plan gratuit : vous avez encore {{limit}} mots par semaine. Mettez à jour votre paiement pour revenir à Pro.",
+      "bannerDescription": "Vous êtes pour le moment sur le plan gratuit : vous avez encore {{limit}} mots par jour. Mettez à jour votre paiement pour revenir à Pro.",
       "updatePayment": "Mettre à jour le paiement"
     },
     "history": {
@@ -870,9 +870,9 @@
         "title": "Nous n'avons pas pu traiter votre paiement"
       },
       "planDescriptions": {
-        "freeUsage": "{{used}} / {{limit}} mots cette semaine",
+        "freeUsage": "{{used}} / {{limit}} mots aujourd'hui",
         "nextBilling": "Prochaine facturation : {{date}}",
-        "pastDue": "{{used}} / {{limit}} mots gratuits cette semaine - mettez à jour le paiement pour restaurer Pro",
+        "pastDue": "{{used}} / {{limit}} mots gratuits aujourd'hui - mettez à jour le paiement pour restaurer Pro",
         "trial": "{{days}} jours restants - transcriptions illimitées",
         "unlimited": "Illimité"
       },
@@ -892,7 +892,7 @@
           "price": "$0",
           "period": "pour toujours",
           "features": [
-            "2 000 mots/semaine",
+            "5 000 mots/jour",
             "Modèles IA locaux",
             "Apportez vos propres clés",
             "Dictionnaire et extraits",
@@ -930,7 +930,7 @@
         },
         "currentPlan": "Plan actuel"
       },
-      "rollingWeeklyLimit": "Limite hebdomadaire glissante",
+      "rollingWeeklyLimit": "Limite quotidienne",
       "signOut": {
         "failedDescription": "Un problème est survenu lors de la déconnexion. Veuillez réessayer.",
         "failedTitle": "Impossible de se déconnecter",
@@ -941,8 +941,8 @@
       "title": "Compte",
       "toasts": {
         "approachingLimit": {
-          "description": "Vous avez utilisé {{used}} de {{limit}} mots gratuits cette semaine. Passez à Pro pour une utilisation illimitée.",
-          "title": "Limite hebdomadaire bientôt atteinte"
+          "description": "Vous avez utilisé {{used}} de {{limit}} mots gratuits aujourd'hui. Passez à Pro pour une utilisation illimitée.",
+          "title": "Limite quotidienne bientôt atteinte"
         }
       },
       "trialCta": {
@@ -1271,7 +1271,7 @@
     "referral": "Obtenir un mois gratuit",
     "settings": "Paramètres",
     "support": "Assistance",
-    "limitReached": "Limite hebdomadaire atteinte",
+    "limitReached": "Limite quotidienne atteinte",
     "limitReachedDescription": "Passez à Pro pour des transcriptions illimitées.",
     "upgradeToPro": "Passer à Pro",
     "upgradeTitle": "Passer à Pro",
@@ -1294,7 +1294,7 @@
       "freeMonthOfPro": "mois gratuit de Pro",
       "youGet": "Vous recevez un ",
       "freeMonth": "mois gratuit",
-      "whenTheyDictate": " lorsqu'ils dictent 2 000 mots"
+      "whenTheyDictate": " lorsqu'ils dictent 5 000 mots"
     },
     "inviteLink": {
       "title": "Votre lien d'invitation",
@@ -1353,8 +1353,8 @@
     }
   },
   "usage": {
-    "approachingLimit": "Limite hebdomadaire bientôt atteinte",
-    "approachingLimitDescription": "Vous avez utilisé {{wordsUsed}} de vos {{limit}} mots gratuits cette semaine.",
+    "approachingLimit": "Limite quotidienne bientôt atteinte",
+    "approachingLimitDescription": "Vous avez utilisé {{wordsUsed}} de vos {{limit}} mots gratuits aujourd'hui.",
     "yourPlan": "Votre abonnement",
     "trial": "Essai ({{days}} jour restant)",
     "trial_other": "Essai ({{days}} jours restants)",
@@ -1362,11 +1362,11 @@
     "unlimitedTrial": "Transcriptions illimitées pendant votre période d'essai",
     "unlimited": "Transcriptions illimitées",
     "manageSubscription": "Gérer l'abonnement",
-    "weeklyUsage": "Utilisation hebdomadaire",
+    "dailyUsage": "Utilisation quotidienne",
     "limitReached": "Limite atteinte",
     "free": "Gratuit",
     "wordsRemaining": "{{remaining}} mots restants",
-    "rollingLimit": "Limite hebdomadaire glissante",
+    "dailyLimit": "Limite quotidienne",
     "upgradeToPro": "Passer à Pro",
     "useYourOwnKey": "Utiliser votre propre clé API",
     "upgradeUnlimited": "Passer à Pro — transcriptions illimitées"

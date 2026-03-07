@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { API_ENDPOINTS } from "../config/constants";
 import i18n, { normalizeUiLanguage } from "../i18n";
-import { hasStoredByokKey } from "../utils/byokDetection";
+import { hasStoredByokKey, syncByokStatus } from "../utils/byokDetection";
 import { ensureAgentNameInDictionary } from "../utils/agentName";
 import logger from "../utils/logger";
 import type { LocalTranscriptionProvider } from "../types/electron";
@@ -314,6 +314,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     set({ openaiApiKey: key });
     window.electronAPI?.saveOpenAIKey?.(key);
     invalidateApiKeyCaches("openai");
+    syncByokStatus();
   },
   setAnthropicApiKey: (key: string) => {
     if (isBrowser) localStorage.setItem("anthropicApiKey", key);
@@ -332,18 +333,21 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     set({ groqApiKey: key });
     window.electronAPI?.saveGroqKey?.(key);
     invalidateApiKeyCaches("groq");
+    syncByokStatus();
   },
   setMistralApiKey: (key: string) => {
     if (isBrowser) localStorage.setItem("mistralApiKey", key);
     set({ mistralApiKey: key });
     window.electronAPI?.saveMistralKey?.(key);
     invalidateApiKeyCaches("mistral");
+    syncByokStatus();
   },
   setCustomTranscriptionApiKey: (key: string) => {
     if (isBrowser) localStorage.setItem("customTranscriptionApiKey", key);
     set({ customTranscriptionApiKey: key });
     window.electronAPI?.saveCustomTranscriptionKey?.(key);
     invalidateApiKeyCaches();
+    syncByokStatus();
   },
   setCustomReasoningApiKey: (key: string) => {
     if (isBrowser) localStorage.setItem("customReasoningApiKey", key);

@@ -2227,6 +2227,31 @@ class IPCHandlers {
       }
     });
 
+    ipcMain.handle("cloud-update-byok", async (event, isByok) => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) return { success: false, error: "API URL not configured" };
+
+        const authHeader = getAuthHeader();
+        if (!authHeader) return { success: false, error: "No session token" };
+
+        const response = await fetch(`${apiUrl}/api/auth/update-byok`, {
+          method: "PATCH",
+          headers: {
+            Authorization: authHeader,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ is_byok: !!isByok }),
+        });
+
+        if (!response.ok) throw new Error(`API error: ${response.status}`);
+        return { success: true };
+      } catch (error) {
+        debugLogger.error("Cloud BYOK update error:", error);
+        return { success: false, error: error.message };
+      }
+    });
+
     const fetchStripeUrl = async (event, endpoint, errorPrefix, body) => {
       try {
         const apiUrl = getApiUrl();

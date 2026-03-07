@@ -87,8 +87,8 @@
   },
   "upgradePrompt": {
     "paymentFailed": "我們無法處理你的付款",
-    "weeklyLimit": "你已達到每週使用上限",
-    "pastDueDescription": "你目前使用的是免費方案，別擔心，每週仍有 {{limit}} 字的額度。\n更新付款方式即可恢復無限制的 Pro 方案。",
+    "weeklyLimit": "你已達到今日的使用上限",
+    "pastDueDescription": "你目前使用的是免費方案，別擔心，每天仍有 {{limit}} 字的額度。\n更新付款方式即可恢復無限制的 Pro 方案。",
     "limitDescription": "已使用 {{used}} / {{limit}} 字。\n你的轉錄已儲存並貼上。",
     "updatePayment": "更新付款方式",
     "updatePaymentDescription": "恢復無限制的 Pro 轉錄。",
@@ -98,7 +98,7 @@
     "useApiKeyDescription": "自備金鑰，無限使用。",
     "switchToLocal": "切換至本機模式",
     "switchToLocalDescription": "離線轉錄，無任何限制。",
-    "rollingWeeklyLimit": "滾動式每週額度"
+    "rollingWeeklyLimit": "每日額度"
   },
   "windowControls": {
     "minimize": "最小化",
@@ -196,13 +196,13 @@
       "availableButton": "有可用更新"
     },
     "limit": {
-      "weeklyTitle": "已達每週使用上限",
-      "weeklyDescription": "你的額度為滾動式重置。升級至 Pro 或使用自己的 API Key 即可無限使用。"
+      "weeklyTitle": "已達每日使用上限",
+      "weeklyDescription": "你的額度每天重置。升級至 Pro 或使用自己的 API Key 即可無限使用。"
     },
     "billing": {
       "pastDueTitle": "我們無法處理你的付款",
       "pastDueDescription": "別擔心，你目前使用的是免費方案。在設定中更新付款方式即可恢復 Pro。",
-      "bannerDescription": "你目前使用的是免費方案，每週仍有 {{limit}} 字的額度。更新付款方式即可恢復 Pro。",
+      "bannerDescription": "你目前使用的是免費方案，每天仍有 {{limit}} 字的額度。更新付款方式即可恢復 Pro。",
       "updatePayment": "更新付款"
     },
     "history": {
@@ -870,9 +870,9 @@
         "title": "我們無法處理你的付款"
       },
       "planDescriptions": {
-        "freeUsage": "本週已使用 {{used}} / {{limit}} 字",
+        "freeUsage": "今日已使用 {{used}} / {{limit}} 字",
         "nextBilling": "下次扣款日：{{date}}",
-        "pastDue": "本週 {{used}} / {{limit}} 免費字數——更新付款方式以恢復 Pro",
+        "pastDue": "今日 {{used}} / {{limit}} 免費字數——更新付款方式以恢復 Pro",
         "trial": "剩餘 {{days}} 天——無限轉錄",
         "unlimited": "無限"
       },
@@ -882,7 +882,7 @@
         "trial": "試用"
       },
       "planTitle": "方案",
-      "rollingWeeklyLimit": "滾動式每週額度",
+      "rollingWeeklyLimit": "每日額度",
       "signOut": {
         "failedDescription": "登出時發生錯誤。請再試一次。",
         "failedTitle": "無法登出",
@@ -893,8 +893,8 @@
       "title": "帳號",
       "toasts": {
         "approachingLimit": {
-          "description": "你本週已使用 {{used}} / {{limit}} 免費字數。升級至 Pro 即可無限使用。",
-          "title": "即將達到每週上限"
+          "description": "你今天已使用 {{used}} / {{limit}} 免費字數。升級至 Pro 即可無限使用。",
+          "title": "即將達到每日上限"
         }
       },
       "trialCta": {
@@ -912,7 +912,7 @@
           "price": "$0",
           "period": "永久",
           "features": [
-            "每週 2,000 字",
+            "每日 5,000 字",
             "本機 AI 模型",
             "自備 API Key",
             "字典與片段",
@@ -1273,7 +1273,7 @@
       "freeMonthOfPro": "一個月免費 Pro",
       "youGet": "您可獲得",
       "freeMonth": "一個月免費",
-      "whenTheyDictate": "當對方聽寫滿 2,000 字時"
+      "whenTheyDictate": "當對方聽寫滿 5,000 字時"
     },
     "inviteLink": {
       "title": "您的邀請連結",
@@ -1524,7 +1524,7 @@
     "referral": "獲得一個月免費",
     "settings": "設定",
     "support": "支援",
-    "limitReached": "已達每週上限",
+    "limitReached": "已達每日上限",
     "limitReachedDescription": "升級至 Pro 即可無限轉錄。",
     "upgradeToPro": "升級至 Pro",
     "upgradeTitle": "升級至 Pro",
@@ -1534,8 +1534,8 @@
     "notSignedIn": "尚未登入"
   },
   "usage": {
-    "approachingLimit": "即將達到每週上限",
-    "approachingLimitDescription": "你本週已使用 {{wordsUsed}} / {{limit}} 個免費字數。",
+    "approachingLimit": "即將達到每日上限",
+    "approachingLimitDescription": "你今天已使用 {{wordsUsed}} / {{limit}} 個免費字數。",
     "yourPlan": "你的方案",
     "trial": "試用（剩餘 {{days}} 天）",
     "trial_other": "試用（剩餘 {{days}} 天）",
@@ -1543,11 +1543,11 @@
     "unlimitedTrial": "試用期間無限轉錄",
     "unlimited": "無限轉錄",
     "manageSubscription": "管理訂閱",
-    "weeklyUsage": "每週用量",
+    "dailyUsage": "每日用量",
     "limitReached": "已達上限",
     "free": "免費",
     "wordsRemaining": "剩餘 {{remaining}} 字",
-    "rollingLimit": "滾動式每週額度",
+    "dailyLimit": "每日額度",
     "upgradeToPro": "升級至 Pro",
     "useYourOwnKey": "使用自己的 API Key",
     "upgradeUnlimited": "升級至 Pro — 無限轉錄"

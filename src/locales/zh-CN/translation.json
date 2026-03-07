@@ -87,8 +87,8 @@
   },
   "upgradePrompt": {
     "paymentFailed": "我们无法处理你的付款",
-    "weeklyLimit": "你已达到本周的使用上限",
-    "pastDueDescription": "你目前使用的是免费版——别担心，每周仍有 {{limit}} 个词的额度。\n更新支付方式即可恢复无限制的 Pro 版。",
+    "weeklyLimit": "你已达到今日的使用上限",
+    "pastDueDescription": "你目前使用的是免费版——别担心，每日仍有 {{limit}} 个词的额度。\n更新支付方式即可恢复无限制的 Pro 版。",
     "limitDescription": "已使用 {{used}} / {{limit}} 个词。\n你的转录已保存并粘贴。",
     "updatePayment": "更新支付方式",
     "updatePaymentDescription": "恢复无限制的 Pro 版转录。",
@@ -98,7 +98,7 @@
     "useApiKeyDescription": "使用你自己的密钥，无限制使用。",
     "switchToLocal": "切换到本地模式",
     "switchToLocalDescription": "离线转录，无使用限制。",
-    "rollingWeeklyLimit": "滚动周限额"
+    "rollingWeeklyLimit": "每日限额"
   },
   "windowControls": {
     "minimize": "最小化",
@@ -196,13 +196,13 @@
       "availableButton": "有可用更新"
     },
     "limit": {
-      "weeklyTitle": "已达到周限额",
-      "weeklyDescription": "你的额度按滚动方式重置。升级到 Pro 或使用自己的 API Key 可不受限制。"
+      "weeklyTitle": "已达到每日限额",
+      "weeklyDescription": "你的额度每天重置。升级到 Pro 或使用自己的 API Key 可不受限制。"
     },
     "billing": {
       "pastDueTitle": "我们无法处理你的付款",
       "pastDueDescription": "别担心——你目前使用的是免费版。在设置中更新支付方式即可恢复 Pro 版。",
-      "bannerDescription": "你目前使用的是免费版——每周仍有 {{limit}} 个词的额度。更新支付方式即可恢复 Pro 版。",
+      "bannerDescription": "你目前使用的是免费版——每日仍有 {{limit}} 个词的额度。更新支付方式即可恢复 Pro 版。",
       "updatePayment": "更新支付方式"
     },
     "history": {
@@ -882,7 +882,7 @@
         "trial": "试用"
       },
       "planTitle": "套餐",
-      "rollingWeeklyLimit": "滚动周限额",
+      "rollingWeeklyLimit": "每日限额",
       "signOut": {
         "failedDescription": "退出登录时出错，请重试。",
         "failedTitle": "无法退出登录",
@@ -893,8 +893,8 @@
       "title": "账户",
       "toasts": {
         "approachingLimit": {
-          "description": "本周已使用 {{used}} / {{limit}} 个免费词数。升级到 Pro 可享受无限使用。",
-          "title": "即将达到周限额"
+          "description": "今日已使用 {{used}} / {{limit}} 个免费词数。升级到 Pro 可享受无限使用。",
+          "title": "即将达到每日限额"
         }
       },
       "trialCta": {
@@ -912,7 +912,7 @@
           "price": "$0",
           "period": "永久",
           "features": [
-            "每周 2,000 字",
+            "每日 5,000 字",
             "本地 AI 模型",
             "自带 API Key",
             "词典和片段",
@@ -1273,7 +1273,7 @@
       "freeMonthOfPro": "一个月免费 Pro",
       "youGet": "你将获得",
       "freeMonth": "一个月免费",
-      "whenTheyDictate": "当对方听写满 2,000 个词时"
+      "whenTheyDictate": "当对方听写满 5,000 个词时"
     },
     "inviteLink": {
       "title": "你的邀请链接",
@@ -1524,7 +1524,7 @@
     "referral": "获取免费一个月",
     "settings": "设置",
     "support": "支持",
-    "limitReached": "已达每周上限",
+    "limitReached": "已达每日上限",
     "limitReachedDescription": "升级到 Pro 即可无限转录。",
     "upgradeToPro": "升级到 Pro",
     "upgradeTitle": "升级到 Pro",
@@ -1534,8 +1534,8 @@
     "notSignedIn": "未登录"
   },
   "usage": {
-    "approachingLimit": "即将达到周限额",
-    "approachingLimitDescription": "你本周已使用 {{wordsUsed}} / {{limit}} 个免费词数。",
+    "approachingLimit": "即将达到每日限额",
+    "approachingLimitDescription": "你今日已使用 {{wordsUsed}} / {{limit}} 个免费词数。",
     "yourPlan": "你的套餐",
     "trial": "试用期（剩余 {{days}} 天）",
     "trial_other": "试用期（剩余 {{days}} 天）",
@@ -1543,11 +1543,11 @@
     "unlimitedTrial": "试用期间无限转录",
     "unlimited": "无限转录",
     "manageSubscription": "管理订阅",
-    "weeklyUsage": "每周用量",
+    "dailyUsage": "每日用量",
     "limitReached": "已达上限",
     "free": "免费版",
     "wordsRemaining": "剩余 {{remaining}} 个词",
-    "rollingLimit": "滚动周限额",
+    "dailyLimit": "每日限额",
     "upgradeToPro": "升级到 Pro",
     "useYourOwnKey": "使用自己的 API Key",
     "upgradeUnlimited": "升级到 Pro — 无限转录"

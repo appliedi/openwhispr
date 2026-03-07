@@ -68,7 +68,7 @@ export default function UsageDisplay() {
   return (
     <div className="bg-card border border-border rounded-xl p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-foreground">{t("usage.weeklyUsage")}</span>
+        <span className="text-sm font-medium text-foreground">{t("usage.dailyUsage")}</span>
         {usage.isOverLimit ? (
           <Badge variant="warning">{t("usage.limitReached")}</Badge>
         ) : (
@@ -94,7 +94,7 @@ export default function UsageDisplay() {
             </span>
           )}
           {!usage.isApproachingLimit && !usage.isOverLimit && (
-            <span className="text-xs text-muted-foreground">{t("usage.rollingLimit")}</span>
+            <span className="text-xs text-muted-foreground">{t("usage.dailyLimit")}</span>
           )}
         </div>
       </div>

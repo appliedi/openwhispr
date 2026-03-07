@@ -781,6 +781,7 @@ declare global {
         error?: string;
         code?: string;
       }>;
+      cloudUpdateByok?: (isByok: boolean) => Promise<{ success: boolean; error?: string }>;
       cloudUsage?: () => Promise<{
         success: boolean;
         wordsUsed?: number;

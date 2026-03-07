@@ -366,6 +366,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   cloudStreamingUsage: (text, audioDurationSeconds, opts) =>
     ipcRenderer.invoke("cloud-streaming-usage", text, audioDurationSeconds, opts),
   cloudUsage: () => ipcRenderer.invoke("cloud-usage"),
+  cloudUpdateByok: (isByok) => ipcRenderer.invoke("cloud-update-byok", isByok),
   cloudCheckout: (plan) => ipcRenderer.invoke("cloud-checkout", plan),
   cloudBillingPortal: () => ipcRenderer.invoke("cloud-billing-portal"),
   getSttConfig: () => ipcRenderer.invoke("get-stt-config"),

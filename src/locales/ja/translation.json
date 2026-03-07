@@ -87,8 +87,8 @@
   },
   "upgradePrompt": {
     "paymentFailed": "お支払いを処理できませんでした",
-    "weeklyLimit": "週間の利用上限に達しました",
-    "pastDueDescription": "現在は無料プランをご利用中です。ご安心ください、週 {{limit}} ワードまで引き続きご利用いただけます。\nお支払い方法を更新して、無制限の Pro に戻しましょう。",
+    "weeklyLimit": "1日の利用上限に達しました",
+    "pastDueDescription": "現在は無料プランをご利用中です。ご安心ください、1日 {{limit}} ワードまで引き続きご利用いただけます。\nお支払い方法を更新して、無制限の Pro に戻しましょう。",
     "limitDescription": "{{used}} / {{limit}} ワード使用済み。\n文字起こしは保存・貼り付けされました。",
     "updatePayment": "お支払い方法を更新",
     "updatePaymentDescription": "無制限の Pro 文字起こしに戻りましょう。",
@@ -98,7 +98,7 @@
     "useApiKeyDescription": "自分のキーで無制限に利用できます。",
     "switchToLocal": "ローカルに切り替え",
     "switchToLocalDescription": "オフライン文字起こし。制限なし。",
-    "rollingWeeklyLimit": "週間利用上限（ローリング）"
+    "rollingWeeklyLimit": "1日の利用上限"
   },
   "windowControls": {
     "minimize": "最小化",
@@ -196,13 +196,13 @@
       "availableButton": "アップデートあり"
     },
     "limit": {
-      "weeklyTitle": "週間の利用上限に達しました",
-      "weeklyDescription": "利用上限はローリング方式でリセットされます。Pro にアップグレードするか、自分の API キーを使用して無制限にご利用ください。"
+      "weeklyTitle": "1日の利用上限に達しました",
+      "weeklyDescription": "利用上限は毎日リセットされます。Pro にアップグレードするか、自分の API キーを使用して無制限にご利用ください。"
     },
     "billing": {
       "pastDueTitle": "お支払いを処理できませんでした",
       "pastDueDescription": "ご安心ください。現在は無料プランをご利用中です。設定からお支払い方法を更新して Pro に戻しましょう。",
-      "bannerDescription": "現在は無料プランをご利用中です。週 {{limit}} ワードまで利用できます。お支払い方法を更新して Pro に戻しましょう。",
+      "bannerDescription": "現在は無料プランをご利用中です。1日 {{limit}} ワードまで利用できます。お支払い方法を更新して Pro に戻しましょう。",
       "updatePayment": "お支払い方法を更新"
     },
     "history": {
@@ -870,9 +870,9 @@
         "title": "お支払いを処理できませんでした"
       },
       "planDescriptions": {
-        "freeUsage": "今週 {{used}} / {{limit}} ワード使用済み",
+        "freeUsage": "本日 {{used}} / {{limit}} ワード使用済み",
         "nextBilling": "次の請求日: {{date}}",
-        "pastDue": "今週 {{used}} / {{limit}} 無料ワード使用済み - お支払い方法を更新して Pro を復元",
+        "pastDue": "本日 {{used}} / {{limit}} 無料ワード使用済み - お支払い方法を更新して Pro を復元",
         "trial": "残り {{days}} 日 - 無制限の文字起こし",
         "unlimited": "無制限"
       },
@@ -892,7 +892,7 @@
           "price": "$0",
           "period": "永久",
           "features": [
-            "週 2,000 ワード",
+            "1日 5,000 ワード",
             "ローカル AI モデル",
             "自分の API キーを使用",
             "辞書とスニペット",
@@ -926,7 +926,7 @@
         },
         "currentPlan": "現在のプラン"
       },
-      "rollingWeeklyLimit": "週間利用上限（ローリング）",
+      "rollingWeeklyLimit": "1日の利用上限",
       "signOut": {
         "failedDescription": "サインアウト中に問題が発生しました。もう一度お試しください。",
         "failedTitle": "サインアウトできませんでした",
@@ -940,8 +940,8 @@
       "title": "アカウント",
       "toasts": {
         "approachingLimit": {
-          "description": "今週 {{used}} / {{limit}} 無料ワードを使用しました。Pro にアップグレードして無制限にご利用ください。",
-          "title": "週間利用上限に近づいています"
+          "description": "本日 {{used}} / {{limit}} 無料ワードを使用しました。Pro にアップグレードして無制限にご利用ください。",
+          "title": "1日の利用上限に近づいています"
         }
       },
       "trialCta": {
@@ -1458,7 +1458,7 @@
       "freeMonthOfPro": "Pro の無料 1 か月",
       "youGet": "あなたも",
       "freeMonth": "無料 1 か月",
-      "whenTheyDictate": "を獲得（相手が 2,000 語ディクテーションした時点で）"
+      "whenTheyDictate": "を獲得（相手が 5,000 語ディクテーションした時点で）"
     },
     "inviteLink": {
       "title": "招待リンク",
@@ -1524,7 +1524,7 @@
     "referral": "1か月無料を取得",
     "settings": "設定",
     "support": "サポート",
-    "limitReached": "週間の利用上限に達しました",
+    "limitReached": "1日の利用上限に達しました",
     "limitReachedDescription": "Pro にアップグレードして無制限の文字起こしをご利用ください。",
     "upgradeToPro": "Pro にアップグレード",
     "upgradeTitle": "Pro にアップグレード",
@@ -1534,8 +1534,8 @@
     "notSignedIn": "未サインイン"
   },
   "usage": {
-    "approachingLimit": "週間制限に近づいています",
-    "approachingLimitDescription": "今週の無料枠 {{limit}} 語のうち {{wordsUsed}} 語を使用しました。",
+    "approachingLimit": "1日の利用上限に近づいています",
+    "approachingLimitDescription": "本日の無料枠 {{limit}} 語のうち {{wordsUsed}} 語を使用しました。",
     "yourPlan": "現在のプラン",
     "trial": "トライアル（残り{{days}}日）",
     "trial_other": "トライアル（残り{{days}}日）",
@@ -1543,11 +1543,11 @@
     "unlimitedTrial": "トライアル期間中は無制限で文字起こし可能",
     "unlimited": "無制限の文字起こし",
     "manageSubscription": "サブスクリプションを管理",
-    "weeklyUsage": "週間使用量",
+    "dailyUsage": "本日の使用量",
     "limitReached": "制限に達しました",
     "free": "無料",
     "wordsRemaining": "残り{{remaining}}語",
-    "rollingLimit": "週間制限（ローリング方式）",
+    "dailyLimit": "1日の上限",
     "upgradeToPro": "Proにアップグレード",
     "useYourOwnKey": "自分のAPIキーを使用",
     "upgradeUnlimited": "Proにアップグレード — 無制限の文字起こし"

@@ -87,8 +87,8 @@
   },
   "upgradePrompt": {
     "paymentFailed": "We couldn't process your payment",
-    "weeklyLimit": "You've reached your weekly limit",
-    "pastDueDescription": "You're on the free plan for now — don't worry, you still get {{limit}} words per week.\nUpdate your payment method to get back to unlimited Pro.",
+    "weeklyLimit": "You've reached your daily limit",
+    "pastDueDescription": "You're on the free plan for now — don't worry, you still get {{limit}} words per day.\nUpdate your payment method to get back to unlimited Pro.",
     "limitDescription": "{{used}} of {{limit}} words used.\nYour transcription was saved and pasted.",
     "updatePayment": "Update payment method",
     "updatePaymentDescription": "Get back to unlimited Pro transcriptions.",
@@ -98,7 +98,7 @@
     "useApiKeyDescription": "Bring your own key for unlimited use.",
     "switchToLocal": "Switch to local",
     "switchToLocalDescription": "Offline transcription. No limits.",
-    "rollingWeeklyLimit": "Rolling weekly limit"
+    "rollingWeeklyLimit": "Daily limit"
   },
   "windowControls": {
     "minimize": "Minimize",
@@ -196,13 +196,13 @@
       "availableButton": "Update Available"
     },
     "limit": {
-      "weeklyTitle": "Weekly limit reached",
-      "weeklyDescription": "Your limit resets on a rolling basis. Upgrade to Pro or use your own API key for unlimited use."
+      "weeklyTitle": "Daily limit reached",
+      "weeklyDescription": "Your limit resets daily. Upgrade to Pro or use your own API key for unlimited use."
     },
     "billing": {
       "pastDueTitle": "We couldn't process your payment",
       "pastDueDescription": "Don't worry - you're on the free plan for now. Update your payment in Settings to get back to Pro.",
-      "bannerDescription": "You're on the free plan for now - you still get {{limit}} words per week. Update your payment to get back to Pro.",
+      "bannerDescription": "You're on the free plan for now - you still get {{limit}} words per day. Update your payment to get back to Pro.",
       "updatePayment": "Update Payment"
     },
     "history": {
@@ -883,9 +883,9 @@
         "title": "We couldn't process your payment"
       },
       "planDescriptions": {
-        "freeUsage": "{{used}} / {{limit}} words this week",
+        "freeUsage": "{{used}} / {{limit}} words today",
         "nextBilling": "Next billing: {{date}}",
-        "pastDue": "{{used}} / {{limit}} free words this week - update payment to restore Pro",
+        "pastDue": "{{used}} / {{limit}} free words today - update payment to restore Pro",
         "trial": "{{days}} days remaining - unlimited transcriptions",
         "unlimited": "Unlimited"
       },
@@ -905,7 +905,7 @@
           "price": "$0",
           "period": "forever",
           "features": [
-            "2,000 words/week",
+            "5,000 words/day",
             "Local AI models",
             "Bring your own keys",
             "Dictionary and snippets",
@@ -939,7 +939,7 @@
         },
         "currentPlan": "Current plan"
       },
-      "rollingWeeklyLimit": "Rolling weekly limit",
+      "rollingWeeklyLimit": "Daily limit",
       "signOut": {
         "failedDescription": "Something went wrong signing out. Please try again.",
         "failedTitle": "Couldn't sign out",
@@ -950,8 +950,8 @@
       "title": "Account",
       "toasts": {
         "approachingLimit": {
-          "description": "You've used {{used}} of {{limit}} free words this week. Upgrade to Pro for unlimited use.",
-          "title": "Approaching weekly limit"
+          "description": "You've used {{used}} of {{limit}} free words today. Upgrade to Pro for unlimited use.",
+          "title": "Approaching daily limit"
         }
       },
       "trialCta": {
@@ -1295,7 +1295,7 @@
     "referral": "Get a free month",
     "settings": "Settings",
     "support": "Support",
-    "limitReached": "Weekly limit reached",
+    "limitReached": "Daily limit reached",
     "limitReachedDescription": "Upgrade to Pro for unlimited transcriptions.",
     "upgradeToPro": "Upgrade to Pro",
     "upgradeTitle": "Upgrade to Pro",
@@ -1318,7 +1318,7 @@
       "freeMonthOfPro": "free month of Pro",
       "youGet": "You get a ",
       "freeMonth": "free month",
-      "whenTheyDictate": " when they dictate 2,000 words"
+      "whenTheyDictate": " when they dictate 5,000 words"
     },
     "inviteLink": {
       "title": "Your invite link",
@@ -1377,8 +1377,8 @@
     }
   },
   "usage": {
-    "approachingLimit": "Approaching Weekly Limit",
-    "approachingLimitDescription": "You've used {{wordsUsed}} of {{limit}} free words this week.",
+    "approachingLimit": "Approaching Daily Limit",
+    "approachingLimitDescription": "You've used {{wordsUsed}} of {{limit}} free words today.",
     "yourPlan": "Your Plan",
     "trial": "Trial ({{days}} day left)",
     "trial_other": "Trial ({{days}} days left)",
@@ -1386,14 +1386,19 @@
     "unlimitedTrial": "Unlimited transcriptions during your trial",
     "unlimited": "Unlimited transcriptions",
     "manageSubscription": "Manage Subscription",
-    "weeklyUsage": "Weekly Usage",
+    "dailyUsage": "Daily Usage",
     "limitReached": "Limit reached",
     "free": "Free",
     "wordsRemaining": "{{remaining}} words remaining",
-    "rollingLimit": "Rolling weekly limit",
+    "dailyLimit": "Daily limit",
     "upgradeToPro": "Upgrade to Pro",
     "useYourOwnKey": "Use Your Own Key",
     "upgradeUnlimited": "Upgrade to Pro — unlimited transcriptions"
+  },
+  "whatsNew": {
+    "title": "What's New",
+    "version": "Version {{version}}",
+    "dismiss": "Got it"
   },
   "notes": {
     "folders": {

@@ -87,8 +87,8 @@
   },
   "upgradePrompt": {
     "paymentFailed": "Ihre Zahlung konnte nicht verarbeitet werden",
-    "weeklyLimit": "Sie haben Ihr Wochenlimit erreicht",
-    "pastDueDescription": "Sie sind vorerst im kostenlosen Tarif – keine Sorge, Sie haben weiterhin {{limit}} Wörter pro Woche.\nAktualisieren Sie Ihre Zahlungsmethode, um wieder unbegrenztes Pro zu erhalten.",
+    "weeklyLimit": "Sie haben Ihr Tageslimit erreicht",
+    "pastDueDescription": "Sie sind vorerst im kostenlosen Tarif – keine Sorge, Sie haben weiterhin {{limit}} Wörter pro Tag.\nAktualisieren Sie Ihre Zahlungsmethode, um wieder unbegrenztes Pro zu erhalten.",
     "limitDescription": "{{used}} von {{limit}} Wörtern verwendet.\nIhre Transkription wurde gespeichert und eingefügt.",
     "updatePayment": "Zahlungsmethode aktualisieren",
     "updatePaymentDescription": "Zurück zu unbegrenzten Pro-Transkriptionen.",
@@ -98,7 +98,7 @@
     "useApiKeyDescription": "Verwenden Sie Ihren eigenen Schlüssel für unbegrenzte Nutzung.",
     "switchToLocal": "Zu lokal wechseln",
     "switchToLocalDescription": "Offline-Transkription. Keine Limits.",
-    "rollingWeeklyLimit": "Rollierendes Wochenlimit"
+    "rollingWeeklyLimit": "Tageslimit"
   },
   "windowControls": {
     "minimize": "Minimieren",
@@ -196,13 +196,13 @@
       "availableButton": "Update verfügbar"
     },
     "limit": {
-      "weeklyTitle": "Wochenlimit erreicht",
-      "weeklyDescription": "Ihr Limit setzt sich rollierend zurück. Upgraden Sie auf Pro oder nutzen Sie Ihren eigenen API-Schlüssel für unbegrenzte Nutzung."
+      "weeklyTitle": "Tageslimit erreicht",
+      "weeklyDescription": "Ihr Limit wird täglich zurückgesetzt. Upgraden Sie auf Pro oder nutzen Sie Ihren eigenen API-Schlüssel für unbegrenzte Nutzung."
     },
     "billing": {
       "pastDueTitle": "Ihre Zahlung konnte nicht verarbeitet werden",
       "pastDueDescription": "Keine Sorge – Sie sind vorerst im kostenlosen Tarif. Aktualisieren Sie Ihre Zahlungsdaten in den Einstellungen, um wieder Pro zu erhalten.",
-      "bannerDescription": "Sie sind momentan im kostenlosen Tarif – Sie haben weiterhin {{limit}} Wörter pro Woche. Aktualisieren Sie Ihre Zahlungsdaten, um wieder Pro zu erhalten.",
+      "bannerDescription": "Sie sind momentan im kostenlosen Tarif – Sie haben weiterhin {{limit}} Wörter pro Tag. Aktualisieren Sie Ihre Zahlungsdaten, um wieder Pro zu erhalten.",
       "updatePayment": "Zahlung aktualisieren"
     },
     "history": {
@@ -870,9 +870,9 @@
         "title": "Ihre Zahlung konnte nicht verarbeitet werden"
       },
       "planDescriptions": {
-        "freeUsage": "{{used}} / {{limit}} Wörter diese Woche",
+        "freeUsage": "{{used}} / {{limit}} Wörter heute",
         "nextBilling": "Nächste Abrechnung: {{date}}",
-        "pastDue": "{{used}} / {{limit}} kostenlose Wörter diese Woche – Zahlung aktualisieren, um Pro wiederherzustellen",
+        "pastDue": "{{used}} / {{limit}} kostenlose Wörter heute – Zahlung aktualisieren, um Pro wiederherzustellen",
         "trial": "Noch {{days}} Tage – unbegrenzte Transkriptionen",
         "unlimited": "Unbegrenzt"
       },
@@ -892,7 +892,7 @@
           "price": "$0",
           "period": "für immer",
           "features": [
-            "2.000 Wörter/Woche",
+            "5.000 Wörter/Tag",
             "Lokale KI-Modelle",
             "Eigene Schlüssel verwenden",
             "Wörterbuch und Snippets",
@@ -926,7 +926,7 @@
         },
         "currentPlan": "Aktueller Tarif"
       },
-      "rollingWeeklyLimit": "Rollierendes Wochenlimit",
+      "rollingWeeklyLimit": "Tageslimit",
       "signOut": {
         "failedDescription": "Beim Abmelden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
         "failedTitle": "Abmeldung fehlgeschlagen",
@@ -940,8 +940,8 @@
       "title": "Konto",
       "toasts": {
         "approachingLimit": {
-          "description": "Sie haben diese Woche {{used}} von {{limit}} kostenlosen Wörtern verwendet. Upgraden Sie auf Pro für unbegrenzte Nutzung.",
-          "title": "Wochenlimit fast erreicht"
+          "description": "Sie haben heute {{used}} von {{limit}} kostenlosen Wörtern verwendet. Upgraden Sie auf Pro für unbegrenzte Nutzung.",
+          "title": "Tageslimit fast erreicht"
         }
       },
       "trialCta": {
@@ -1273,7 +1273,7 @@
       "freeMonthOfPro": "kostenlosen Monat Pro",
       "youGet": "Du erhältst einen ",
       "freeMonth": "kostenlosen Monat",
-      "whenTheyDictate": " wenn sie 2.000 Wörter diktieren"
+      "whenTheyDictate": " wenn sie 5.000 Wörter diktieren"
     },
     "inviteLink": {
       "title": "Dein Einladungslink",
@@ -1524,7 +1524,7 @@
     "referral": "Gratis-Monat erhalten",
     "settings": "Einstellungen",
     "support": "Support",
-    "limitReached": "Wochenlimit erreicht",
+    "limitReached": "Tageslimit erreicht",
     "limitReachedDescription": "Upgraden Sie auf Pro für unbegrenzte Transkriptionen.",
     "upgradeToPro": "Auf Pro upgraden",
     "upgradeTitle": "Auf Pro upgraden",
@@ -1534,8 +1534,8 @@
     "notSignedIn": "Nicht angemeldet"
   },
   "usage": {
-    "approachingLimit": "Wochenlimit fast erreicht",
-    "approachingLimitDescription": "Du hast diese Woche {{wordsUsed}} von {{limit}} kostenlosen Wörtern verwendet.",
+    "approachingLimit": "Tageslimit fast erreicht",
+    "approachingLimitDescription": "Du hast heute {{wordsUsed}} von {{limit}} kostenlosen Wörtern verwendet.",
     "yourPlan": "Dein Tarif",
     "trial": "Testphase (noch {{days}} Tag)",
     "trial_other": "Testphase (noch {{days}} Tage)",
@@ -1543,11 +1543,11 @@
     "unlimitedTrial": "Unbegrenzte Transkriptionen während deiner Testphase",
     "unlimited": "Unbegrenzte Transkriptionen",
     "manageSubscription": "Abonnement verwalten",
-    "weeklyUsage": "Wöchentliche Nutzung",
+    "dailyUsage": "Tägliche Nutzung",
     "limitReached": "Limit erreicht",
     "free": "Kostenlos",
     "wordsRemaining": "Noch {{remaining}} Wörter",
-    "rollingLimit": "Rollierendes Wochenlimit",
+    "dailyLimit": "Tageslimit",
     "upgradeToPro": "Auf Pro upgraden",
     "useYourOwnKey": "Eigenen API-Schlüssel verwenden",
     "upgradeUnlimited": "Auf Pro upgraden – unbegrenzte Transkriptionen"

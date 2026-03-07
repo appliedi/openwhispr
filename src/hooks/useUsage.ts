@@ -66,7 +66,7 @@ export function useUsage(): UseUsageResult | null {
           setData({
             wordsUsed: result.wordsUsed ?? 0,
             wordsRemaining: result.wordsRemaining ?? 0,
-            limit: result.limit ?? 2000,
+            limit: result.limit ?? 5000,
             plan: result.plan ?? "free",
             status: result.status ?? "active",
             isSubscribed: result.isSubscribed ?? false,
@@ -172,7 +172,7 @@ export function useUsage(): UseUsageResult | null {
   if (!isSignedIn) return null;
 
   const wordsUsed = data?.wordsUsed ?? 0;
-  const limit = data?.limit ?? 2000;
+  const limit = data?.limit ?? 5000;
   const isSubscribed = data?.isSubscribed ?? false;
   const status = data?.status ?? "active";
   const isPastDue = data?.plan === "pro" && status === "past_due";

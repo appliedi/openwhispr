@@ -31,6 +31,7 @@ const PersonalNotesView = React.lazy(() => import("./notes/PersonalNotesView"));
 const DictionaryView = React.lazy(() => import("./DictionaryView"));
 const UploadAudioView = React.lazy(() => import("./notes/UploadAudioView"));
 const CommandSearch = React.lazy(() => import("./CommandSearch"));
+const WhatsNew = React.lazy(() => import("./WhatsNew"));
 
 export default function ControlPanel() {
   const { t } = useTranslation();
@@ -46,6 +47,7 @@ export default function ControlPanel() {
   );
   const [showReferrals, setShowReferrals] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [showWhatsNew, setShowWhatsNew] = useState(true);
   const [showCloudMigrationBanner, setShowCloudMigrationBanner] = useState(false);
   const [activeView, setActiveView] = useState<ControlPanelView>("home");
   const [gpuAccelAvailable, setGpuAccelAvailable] = useState<{ cuda: boolean; vulkan: boolean }>({
@@ -444,6 +446,12 @@ export default function ControlPanel() {
       {showReferrals && (
         <Suspense fallback={null}>
           <ReferralModal open={showReferrals} onOpenChange={setShowReferrals} />
+        </Suspense>
+      )}
+
+      {showWhatsNew && (
+        <Suspense fallback={null}>
+          <WhatsNew onClose={() => setShowWhatsNew(false)} />
         </Suspense>
       )}
 

@@ -38,6 +38,8 @@ export function useAuth() {
     return () => window.removeEventListener("storage", handleStorage);
   }, [refreshAuth]);
 
+  const [isSessionSynced, setIsSessionSynced] = useState(false);
+
   useEffect(() => {
     if (isLoaded && isSignedIn && !lastSyncedRef.current) {
       logger.debug(
@@ -52,7 +54,11 @@ export function useAuth() {
       const token = getSessionToken();
       const savedUser = getSessionUser();
       if (token && window.electronAPI?.authSetSession) {
-        window.electronAPI.authSetSession(token, savedUser as unknown as Record<string, unknown>);
+        window.electronAPI
+          .authSetSession(token, savedUser as unknown as Record<string, unknown>)
+          .then(() => setIsSessionSynced(true));
+      } else {
+        setIsSessionSynced(true);
       }
 
       // Sync privacy settings to main process so it knows current values on startup
@@ -65,7 +71,7 @@ export function useAuth() {
   }, [isSignedIn, hasToken, gracePeriodActive, isLoaded]);
 
   return {
-    isSignedIn,
+    isSignedIn: isSignedIn && isSessionSynced,
     isLoaded,
     session: hasToken ? { token: true } : null,
     user,

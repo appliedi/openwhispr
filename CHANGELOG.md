@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Enforce cloud backup setting** — Notes sync now respects `cloudBackupEnabled` toggle; sync service only starts when enabled, manual sync blocked when disabled
+- **Enforce telemetry setting** — `sendLogs` field gated on `telemetryEnabled`; when OFF, no telemetry data is sent to cloud API routes
+- **Enforce audio retention setting** — Audio cleanup now uses user's configured `audioRetentionDays` instead of hardcoded 30 days; setting 0 disables cleanup entirely
+
 ### Security
 
 - **C1: URL validation in `shell.openExternal`** — Reject non-http/https URLs (blocks `file://`, `javascript:`, custom protocol attacks)

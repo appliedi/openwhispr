@@ -182,6 +182,16 @@ CREATE TABLE transcriptions (
 - **localStorage**: UI settings (whisperModel, useLocalWhisper, language, hotkey, agentName, customDictionary, etc.)
 - **`.env` file**: API keys and engine preferences (persisted via `saveAllKeysToEnvFile()`)
 
+### Privacy & Data Settings (Enforced)
+
+Three privacy settings live in renderer localStorage and are synced to the main process via fire-and-forget IPC (`ipcRenderer.send`):
+
+- **`cloudBackupEnabled`** (default OFF) — Gates notes sync service start/stop and manual sync. Main process stores in `_cloudBackupEnabled`.
+- **`telemetryEnabled`** (default OFF) — Gates `sendLogs` field sent to cloud API routes. When OFF, no telemetry is inserted server-side.
+- **`audioRetentionDays`** (default 30) — Used by `_setupAudioCleanup()` instead of hardcoded value. 0 = cleanup disabled. Main process stores in `_audioRetentionDays`.
+
+Initial values are synced from renderer to main process in `useAuth.ts` on auth load.
+
 ## Debug Mode
 
 Enable with `--log-level=debug` or `FLOWRYTR_LOG_LEVEL=debug` (legacy: `OPENWHISPR_LOG_LEVEL` also accepted) in `.env`. Logs written to platform-specific app data directory.

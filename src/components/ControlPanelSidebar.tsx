@@ -10,6 +10,8 @@ import {
   UserCircle,
   X,
   Search,
+  CalendarDays,
+  Video,
 } from "lucide-react";
 import logoIcon from "../assets/icon.png";
 import { useTranslation } from "react-i18next";
@@ -19,7 +21,13 @@ import { getCachedPlatform } from "../utils/platform";
 
 const platform = getCachedPlatform();
 
-export type ControlPanelView = "home" | "personal-notes" | "dictionary" | "upload";
+export type ControlPanelView =
+  | "home"
+  | "personal-notes"
+  | "dictionary"
+  | "upload"
+  | "calendar"
+  | "cloud-meetings";
 
 interface ControlPanelSidebarProps {
   activeView: ControlPanelView;
@@ -75,12 +83,17 @@ export default function ControlPanelSidebar({
     id: ControlPanelView;
     label: string;
     icon: React.ComponentType<{ size?: number; className?: string }>;
+    proOnly?: boolean;
   }[] = [
     { id: "home", label: t("sidebar.home"), icon: Home },
     { id: "personal-notes", label: t("sidebar.notes"), icon: NotebookPen },
     { id: "upload", label: t("sidebar.upload"), icon: Upload },
+    { id: "calendar", label: t("sidebar.calendar"), icon: CalendarDays, proOnly: true },
+    { id: "cloud-meetings", label: t("sidebar.cloudMeetings"), icon: Video, proOnly: true },
     { id: "dictionary", label: t("sidebar.dictionary"), icon: BookOpen },
   ];
+
+  const visibleNavItems = navItems.filter((item) => !item.proOnly || (isSignedIn && isProUser));
 
   return (
     <div className="w-48 shrink-0 border-r border-border/15 dark:border-white/6 flex flex-col bg-surface-1/60 dark:bg-surface-1">
@@ -112,7 +125,7 @@ export default function ControlPanelSidebar({
       )}
 
       <nav className="flex flex-col gap-0.5 px-2 pt-2 pb-2">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeView === item.id;
 

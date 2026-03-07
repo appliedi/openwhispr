@@ -1,6 +1,7 @@
 const https = require("https");
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const { execSync } = require("child_process");
 
 const REQUEST_TIMEOUT = 30000;
@@ -321,13 +322,33 @@ function cleanupFiles(binDir, prefix, keepPrefix) {
   });
 }
 
+function verifyChecksum(filePath, expectedSha256) {
+  const fileBuffer = fs.readFileSync(filePath);
+  const hash = crypto.createHash("sha256").update(fileBuffer).digest("hex");
+  if (hash !== expectedSha256) {
+    fs.unlinkSync(filePath);
+    throw new Error(
+      `Checksum mismatch for ${path.basename(filePath)}: expected ${expectedSha256}, got ${hash}`
+    );
+  }
+  return true;
+}
+
+function loadChecksums() {
+  const checksumPath = path.join(__dirname, "..", "checksums.json");
+  if (!fs.existsSync(checksumPath)) return {};
+  return JSON.parse(fs.readFileSync(checksumPath, "utf8"));
+}
+
 module.exports = {
   downloadFile,
   extractArchive,
   extractZip,
   fetchLatestRelease,
   findBinaryInDir,
+  loadChecksums,
   parseArgs,
   setExecutable,
   cleanupFiles,
+  verifyChecksum,
 };

@@ -6,6 +6,7 @@ import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
 import { Button } from "./ui/button";
 import { useSettingsStore } from "../stores/settingsStore";
+import { hasStoredByokKey } from "../utils/byokDetection";
 
 export default function UsageDisplay() {
   const { t } = useTranslation();
@@ -30,6 +31,9 @@ export default function UsageDisplay() {
 
   if (!usage) return null;
 
+  const isByok =
+    useSettingsStore.getState().cloudTranscriptionMode === "byok" || hasStoredByokKey();
+
   // Pro plan or trial — minimal display
   if (usage.isSubscribed) {
     return (
@@ -47,11 +51,56 @@ export default function UsageDisplay() {
         <p className="text-sm text-muted-foreground">
           {usage.isTrial ? t("usage.unlimitedTrial") : t("usage.unlimited")}
         </p>
+        {usage.meetingUsage && (
+          <div className="text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">{t("usage.meetingMinutes")}</span>
+            <span className="ml-1">
+              {t("usage.meetingMinutesUsed", {
+                used: usage.meetingUsage.minutesUsed,
+                limit: usage.meetingUsage.minutesLimit,
+              })}
+            </span>
+          </div>
+        )}
         {!usage.isTrial && (
           <Button variant="outline" size="sm" onClick={() => usage.openBillingPortal()}>
             {t("usage.manageSubscription")}
           </Button>
         )}
+      </div>
+    );
+  }
+
+  // Free plan with BYOK — show unlimited
+  if (isByok) {
+    return (
+      <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-foreground">{t("usage.dailyUsage")}</span>
+          <Badge variant="outline">{t("usage.free")}</Badge>
+        </div>
+        <p className="text-sm text-muted-foreground">{t("usage.unlimitedByok")}</p>
+        {usage.meetingUsage && (
+          <div className="text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">{t("usage.meetingMinutes")}</span>
+            <span className="ml-1">
+              {t("usage.meetingMinutesUsed", {
+                used: usage.meetingUsage.minutesUsed,
+                limit: usage.meetingUsage.minutesLimit,
+              })}
+            </span>
+          </div>
+        )}
+        <a
+          href="#"
+          className="text-primary hover:text-primary/80 text-sm inline-block"
+          onClick={(e) => {
+            e.preventDefault();
+            usage.openCheckout();
+          }}
+        >
+          {t("usage.upgradeUnlimited")}
+        </a>
       </div>
     );
   }
@@ -98,6 +147,18 @@ export default function UsageDisplay() {
           )}
         </div>
       </div>
+
+      {usage.meetingUsage && (
+        <div className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">{t("usage.meetingMinutes")}</span>
+          <span className="ml-1">
+            {t("usage.meetingMinutesUsed", {
+              used: usage.meetingUsage.minutesUsed,
+              limit: usage.meetingUsage.minutesLimit,
+            })}
+          </span>
+        </div>
+      )}
 
       {usage.isOverLimit ? (
         <div className="flex gap-2">

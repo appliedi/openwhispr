@@ -230,6 +230,11 @@ export function handleAuthCallback(params: URLSearchParams): {
     window.electronAPI.authSetSession(token, user as unknown as Record<string, unknown>);
   }
 
+  // Ensure user exists in cloud database (fire-and-forget)
+  if (window.electronAPI?.cloudInitUser) {
+    window.electronAPI.cloudInitUser().catch(() => {});
+  }
+
   logger.debug("Auth callback processed", { email, plan }, "auth");
   return { success: true, user };
 }

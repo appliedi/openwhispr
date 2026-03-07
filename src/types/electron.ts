@@ -257,6 +257,82 @@ export interface LlamaVulkanDownloadProgress {
   percentage: number;
 }
 
+export interface CalendarConnection {
+  id: string;
+  platform: "google" | "microsoft";
+  email: string;
+  connected_at: string;
+  recording_preferences?: Record<string, unknown>;
+}
+
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  start_time: string;
+  end_time: string;
+  meeting_url: string | null;
+  platform: string | null;
+  attendees: Array<{ name: string; email: string }>;
+  auto_record: boolean;
+}
+
+export interface CloudMeeting {
+  id: string;
+  meeting_url: string;
+  platform: string;
+  source: "manual" | "calendar";
+  status: string;
+  title: string | null;
+  duration_seconds: number | null;
+  recording_url: string | null;
+  transcript_provider: string | null;
+  created_at: string;
+  updated_at: string;
+  participants?: MeetingParticipant[];
+}
+
+export interface MeetingParticipant {
+  id: string;
+  name: string;
+  email: string | null;
+  is_host: boolean;
+}
+
+export interface MeetingSegment {
+  id: string;
+  participant_id: string | null;
+  participant_name: string | null;
+  text: string;
+  start_time: number;
+  end_time: number;
+  sequence_number: number;
+}
+
+export interface DesktopSession {
+  id: string;
+  device_name: string;
+  last_used_at: string;
+  created_at: string;
+  expires_at: string;
+  is_current?: boolean;
+}
+
+export interface NotesSyncResult {
+  success: boolean;
+  pushed?: number;
+  pulled?: number;
+  deleted?: number;
+  errors?: string[];
+  skipped?: boolean;
+  error?: string;
+}
+
+export interface NotesSyncStatus {
+  syncing: boolean;
+  lastSyncAt: string | null;
+  running: boolean;
+}
+
 export interface ReferralItem {
   id: string;
   email: string;
@@ -290,7 +366,7 @@ declare global {
         text: string,
         rawText?: string | null
       ) => Promise<{ id: number; success: boolean; transcription?: TranscriptionItem }>;
-      getTranscriptions: (limit?: number) => Promise<TranscriptionItem[]>;
+      getTranscriptions: (limit?: number, offset?: number) => Promise<TranscriptionItem[]>;
       clearTranscriptions: () => Promise<{ cleared: number; success: boolean }>;
       deleteTranscription: (id: number) => Promise<{ success: boolean }>;
       getTranscriptionById: (id: number) => Promise<TranscriptionItem | null>;
@@ -798,6 +874,15 @@ declare global {
         error?: string;
         code?: string;
       }>;
+      cloudMeetingUsage?: () => Promise<{
+        success: boolean;
+        minutes_used?: number;
+        minutes_limit?: number;
+        minutes_remaining?: number;
+        percentage_used?: number;
+        error?: string;
+        code?: string;
+      }>;
       cloudCheckout?: (plan?: "monthly" | "annual") => Promise<{
         success: boolean;
         url?: string;
@@ -884,6 +969,110 @@ declare global {
           }>
         ) => void
       ) => () => void;
+
+      // Notes Sync
+      cloudNotesSync?: () => Promise<NotesSyncResult>;
+      cloudNotesSyncStatus?: () => Promise<NotesSyncStatus>;
+      cloudNotesSyncStart?: () => Promise<{ success: boolean }>;
+      cloudNotesSyncStop?: () => Promise<{ success: boolean }>;
+
+      // Calendar Integration
+      cloudCalendarConnect?: (platform: string) => Promise<{
+        success: boolean;
+        oauth_url?: string;
+        error?: string;
+        code?: string;
+      }>;
+      cloudCalendarStatus?: () => Promise<{
+        success: boolean;
+        connections?: CalendarConnection[];
+        error?: string;
+        code?: string;
+      }>;
+      cloudCalendarEvents?: () => Promise<{
+        success: boolean;
+        events?: CalendarEvent[];
+        error?: string;
+        code?: string;
+      }>;
+      cloudCalendarPreferences?: (prefs: Record<string, unknown>) => Promise<{
+        success: boolean;
+        error?: string;
+        code?: string;
+      }>;
+      cloudCalendarDisconnect?: (connectionId: string) => Promise<{
+        success: boolean;
+        error?: string;
+        code?: string;
+      }>;
+
+      // Cloud Meetings
+      cloudMeetingsList?: (opts?: { limit?: number; before?: string }) => Promise<{
+        success: boolean;
+        meetings?: CloudMeeting[];
+        error?: string;
+        code?: string;
+      }>;
+      cloudMeetingGet?: (meetingId: string) => Promise<{
+        success: boolean;
+        meeting?: CloudMeeting;
+        error?: string;
+        code?: string;
+      }>;
+      cloudMeetingTranscript?: (meetingId: string) => Promise<{
+        success: boolean;
+        segments?: MeetingSegment[];
+        error?: string;
+        code?: string;
+      }>;
+      cloudMeetingRecording?: (meetingId: string) => Promise<{
+        success: boolean;
+        url?: string;
+        error?: string;
+        code?: string;
+      }>;
+      cloudMeetingStop?: (meetingId: string) => Promise<{
+        success: boolean;
+        error?: string;
+        code?: string;
+      }>;
+      cloudMeetingDelete?: (meetingId: string) => Promise<{
+        success: boolean;
+        error?: string;
+        code?: string;
+      }>;
+      cloudMeetingsSearch?: (query: string) => Promise<{
+        success: boolean;
+        results?: Array<{ meeting: CloudMeeting; segments: MeetingSegment[] }>;
+        error?: string;
+        code?: string;
+      }>;
+      cloudMeetingCreate?: (meetingUrl: string) => Promise<{
+        success: boolean;
+        meeting?: CloudMeeting;
+        error?: string;
+        code?: string;
+      }>;
+
+      // Device Management
+      cloudListSessions?: () => Promise<{
+        success: boolean;
+        sessions?: DesktopSession[];
+        error?: string;
+        code?: string;
+      }>;
+      cloudRevokeSession?: (sessionId: string) => Promise<{
+        success: boolean;
+        error?: string;
+        code?: string;
+      }>;
+
+      // User Init
+      cloudInitUser?: () => Promise<{
+        success: boolean;
+        error?: string;
+        code?: string;
+      }>;
 
       // Referral stats
       getReferralStats?: () => Promise<{

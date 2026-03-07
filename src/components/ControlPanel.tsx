@@ -21,6 +21,7 @@ import ControlPanelSidebar, { type ControlPanelView } from "./ControlPanelSideba
 import WindowControls from "./WindowControls";
 import { getCachedPlatform } from "../utils/platform";
 import { setActiveNoteId, setActiveFolderId } from "../stores/noteStore";
+import ErrorBoundary from "./ui/ErrorBoundary";
 import HistoryView from "./HistoryView";
 
 const platform = getCachedPlatform();
@@ -32,6 +33,8 @@ const DictionaryView = React.lazy(() => import("./DictionaryView"));
 const UploadAudioView = React.lazy(() => import("./notes/UploadAudioView"));
 const CommandSearch = React.lazy(() => import("./CommandSearch"));
 const WhatsNew = React.lazy(() => import("./WhatsNew"));
+const CalendarEventsView = React.lazy(() => import("./CalendarEventsView"));
+const CloudMeetingsView = React.lazy(() => import("./CloudMeetingsView"));
 
 export default function ControlPanel() {
   const { t } = useTranslation();
@@ -134,8 +137,8 @@ export default function ControlPanel() {
           setShowUpgradePrompt(true);
         } else {
           toast({
-            title: t("controlPanel.limit.weeklyTitle"),
-            description: t("controlPanel.limit.weeklyDescription"),
+            title: t("controlPanel.limit.dailyTitle"),
+            description: t("controlPanel.limit.dailyDescription"),
             duration: 5000,
           });
         }
@@ -431,45 +434,53 @@ export default function ControlPanel() {
       />
 
       {showSettings && (
-        <Suspense fallback={null}>
-          <SettingsModal
-            open={showSettings}
-            onOpenChange={(open) => {
-              setShowSettings(open);
-              if (!open) setSettingsSection(undefined);
-            }}
-            initialSection={settingsSection}
-          />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <SettingsModal
+              open={showSettings}
+              onOpenChange={(open) => {
+                setShowSettings(open);
+                if (!open) setSettingsSection(undefined);
+              }}
+              initialSection={settingsSection}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
 
       {showReferrals && (
-        <Suspense fallback={null}>
-          <ReferralModal open={showReferrals} onOpenChange={setShowReferrals} />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <ReferralModal open={showReferrals} onOpenChange={setShowReferrals} />
+          </Suspense>
+        </ErrorBoundary>
       )}
 
       {showWhatsNew && (
-        <Suspense fallback={null}>
-          <WhatsNew onClose={() => setShowWhatsNew(false)} />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <WhatsNew onClose={() => setShowWhatsNew(false)} />
+          </Suspense>
+        </ErrorBoundary>
       )}
 
       {showSearch && (
-        <Suspense fallback={null}>
-          <CommandSearch
-            open={showSearch}
-            onOpenChange={setShowSearch}
-            transcriptions={history}
-            onNoteSelect={(id) => {
-              setActiveNoteId(id);
-              setActiveView("personal-notes");
-            }}
-            onTranscriptSelect={() => {
-              setActiveView("home");
-            }}
-          />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <CommandSearch
+              open={showSearch}
+              onOpenChange={setShowSearch}
+              transcriptions={history}
+              onNoteSelect={(id) => {
+                setActiveNoteId(id);
+                setActiveView("personal-notes");
+              }}
+              onTranscriptSelect={() => {
+                setActiveView("home");
+              }}
+            />
+          </Suspense>
+        </ErrorBoundary>
       )}
 
       <div className="flex flex-1 overflow-hidden">
@@ -623,34 +634,54 @@ export default function ControlPanel() {
               />
             )}
             {activeView === "personal-notes" && (
-              <Suspense fallback={null}>
-                <PersonalNotesView
-                  onOpenSettings={(section) => {
-                    setSettingsSection(section);
-                    setShowSettings(true);
-                  }}
-                />
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={null}>
+                  <PersonalNotesView
+                    onOpenSettings={(section) => {
+                      setSettingsSection(section);
+                      setShowSettings(true);
+                    }}
+                  />
+                </Suspense>
+              </ErrorBoundary>
             )}
             {activeView === "dictionary" && (
-              <Suspense fallback={null}>
-                <DictionaryView />
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={null}>
+                  <DictionaryView />
+                </Suspense>
+              </ErrorBoundary>
             )}
             {activeView === "upload" && (
-              <Suspense fallback={null}>
-                <UploadAudioView
-                  onNoteCreated={(noteId, folderId) => {
-                    setActiveNoteId(noteId);
-                    if (folderId) setActiveFolderId(folderId);
-                    setActiveView("personal-notes");
-                  }}
-                  onOpenSettings={(section) => {
-                    setSettingsSection(section);
-                    setShowSettings(true);
-                  }}
-                />
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={null}>
+                  <UploadAudioView
+                    onNoteCreated={(noteId, folderId) => {
+                      setActiveNoteId(noteId);
+                      if (folderId) setActiveFolderId(folderId);
+                      setActiveView("personal-notes");
+                    }}
+                    onOpenSettings={(section) => {
+                      setSettingsSection(section);
+                      setShowSettings(true);
+                    }}
+                  />
+                </Suspense>
+              </ErrorBoundary>
+            )}
+            {activeView === "calendar" && (
+              <ErrorBoundary>
+                <Suspense fallback={null}>
+                  <CalendarEventsView />
+                </Suspense>
+              </ErrorBoundary>
+            )}
+            {activeView === "cloud-meetings" && (
+              <ErrorBoundary>
+                <Suspense fallback={null}>
+                  <CloudMeetingsView />
+                </Suspense>
+              </ErrorBoundary>
             )}
           </div>
         </main>

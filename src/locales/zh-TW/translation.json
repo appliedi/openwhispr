@@ -87,7 +87,7 @@
   },
   "upgradePrompt": {
     "paymentFailed": "我們無法處理你的付款",
-    "weeklyLimit": "你已達到今日的使用上限",
+    "dailyLimit": "你已達到今日的使用上限",
     "pastDueDescription": "你目前使用的是免費方案，別擔心，每天仍有 {{limit}} 字的額度。\n更新付款方式即可恢復無限制的 Pro 方案。",
     "limitDescription": "已使用 {{used}} / {{limit}} 字。\n你的轉錄已儲存並貼上。",
     "updatePayment": "更新付款方式",
@@ -98,7 +98,7 @@
     "useApiKeyDescription": "自備金鑰，無限使用。",
     "switchToLocal": "切換至本機模式",
     "switchToLocalDescription": "離線轉錄，無任何限制。",
-    "rollingWeeklyLimit": "每日額度"
+    "rollingDailyLimit": "每日額度"
   },
   "windowControls": {
     "minimize": "最小化",
@@ -196,8 +196,8 @@
       "availableButton": "有可用更新"
     },
     "limit": {
-      "weeklyTitle": "已達每日使用上限",
-      "weeklyDescription": "你的額度每天重置。升級至 Pro 或使用自己的 API Key 即可無限使用。"
+      "dailyTitle": "已達每日使用上限",
+      "dailyDescription": "你的額度每天重置。升級至 Pro 或使用自己的 API Key 即可無限使用。"
     },
     "billing": {
       "pastDueTitle": "我們無法處理你的付款",
@@ -223,7 +223,8 @@
       "dateGroups": {
         "today": "今天",
         "yesterday": "昨天"
-      }
+      },
+      "loadMore": "載入更多"
     },
     "cloudMigration": {
       "title": "歡迎使用 flowrytr Pro",
@@ -576,9 +577,9 @@
     "waiting": "等待驗證中..."
   },
   "errorBoundary": {
-    "description": "發生意外錯誤。請重新載入後再試。",
-    "reload": "重新載入",
-    "title": "發生錯誤"
+    "title": "出了點問題",
+    "description": "此區段載入失敗。請重試或重新啟動應用程式。",
+    "retry": "重試"
   },
   "forgotPassword": {
     "back": "返回",
@@ -882,7 +883,7 @@
         "trial": "試用"
       },
       "planTitle": "方案",
-      "rollingWeeklyLimit": "每日額度",
+      "rollingDailyLimit": "每日額度",
       "signOut": {
         "failedDescription": "登出時發生錯誤。請再試一次。",
         "failedTitle": "無法登出",
@@ -1531,7 +1532,9 @@
     "upgradeDescription": "無限轉錄、即時轉錄等更多功能。",
     "learnMore": "瞭解更多",
     "defaultUser": "使用者",
-    "notSignedIn": "尚未登入"
+    "notSignedIn": "尚未登入",
+    "calendar": "行事曆",
+    "cloudMeetings": "雲端會議"
   },
   "usage": {
     "approachingLimit": "即將達到每日上限",
@@ -1550,7 +1553,10 @@
     "dailyLimit": "每日額度",
     "upgradeToPro": "升級至 Pro",
     "useYourOwnKey": "使用自己的 API Key",
-    "upgradeUnlimited": "升級至 Pro — 無限轉錄"
+    "upgradeUnlimited": "升級至 Pro — 無限轉錄",
+    "meetingMinutes": "會議分鐘",
+    "meetingMinutesUsed": "本月已用 {{used}} / {{limit}} 分鐘",
+    "unlimitedByok": "無限制 (BYOK)"
   },
   "support": {
     "joinDiscord": "加入 Discord",
@@ -1652,5 +1658,68 @@
       "open": "開啟",
       "dismiss": "關閉"
     }
+  },
+  "notesSync": {
+    "syncing": "正在同步筆記…",
+    "synced": "筆記已同步",
+    "lastSync": "上次同步 {{time}}",
+    "error": "同步錯誤",
+    "syncNow": "立即同步",
+    "offline": "離線 — 連線後將自動同步"
+  },
+  "calendar": {
+    "title": "行事曆",
+    "connect": "連接行事曆",
+    "connectGoogle": "連接 Google 日曆",
+    "connectMicrosoft": "連接 Microsoft 行事曆",
+    "connecting": "正在連接…",
+    "connected": "已連接",
+    "disconnect": "中斷連線",
+    "disconnectConfirm": "確定要中斷此行事曆的連線嗎？",
+    "noConnections": "尚未連接任何行事曆",
+    "noConnectionsDescription": "連接行事曆以自動錄製會議",
+    "upcomingEvents": "即將到來的活動",
+    "noEvents": "沒有即將到來的活動",
+    "join": "加入",
+    "autoRecord": "自動錄製",
+    "preferences": "錄製偏好設定",
+    "recordAll": "錄製所有會議",
+    "recordHostOnly": "僅在我是主持人時錄製",
+    "proRequired": "升級至 Pro 以使用行事曆整合",
+    "oauthInstructions": "在瀏覽器中完成登入以連接行事曆"
+  },
+  "cloudMeetings": {
+    "title": "雲端會議",
+    "empty": "尚無雲端會議",
+    "emptyDescription": "錄製一場會議即可在此檢視",
+    "record": "錄製會議",
+    "recordPlaceholder": "貼上會議連結（Zoom、Teams、Meet…）",
+    "recordStart": "開始錄製",
+    "recording": "錄製中",
+    "completed": "已完成",
+    "error": "錯誤",
+    "joining": "正在加入…",
+    "processing": "處理中…",
+    "transcript": "轉錄文字",
+    "participants": "參與者",
+    "downloadRecording": "下載錄製",
+    "stopRecording": "停止錄製",
+    "deleteMeeting": "刪除會議",
+    "deleteConfirm": "此操作將永久刪除會議、轉錄及錄製內容。",
+    "search": "搜尋轉錄…",
+    "noTranscript": "暫無轉錄",
+    "duration": "{{minutes}} 分鐘",
+    "proRequired": "升級至 Pro 以使用雲端會議"
+  },
+  "devices": {
+    "title": "已連結裝置",
+    "description": "管理與你的 flowrytr 帳戶連結的裝置",
+    "currentDevice": "目前裝置",
+    "lastUsed": "上次使用 {{time}}",
+    "created": "建立於 {{time}}",
+    "revoke": "撤銷",
+    "revokeConfirm": "確定要撤銷此裝置的存取權限嗎？",
+    "revokeCurrentWarning": "撤銷目前裝置將使你登出。",
+    "noDevices": "沒有已連結的裝置"
   }
 }

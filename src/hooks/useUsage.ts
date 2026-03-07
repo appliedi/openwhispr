@@ -17,6 +17,12 @@ interface UsageData {
   resetAt: string;
 }
 
+interface MeetingUsageData {
+  minutesUsed: number;
+  minutesLimit: number;
+  minutesRemaining: number;
+}
+
 interface UseUsageResult {
   plan: string;
   status: string;
@@ -32,6 +38,7 @@ interface UseUsageResult {
   isOverLimit: boolean;
   isApproachingLimit: boolean;
   resetAt: string | null;
+  meetingUsage: MeetingUsageData | null;
   isLoading: boolean;
   hasLoaded: boolean;
   error: string | null;
@@ -46,6 +53,7 @@ const USAGE_CACHE_TTL = CACHE_CONFIG.API_KEY_TTL; // 1 hour
 export function useUsage(): UseUsageResult | null {
   const { isSignedIn, isLoaded } = useAuth();
   const [data, setData] = useState<UsageData | null>(null);
+  const [meetingUsage, setMeetingUsage] = useState<MeetingUsageData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,6 +91,21 @@ export function useUsage(): UseUsageResult | null {
           throw error;
         }
       });
+
+      if (window.electronAPI?.cloudMeetingUsage) {
+        try {
+          const meetingResult = await window.electronAPI.cloudMeetingUsage();
+          if (meetingResult.success) {
+            setMeetingUsage({
+              minutesUsed: meetingResult.minutes_used ?? 0,
+              minutesLimit: meetingResult.minutes_limit ?? 0,
+              minutesRemaining: meetingResult.minutes_remaining ?? 0,
+            });
+          }
+        } catch {
+          // Meeting usage is non-critical — don't fail the whole fetch
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch usage");
     } finally {
@@ -194,6 +217,7 @@ export function useUsage(): UseUsageResult | null {
     isOverLimit,
     isApproachingLimit,
     resetAt: data?.resetAt ?? null,
+    meetingUsage,
     isLoading,
     hasLoaded,
     error,

@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
+import DOMPurify from "dompurify";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -95,6 +96,83 @@ const UI_LANGUAGE_OPTIONS: import("./ui/LanguageSelector").LanguageOption[] = [
   { value: "zh-CN", label: "简体中文", flag: "🇨🇳" },
   { value: "zh-TW", label: "繁體中文", flag: "🇹🇼" },
 ];
+
+function DevicesList() {
+  const { t } = useTranslation();
+  const [sessions, setSessions] = React.useState<
+    Array<{
+      id: string;
+      device_name: string;
+      last_used_at: string;
+      created_at: string;
+      is_current?: boolean;
+    }>
+  >([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetch = async () => {
+      if (!window.electronAPI?.cloudListSessions) {
+        setLoading(false);
+        return;
+      }
+      const result = await window.electronAPI.cloudListSessions();
+      if (result.success && result.sessions) {
+        setSessions(result.sessions);
+      }
+      setLoading(false);
+    };
+    fetch();
+  }, []);
+
+  const handleRevoke = async (sessionId: string) => {
+    if (!window.electronAPI?.cloudRevokeSession) return;
+    const result = await window.electronAPI.cloudRevokeSession(sessionId);
+    if (result.success) {
+      setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+    }
+  };
+
+  if (loading) return <Skeleton className="h-8 w-full" />;
+  if (sessions.length === 0) {
+    return <p className="text-xs text-muted-foreground">{t("devices.noDevices")}</p>;
+  }
+
+  return (
+    <div className="space-y-2 w-full">
+      {sessions.map((session) => (
+        <div
+          key={session.id}
+          className="flex items-center justify-between rounded-md border border-border/15 dark:border-white/6 p-2"
+        >
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-medium truncate">
+              {session.device_name}
+              {session.is_current && (
+                <Badge variant="success" className="ml-1.5 text-[9px]">
+                  {t("devices.currentDevice")}
+                </Badge>
+              )}
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              {t("devices.lastUsed", { time: new Date(session.last_used_at).toLocaleDateString() })}
+            </p>
+          </div>
+          {!session.is_current && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleRevoke(session.id)}
+              className="text-[10px] text-muted-foreground hover:text-destructive h-6"
+            >
+              {t("devices.revoke")}
+            </Button>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function SettingsPanel({
   children,
@@ -1112,6 +1190,14 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
                     </Button>
                   </SettingsPanelRow>
                 </SettingsPanel>
+
+                {/* Linked Devices */}
+                <SectionHeader title={t("devices.title")} description={t("devices.description")} />
+                <SettingsPanel>
+                  <SettingsPanelRow>
+                    <DevicesList />
+                  </SettingsPanelRow>
+                </SettingsPanel>
               </>
             ) : isLoaded ? (
               <>
@@ -1537,7 +1623,7 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
                                   </span>
                                 )}
                                 {!usage.isApproachingLimit && !usage.isOverLimit && (
-                                  <span>{t("settingsPage.account.rollingWeeklyLimit")}</span>
+                                  <span>{t("settingsPage.account.rollingDailyLimit")}</span>
                                 )}
                               </div>
                             </div>
@@ -2636,7 +2722,9 @@ export default function SettingsPage({ activeSection = "general" }: SettingsPage
                       </p>
                       <div
                         className="text-xs text-muted-foreground [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:pl-4 [&_ol]:space-y-1 [&_li]:pl-1 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_a]:text-link [&_a]:underline"
-                        dangerouslySetInnerHTML={{ __html: updateInfo.releaseNotes }}
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(updateInfo.releaseNotes),
+                        }}
                       />
                     </div>
                   )}

@@ -32,7 +32,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // Database functions
   saveTranscription: (text, rawText) => ipcRenderer.invoke("db-save-transcription", text, rawText),
-  getTranscriptions: (limit) => ipcRenderer.invoke("db-get-transcriptions", limit),
+  getTranscriptions: (limit, offset) => ipcRenderer.invoke("db-get-transcriptions", limit, offset),
   clearTranscriptions: () => ipcRenderer.invoke("db-clear-transcriptions"),
   deleteTranscription: (id) => ipcRenderer.invoke("db-delete-transcription", id),
 
@@ -366,6 +366,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   cloudStreamingUsage: (text, audioDurationSeconds, opts) =>
     ipcRenderer.invoke("cloud-streaming-usage", text, audioDurationSeconds, opts),
   cloudUsage: () => ipcRenderer.invoke("cloud-usage"),
+  cloudMeetingUsage: () => ipcRenderer.invoke("cloud-meeting-usage"),
   cloudUpdateByok: (isByok) => ipcRenderer.invoke("cloud-update-byok", isByok),
   cloudCheckout: (plan) => ipcRenderer.invoke("cloud-checkout", plan),
   cloudBillingPortal: () => ipcRenderer.invoke("cloud-billing-portal"),
@@ -379,6 +380,37 @@ contextBridge.exposeInMainWorld("electronAPI", {
     "upload-transcription-progress",
     (callback) => (_event, data) => callback(data)
   ),
+
+  // Notes Sync
+  cloudNotesSync: () => ipcRenderer.invoke("cloud-notes-sync"),
+  cloudNotesSyncStatus: () => ipcRenderer.invoke("cloud-notes-sync-status"),
+  cloudNotesSyncStart: () => ipcRenderer.invoke("cloud-notes-sync-start"),
+  cloudNotesSyncStop: () => ipcRenderer.invoke("cloud-notes-sync-stop"),
+
+  // Calendar Integration
+  cloudCalendarConnect: (platform) => ipcRenderer.invoke("cloud-calendar-connect", platform),
+  cloudCalendarStatus: () => ipcRenderer.invoke("cloud-calendar-status"),
+  cloudCalendarEvents: () => ipcRenderer.invoke("cloud-calendar-events"),
+  cloudCalendarPreferences: (prefs) => ipcRenderer.invoke("cloud-calendar-preferences", prefs),
+  cloudCalendarDisconnect: (connectionId) =>
+    ipcRenderer.invoke("cloud-calendar-disconnect", connectionId),
+
+  // Cloud Meetings
+  cloudMeetingsList: (opts) => ipcRenderer.invoke("cloud-meetings-list", opts),
+  cloudMeetingGet: (meetingId) => ipcRenderer.invoke("cloud-meeting-get", meetingId),
+  cloudMeetingTranscript: (meetingId) => ipcRenderer.invoke("cloud-meeting-transcript", meetingId),
+  cloudMeetingRecording: (meetingId) => ipcRenderer.invoke("cloud-meeting-recording", meetingId),
+  cloudMeetingStop: (meetingId) => ipcRenderer.invoke("cloud-meeting-stop", meetingId),
+  cloudMeetingDelete: (meetingId) => ipcRenderer.invoke("cloud-meeting-delete", meetingId),
+  cloudMeetingsSearch: (query) => ipcRenderer.invoke("cloud-meetings-search", query),
+  cloudMeetingCreate: (meetingUrl) => ipcRenderer.invoke("cloud-meeting-create", meetingUrl),
+
+  // Device Management
+  cloudListSessions: () => ipcRenderer.invoke("cloud-list-sessions"),
+  cloudRevokeSession: (sessionId) => ipcRenderer.invoke("cloud-revoke-session", sessionId),
+
+  // User Init
+  cloudInitUser: () => ipcRenderer.invoke("cloud-init-user"),
 
   // Referral stats
   getReferralStats: () => ipcRenderer.invoke("get-referral-stats"),

@@ -87,7 +87,7 @@
   },
   "upgradePrompt": {
     "paymentFailed": "We couldn't process your payment",
-    "weeklyLimit": "You've reached your daily limit",
+    "dailyLimit": "You've reached your daily limit",
     "pastDueDescription": "You're on the free plan for now — don't worry, you still get {{limit}} words per day.\nUpdate your payment method to get back to unlimited Pro.",
     "limitDescription": "{{used}} of {{limit}} words used.\nYour transcription was saved and pasted.",
     "updatePayment": "Update payment method",
@@ -98,7 +98,7 @@
     "useApiKeyDescription": "Bring your own key for unlimited use.",
     "switchToLocal": "Switch to local",
     "switchToLocalDescription": "Offline transcription. No limits.",
-    "rollingWeeklyLimit": "Daily limit"
+    "rollingDailyLimit": "Daily limit"
   },
   "windowControls": {
     "minimize": "Minimize",
@@ -196,8 +196,8 @@
       "availableButton": "Update Available"
     },
     "limit": {
-      "weeklyTitle": "Daily limit reached",
-      "weeklyDescription": "Your limit resets daily. Upgrade to Pro or use your own API key for unlimited use."
+      "dailyTitle": "Daily limit reached",
+      "dailyDescription": "Your limit resets daily. Upgrade to Pro or use your own API key for unlimited use."
     },
     "billing": {
       "pastDueTitle": "We couldn't process your payment",
@@ -236,7 +236,8 @@
       "retryError": "Failed to re-transcribe",
       "audioNotFound": "Audio file not found or expired",
       "noAiProcessing": "No AI processing was applied to this transcription",
-      "rawTranscript": "Raw Transcript"
+      "rawTranscript": "Raw Transcript",
+      "loadMore": "Load More"
     },
     "cloudMigration": {
       "title": "Welcome to flowrytr Pro",
@@ -939,7 +940,7 @@
         },
         "currentPlan": "Current plan"
       },
-      "rollingWeeklyLimit": "Daily limit",
+      "rollingDailyLimit": "Daily limit",
       "signOut": {
         "failedDescription": "Something went wrong signing out. Please try again.",
         "failedTitle": "Couldn't sign out",
@@ -1302,7 +1303,9 @@
     "upgradeDescription": "Unlimited transcriptions and premium features.",
     "learnMore": "Learn more",
     "defaultUser": "User",
-    "notSignedIn": "Not signed in"
+    "notSignedIn": "Not signed in",
+    "calendar": "Calendar",
+    "cloudMeetings": "Cloud Meetings"
   },
   "referral": {
     "title": "Refer and earn rewards",
@@ -1393,7 +1396,10 @@
     "dailyLimit": "Daily limit",
     "upgradeToPro": "Upgrade to Pro",
     "useYourOwnKey": "Use Your Own Key",
-    "upgradeUnlimited": "Upgrade to Pro — unlimited transcriptions"
+    "upgradeUnlimited": "Upgrade to Pro — unlimited transcriptions",
+    "meetingMinutes": "Meeting Minutes",
+    "meetingMinutesUsed": "{{used}} / {{limit}} min used this month",
+    "unlimitedByok": "Unlimited (BYOK)"
   },
   "whatsNew": {
     "title": "What's New",
@@ -1685,5 +1691,73 @@
       "open": "Open",
       "dismiss": "Dismiss"
     }
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "This section failed to load. Try again or restart the app.",
+    "retry": "Try Again"
+  },
+  "notesSync": {
+    "syncing": "Syncing notes…",
+    "synced": "Notes synced",
+    "lastSync": "Last synced {{time}}",
+    "error": "Sync error",
+    "syncNow": "Sync now",
+    "offline": "Offline — will sync when connected"
+  },
+  "calendar": {
+    "title": "Calendar",
+    "connect": "Connect Calendar",
+    "connectGoogle": "Connect Google Calendar",
+    "connectMicrosoft": "Connect Microsoft Calendar",
+    "connecting": "Connecting…",
+    "connected": "Connected",
+    "disconnect": "Disconnect",
+    "disconnectConfirm": "Are you sure you want to disconnect this calendar?",
+    "noConnections": "No calendars connected",
+    "noConnectionsDescription": "Connect your calendar to auto-record meetings",
+    "upcomingEvents": "Upcoming Events",
+    "noEvents": "No upcoming events",
+    "join": "Join",
+    "autoRecord": "Auto-record",
+    "preferences": "Recording Preferences",
+    "recordAll": "Record all meetings",
+    "recordHostOnly": "Record only when I'm the host",
+    "proRequired": "Upgrade to Pro for calendar integration",
+    "oauthInstructions": "Complete the sign-in in your browser to connect your calendar"
+  },
+  "cloudMeetings": {
+    "title": "Cloud Meetings",
+    "empty": "No cloud meetings yet",
+    "emptyDescription": "Record a meeting to see it here",
+    "record": "Record a Meeting",
+    "recordPlaceholder": "Paste meeting URL (Zoom, Teams, Meet…)",
+    "recordStart": "Start Recording",
+    "recording": "Recording",
+    "completed": "Completed",
+    "error": "Error",
+    "joining": "Joining…",
+    "processing": "Processing…",
+    "transcript": "Transcript",
+    "participants": "Participants",
+    "downloadRecording": "Download Recording",
+    "stopRecording": "Stop Recording",
+    "deleteMeeting": "Delete Meeting",
+    "deleteConfirm": "This will permanently delete the meeting, transcript, and recording.",
+    "search": "Search transcripts…",
+    "noTranscript": "No transcript available",
+    "duration": "{{minutes}} min",
+    "proRequired": "Upgrade to Pro for cloud meetings"
+  },
+  "devices": {
+    "title": "Linked Devices",
+    "description": "Manage devices connected to your flowrytr account",
+    "currentDevice": "Current device",
+    "lastUsed": "Last used {{time}}",
+    "created": "Created {{time}}",
+    "revoke": "Revoke",
+    "revokeConfirm": "Are you sure you want to revoke access for this device?",
+    "revokeCurrentWarning": "Revoking the current device will sign you out.",
+    "noDevices": "No linked devices"
   }
 }

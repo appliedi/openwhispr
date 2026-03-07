@@ -168,8 +168,8 @@
       "availableButton": "Atualização disponível"
     },
     "limit": {
-      "weeklyTitle": "Limite diário atingido",
-      "weeklyDescription": "Seu limite é redefinido diariamente. Faça upgrade para Pro ou use sua própria chave API para uso ilimitado."
+      "dailyTitle": "Limite diário atingido",
+      "dailyDescription": "Seu limite é redefinido diariamente. Faça upgrade para Pro ou use sua própria chave API para uso ilimitado."
     },
     "billing": {
       "pastDueTitle": "Não foi possível processar seu pagamento",
@@ -195,7 +195,8 @@
       "dateGroups": {
         "today": "Hoje",
         "yesterday": "Ontem"
-      }
+      },
+      "loadMore": "Carregar mais"
     },
     "cloudMigration": {
       "title": "Boas-vindas ao flowrytr Pro",
@@ -548,9 +549,9 @@
     "waiting": "Aguardando verificação..."
   },
   "errorBoundary": {
-    "description": "Ocorreu um erro inesperado. Recarregue para tentar novamente.",
-    "reload": "Recarregar",
-    "title": "Algo deu errado"
+    "title": "Algo deu errado",
+    "description": "Esta seção não pôde ser carregada. Tente novamente ou reinicie o app.",
+    "retry": "Tentar novamente"
   },
   "forgotPassword": {
     "back": "Voltar",
@@ -854,7 +855,7 @@
         "trial": "Teste"
       },
       "planTitle": "Plano",
-      "rollingWeeklyLimit": "Limite diário",
+      "rollingDailyLimit": "Limite diário",
       "signOut": {
         "failedDescription": "Algo deu errado ao sair. Tente novamente.",
         "failedTitle": "Não foi possível sair",
@@ -1244,7 +1245,7 @@
   },
   "upgradePrompt": {
     "paymentFailed": "Não foi possível processar seu pagamento",
-    "weeklyLimit": "Você atingiu seu limite diário",
+    "dailyLimit": "Você atingiu seu limite diário",
     "pastDueDescription": "Você está no plano gratuito por enquanto — sem problemas, você ainda tem {{limit}} palavras por dia.\nAtualize sua forma de pagamento para voltar ao Pro ilimitado.",
     "limitDescription": "{{used}} de {{limit}} palavras usadas.\nSua transcrição foi salva e colada.",
     "updatePayment": "Atualizar forma de pagamento",
@@ -1255,7 +1256,7 @@
     "useApiKeyDescription": "Traga sua própria chave para uso ilimitado.",
     "switchToLocal": "Mudar para local",
     "switchToLocalDescription": "Transcrição offline. Sem limites.",
-    "rollingWeeklyLimit": "Limite diário"
+    "rollingDailyLimit": "Limite diário"
   },
   "windowControls": {
     "minimize": "Minimizar",
@@ -1535,7 +1536,9 @@
     "upgradeDescription": "Transcrições ilimitadas e recursos avançados.",
     "learnMore": "Saiba mais",
     "defaultUser": "Usuário",
-    "notSignedIn": "Não conectado"
+    "notSignedIn": "Não conectado",
+    "calendar": "Calendário",
+    "cloudMeetings": "Reuniões na nuvem"
   },
   "usage": {
     "approachingLimit": "Próximo do limite diário",
@@ -1554,7 +1557,10 @@
     "dailyLimit": "Limite diário",
     "upgradeToPro": "Fazer upgrade para Pro",
     "useYourOwnKey": "Usar sua própria chave API",
-    "upgradeUnlimited": "Fazer upgrade para Pro — transcrições ilimitadas"
+    "upgradeUnlimited": "Fazer upgrade para Pro — transcrições ilimitadas",
+    "meetingMinutes": "Minutos de reunião",
+    "meetingMinutesUsed": "{{used}} / {{limit}} min usados este mês",
+    "unlimitedByok": "Ilimitado (BYOK)"
   },
   "support": {
     "joinDiscord": "Entrar no Discord",
@@ -1656,5 +1662,68 @@
       "open": "Abrir",
       "dismiss": "Fechar"
     }
+  },
+  "notesSync": {
+    "syncing": "Sincronizando notas…",
+    "synced": "Notas sincronizadas",
+    "lastSync": "Última sincronização {{time}}",
+    "error": "Erro de sincronização",
+    "syncNow": "Sincronizar agora",
+    "offline": "Offline — será sincronizado quando conectado"
+  },
+  "calendar": {
+    "title": "Calendário",
+    "connect": "Conectar calendário",
+    "connectGoogle": "Conectar Google Agenda",
+    "connectMicrosoft": "Conectar Microsoft Agenda",
+    "connecting": "Conectando…",
+    "connected": "Conectado",
+    "disconnect": "Desconectar",
+    "disconnectConfirm": "Tem certeza de que deseja desconectar este calendário?",
+    "noConnections": "Nenhum calendário conectado",
+    "noConnectionsDescription": "Conecte seu calendário para gravar reuniões automaticamente",
+    "upcomingEvents": "Próximos eventos",
+    "noEvents": "Nenhum evento próximo",
+    "join": "Participar",
+    "autoRecord": "Gravação automática",
+    "preferences": "Preferências de gravação",
+    "recordAll": "Gravar todas as reuniões",
+    "recordHostOnly": "Gravar apenas quando eu for o anfitrião",
+    "proRequired": "Faça upgrade para Pro para integração com calendário",
+    "oauthInstructions": "Conclua o login no seu navegador para conectar seu calendário"
+  },
+  "cloudMeetings": {
+    "title": "Reuniões na nuvem",
+    "empty": "Nenhuma reunião na nuvem ainda",
+    "emptyDescription": "Grave uma reunião para vê-la aqui",
+    "record": "Gravar uma reunião",
+    "recordPlaceholder": "Cole a URL da reunião (Zoom, Teams, Meet…)",
+    "recordStart": "Iniciar gravação",
+    "recording": "Gravando",
+    "completed": "Concluída",
+    "error": "Erro",
+    "joining": "Entrando…",
+    "processing": "Processando…",
+    "transcript": "Transcrição",
+    "participants": "Participantes",
+    "downloadRecording": "Baixar gravação",
+    "stopRecording": "Parar gravação",
+    "deleteMeeting": "Excluir reunião",
+    "deleteConfirm": "Isso excluirá permanentemente a reunião, a transcrição e a gravação.",
+    "search": "Pesquisar transcrições…",
+    "noTranscript": "Nenhuma transcrição disponível",
+    "duration": "{{minutes}} min",
+    "proRequired": "Faça upgrade para Pro para reuniões na nuvem"
+  },
+  "devices": {
+    "title": "Dispositivos vinculados",
+    "description": "Gerencie os dispositivos conectados à sua conta flowrytr",
+    "currentDevice": "Dispositivo atual",
+    "lastUsed": "Último uso {{time}}",
+    "created": "Criado {{time}}",
+    "revoke": "Revogar",
+    "revokeConfirm": "Tem certeza de que deseja revogar o acesso deste dispositivo?",
+    "revokeCurrentWarning": "Revogar o dispositivo atual encerrará sua sessão.",
+    "noDevices": "Nenhum dispositivo vinculado"
   }
 }

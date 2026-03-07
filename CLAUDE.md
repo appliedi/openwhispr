@@ -120,6 +120,15 @@ const { t } = useTranslation();
 - Group keys by feature area (e.g., `notes.editor.*`, `referral.toasts.*`)
 - Run `npm run i18n:check` to verify completeness
 
+### Security
+
+- `shell.openExternal` only allows `http:` and `https:` URLs — never `file://` or custom protocols
+- BYOK transcription endpoints must use HTTPS — enforced in `ipcHandlers.js`
+- `.env` files are written with `0600` permissions on macOS/Linux (API keys not world-readable)
+- `getAuthHeader()` validates token type and minimum length before use
+- `getAudioPath()` sanitizes IDs and verifies resolved paths stay within audio directory
+- Downloaded native binaries should be checksum-verified via `scripts/lib/download-utils.js:verifyChecksum()` + `scripts/checksums.json`
+
 ### Adding Features Checklist
 
 1. **New IPC channel** → add to both `ipcHandlers.js` and `preload.js`

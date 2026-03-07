@@ -26,7 +26,7 @@ export default function UpgradePrompt({
       <DialogContent className="max-w-md">
         <div className="text-center space-y-2 pt-2">
           <h2 className="text-xl font-semibold text-foreground">
-            {isPastDue ? t("upgradePrompt.paymentFailed") : t("upgradePrompt.weeklyLimit")}
+            {isPastDue ? t("upgradePrompt.paymentFailed") : t("upgradePrompt.dailyLimit")}
           </h2>
           <p className="text-sm text-muted-foreground">
             {(isPastDue
@@ -87,7 +87,7 @@ export default function UpgradePrompt({
         </div>
 
         <p className="text-xs text-muted-foreground/60 text-center">
-          {t("upgradePrompt.rollingWeeklyLimit")}
+          {t("upgradePrompt.rollingDailyLimit")}
         </p>
       </DialogContent>
     </Dialog>

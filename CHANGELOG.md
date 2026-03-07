@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **C1: URL validation in `shell.openExternal`** — Reject non-http/https URLs (blocks `file://`, `javascript:`, custom protocol attacks)
+- **C2: BYOK HTTPS enforcement** — Reject non-HTTPS base URLs to prevent credential exfiltration via SSRF
+- **H1: Restrict .env file permissions** — `chmod 0600` after writing API keys on macOS/Linux
+- **H5: Binary checksum verification** — Added `verifyChecksum()` and `checksums.json` for SHA-256 verification of downloaded native binaries
+- **M1: Token format validation** — `getAuthHeader()` validates token type and minimum length
+- **M5: Path traversal prevention** — Sanitize `transcriptionId` and verify resolved path stays within audio directory
+
 ## [1.5.5] - 2026-03-01
 
 ### Added
@@ -173,6 +182,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.4.8] - 2026-02-12
 
 ### Added
+
 - **Referral Program**: Invite friends to earn free Pro months with referral dashboard, email invitations, invite tracking with status badges, and animated spectrogram share card with unique referral code
 - **Notes System**: Added sidebar navigation with notes system and dictionary view for organizing transcriptions
 - **Folder Organization**: Notes can be organized into custom folders with a default Personal folder, folder management UI, and folder-aware note filtering. Upload flow now includes folder selection

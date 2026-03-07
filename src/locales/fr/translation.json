@@ -87,7 +87,7 @@
   },
   "upgradePrompt": {
     "paymentFailed": "Nous n'avons pas pu traiter votre paiement",
-    "weeklyLimit": "Vous avez atteint votre limite quotidienne",
+    "dailyLimit": "Vous avez atteint votre limite quotidienne",
     "pastDueDescription": "Vous êtes temporairement sur le plan gratuit — pas de souci, vous avez encore {{limit}} mots par jour.\nMettez à jour votre moyen de paiement pour revenir à Pro illimité.",
     "limitDescription": "{{used}} de {{limit}} mots utilisés.\nVotre transcription a été sauvegardée et collée.",
     "updatePayment": "Mettre à jour le moyen de paiement",
@@ -98,7 +98,7 @@
     "useApiKeyDescription": "Apportez votre propre clé pour un usage illimité.",
     "switchToLocal": "Passer en local",
     "switchToLocalDescription": "Transcription hors ligne. Sans limites.",
-    "rollingWeeklyLimit": "Limite quotidienne"
+    "rollingDailyLimit": "Limite quotidienne"
   },
   "windowControls": {
     "minimize": "Réduire",
@@ -196,8 +196,8 @@
       "availableButton": "Mise à jour disponible"
     },
     "limit": {
-      "weeklyTitle": "Limite quotidienne atteinte",
-      "weeklyDescription": "Votre limite se renouvelle quotidiennement. Passez à Pro ou utilisez votre propre clé API pour un usage illimité."
+      "dailyTitle": "Limite quotidienne atteinte",
+      "dailyDescription": "Votre limite se renouvelle quotidiennement. Passez à Pro ou utilisez votre propre clé API pour un usage illimité."
     },
     "billing": {
       "pastDueTitle": "Nous n'avons pas pu traiter votre paiement",
@@ -223,7 +223,8 @@
       "dateGroups": {
         "today": "Aujourd'hui",
         "yesterday": "Hier"
-      }
+      },
+      "loadMore": "Charger plus"
     },
     "cloudMigration": {
       "title": "Bienvenue sur flowrytr Pro",
@@ -576,9 +577,9 @@
     "waiting": "En attente de la vérification..."
   },
   "errorBoundary": {
-    "description": "Une erreur inattendue s'est produite. Veuillez recharger pour réessayer.",
-    "reload": "Recharger",
-    "title": "Une erreur est survenue"
+    "title": "Une erreur est survenue",
+    "description": "Cette section n'a pas pu se charger. Réessayez ou redémarrez l'application.",
+    "retry": "Réessayer"
   },
   "forgotPassword": {
     "back": "Retour",
@@ -930,7 +931,7 @@
         },
         "currentPlan": "Plan actuel"
       },
-      "rollingWeeklyLimit": "Limite quotidienne",
+      "rollingDailyLimit": "Limite quotidienne",
       "signOut": {
         "failedDescription": "Un problème est survenu lors de la déconnexion. Veuillez réessayer.",
         "failedTitle": "Impossible de se déconnecter",
@@ -1278,7 +1279,9 @@
     "upgradeDescription": "Transcriptions illimitées et fonctionnalités premium.",
     "learnMore": "En savoir plus",
     "defaultUser": "Utilisateur",
-    "notSignedIn": "Non connecté"
+    "notSignedIn": "Non connecté",
+    "calendar": "Calendrier",
+    "cloudMeetings": "Réunions cloud"
   },
   "referral": {
     "title": "Parrainez et gagnez des récompenses",
@@ -1369,7 +1372,10 @@
     "dailyLimit": "Limite quotidienne",
     "upgradeToPro": "Passer à Pro",
     "useYourOwnKey": "Utiliser votre propre clé API",
-    "upgradeUnlimited": "Passer à Pro — transcriptions illimitées"
+    "upgradeUnlimited": "Passer à Pro — transcriptions illimitées",
+    "meetingMinutes": "Minutes de réunion",
+    "meetingMinutesUsed": "{{used}} / {{limit}} min utilisées ce mois",
+    "unlimitedByok": "Illimité (BYOK)"
   },
   "notes": {
     "folders": {
@@ -1656,5 +1662,68 @@
       "open": "Ouvrir",
       "dismiss": "Fermer"
     }
+  },
+  "notesSync": {
+    "syncing": "Synchronisation des notes…",
+    "synced": "Notes synchronisées",
+    "lastSync": "Dernière synchronisation {{time}}",
+    "error": "Erreur de synchronisation",
+    "syncNow": "Synchroniser maintenant",
+    "offline": "Hors ligne — synchronisation dès la reconnexion"
+  },
+  "calendar": {
+    "title": "Calendrier",
+    "connect": "Connecter un calendrier",
+    "connectGoogle": "Connecter Google Agenda",
+    "connectMicrosoft": "Connecter Microsoft Agenda",
+    "connecting": "Connexion en cours…",
+    "connected": "Connecté",
+    "disconnect": "Déconnecter",
+    "disconnectConfirm": "Êtes-vous sûr de vouloir déconnecter ce calendrier ?",
+    "noConnections": "Aucun calendrier connecté",
+    "noConnectionsDescription": "Connectez votre calendrier pour enregistrer automatiquement les réunions",
+    "upcomingEvents": "Événements à venir",
+    "noEvents": "Aucun événement à venir",
+    "join": "Rejoindre",
+    "autoRecord": "Enregistrement automatique",
+    "preferences": "Préférences d'enregistrement",
+    "recordAll": "Enregistrer toutes les réunions",
+    "recordHostOnly": "Enregistrer uniquement quand je suis l'organisateur",
+    "proRequired": "Passez à Pro pour l'intégration du calendrier",
+    "oauthInstructions": "Terminez la connexion dans votre navigateur pour connecter votre calendrier"
+  },
+  "cloudMeetings": {
+    "title": "Réunions cloud",
+    "empty": "Aucune réunion cloud pour l'instant",
+    "emptyDescription": "Enregistrez une réunion pour la voir ici",
+    "record": "Enregistrer une réunion",
+    "recordPlaceholder": "Collez l'URL de la réunion (Zoom, Teams, Meet…)",
+    "recordStart": "Démarrer l'enregistrement",
+    "recording": "Enregistrement en cours",
+    "completed": "Terminé",
+    "error": "Erreur",
+    "joining": "Connexion…",
+    "processing": "Traitement…",
+    "transcript": "Transcription",
+    "participants": "Participants",
+    "downloadRecording": "Télécharger l'enregistrement",
+    "stopRecording": "Arrêter l'enregistrement",
+    "deleteMeeting": "Supprimer la réunion",
+    "deleteConfirm": "Cela supprimera définitivement la réunion, la transcription et l'enregistrement.",
+    "search": "Rechercher dans les transcriptions…",
+    "noTranscript": "Aucune transcription disponible",
+    "duration": "{{minutes}} min",
+    "proRequired": "Passez à Pro pour les réunions cloud"
+  },
+  "devices": {
+    "title": "Appareils liés",
+    "description": "Gérez les appareils connectés à votre compte flowrytr",
+    "currentDevice": "Appareil actuel",
+    "lastUsed": "Dernière utilisation {{time}}",
+    "created": "Créé {{time}}",
+    "revoke": "Révoquer",
+    "revokeConfirm": "Êtes-vous sûr de vouloir révoquer l'accès de cet appareil ?",
+    "revokeCurrentWarning": "Révoquer l'appareil actuel vous déconnectera.",
+    "noDevices": "Aucun appareil lié"
   }
 }

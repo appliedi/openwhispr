@@ -87,7 +87,7 @@
   },
   "upgradePrompt": {
     "paymentFailed": "Ihre Zahlung konnte nicht verarbeitet werden",
-    "weeklyLimit": "Sie haben Ihr Tageslimit erreicht",
+    "dailyLimit": "Sie haben Ihr Tageslimit erreicht",
     "pastDueDescription": "Sie sind vorerst im kostenlosen Tarif – keine Sorge, Sie haben weiterhin {{limit}} Wörter pro Tag.\nAktualisieren Sie Ihre Zahlungsmethode, um wieder unbegrenztes Pro zu erhalten.",
     "limitDescription": "{{used}} von {{limit}} Wörtern verwendet.\nIhre Transkription wurde gespeichert und eingefügt.",
     "updatePayment": "Zahlungsmethode aktualisieren",
@@ -98,7 +98,7 @@
     "useApiKeyDescription": "Verwenden Sie Ihren eigenen Schlüssel für unbegrenzte Nutzung.",
     "switchToLocal": "Zu lokal wechseln",
     "switchToLocalDescription": "Offline-Transkription. Keine Limits.",
-    "rollingWeeklyLimit": "Tageslimit"
+    "rollingDailyLimit": "Tageslimit"
   },
   "windowControls": {
     "minimize": "Minimieren",
@@ -196,8 +196,8 @@
       "availableButton": "Update verfügbar"
     },
     "limit": {
-      "weeklyTitle": "Tageslimit erreicht",
-      "weeklyDescription": "Ihr Limit wird täglich zurückgesetzt. Upgraden Sie auf Pro oder nutzen Sie Ihren eigenen API-Schlüssel für unbegrenzte Nutzung."
+      "dailyTitle": "Tageslimit erreicht",
+      "dailyDescription": "Ihr Limit wird täglich zurückgesetzt. Upgraden Sie auf Pro oder nutzen Sie Ihren eigenen API-Schlüssel für unbegrenzte Nutzung."
     },
     "billing": {
       "pastDueTitle": "Ihre Zahlung konnte nicht verarbeitet werden",
@@ -223,7 +223,8 @@
       "dateGroups": {
         "today": "Heute",
         "yesterday": "Gestern"
-      }
+      },
+      "loadMore": "Mehr laden"
     },
     "cloudMigration": {
       "title": "Willkommen bei flowrytr Pro",
@@ -576,9 +577,9 @@
     "waiting": "Warte auf Bestätigung..."
   },
   "errorBoundary": {
-    "description": "Ein unerwarteter Fehler ist aufgetreten. Bitte laden Sie die Seite neu.",
-    "reload": "Neu laden",
-    "title": "Etwas ist schiefgelaufen"
+    "title": "Etwas ist schiefgelaufen",
+    "description": "Dieser Bereich konnte nicht geladen werden. Versuchen Sie es erneut oder starten Sie die App neu.",
+    "retry": "Erneut versuchen"
   },
   "forgotPassword": {
     "back": "Zurück",
@@ -926,7 +927,7 @@
         },
         "currentPlan": "Aktueller Tarif"
       },
-      "rollingWeeklyLimit": "Tageslimit",
+      "rollingDailyLimit": "Tageslimit",
       "signOut": {
         "failedDescription": "Beim Abmelden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
         "failedTitle": "Abmeldung fehlgeschlagen",
@@ -1531,7 +1532,9 @@
     "upgradeDescription": "Unbegrenzte Transkriptionen und mehr.",
     "learnMore": "Mehr erfahren",
     "defaultUser": "Benutzer",
-    "notSignedIn": "Nicht angemeldet"
+    "notSignedIn": "Nicht angemeldet",
+    "calendar": "Kalender",
+    "cloudMeetings": "Cloud-Meetings"
   },
   "usage": {
     "approachingLimit": "Tageslimit fast erreicht",
@@ -1550,7 +1553,10 @@
     "dailyLimit": "Tageslimit",
     "upgradeToPro": "Auf Pro upgraden",
     "useYourOwnKey": "Eigenen API-Schlüssel verwenden",
-    "upgradeUnlimited": "Auf Pro upgraden – unbegrenzte Transkriptionen"
+    "upgradeUnlimited": "Auf Pro upgraden – unbegrenzte Transkriptionen",
+    "meetingMinutes": "Besprechungsminuten",
+    "meetingMinutesUsed": "{{used}} / {{limit}} Min. diesen Monat genutzt",
+    "unlimitedByok": "Unbegrenzt (BYOK)"
   },
   "support": {
     "joinDiscord": "Discord beitreten",
@@ -1652,5 +1658,68 @@
       "open": "Öffnen",
       "dismiss": "Schließen"
     }
+  },
+  "notesSync": {
+    "syncing": "Notizen werden synchronisiert…",
+    "synced": "Notizen synchronisiert",
+    "lastSync": "Zuletzt synchronisiert {{time}}",
+    "error": "Synchronisierungsfehler",
+    "syncNow": "Jetzt synchronisieren",
+    "offline": "Offline — wird synchronisiert, sobald eine Verbindung besteht"
+  },
+  "calendar": {
+    "title": "Kalender",
+    "connect": "Kalender verbinden",
+    "connectGoogle": "Google Kalender verbinden",
+    "connectMicrosoft": "Microsoft Kalender verbinden",
+    "connecting": "Verbindung wird hergestellt…",
+    "connected": "Verbunden",
+    "disconnect": "Trennen",
+    "disconnectConfirm": "Möchten Sie diesen Kalender wirklich trennen?",
+    "noConnections": "Keine Kalender verbunden",
+    "noConnectionsDescription": "Verbinden Sie Ihren Kalender, um Meetings automatisch aufzuzeichnen",
+    "upcomingEvents": "Anstehende Termine",
+    "noEvents": "Keine anstehenden Termine",
+    "join": "Beitreten",
+    "autoRecord": "Automatisch aufzeichnen",
+    "preferences": "Aufnahmeeinstellungen",
+    "recordAll": "Alle Meetings aufzeichnen",
+    "recordHostOnly": "Nur aufzeichnen, wenn ich der Gastgeber bin",
+    "proRequired": "Upgrade auf Pro für Kalenderintegration",
+    "oauthInstructions": "Schließen Sie die Anmeldung in Ihrem Browser ab, um Ihren Kalender zu verbinden"
+  },
+  "cloudMeetings": {
+    "title": "Cloud-Meetings",
+    "empty": "Noch keine Cloud-Meetings",
+    "emptyDescription": "Nehmen Sie ein Meeting auf, um es hier zu sehen",
+    "record": "Meeting aufzeichnen",
+    "recordPlaceholder": "Meeting-URL einfügen (Zoom, Teams, Meet…)",
+    "recordStart": "Aufnahme starten",
+    "recording": "Aufnahme läuft",
+    "completed": "Abgeschlossen",
+    "error": "Fehler",
+    "joining": "Beitreten…",
+    "processing": "Verarbeitung…",
+    "transcript": "Transkript",
+    "participants": "Teilnehmer",
+    "downloadRecording": "Aufnahme herunterladen",
+    "stopRecording": "Aufnahme beenden",
+    "deleteMeeting": "Meeting löschen",
+    "deleteConfirm": "Dies löscht das Meeting, das Transkript und die Aufnahme dauerhaft.",
+    "search": "Transkripte durchsuchen…",
+    "noTranscript": "Kein Transkript verfügbar",
+    "duration": "{{minutes}} Min.",
+    "proRequired": "Upgrade auf Pro für Cloud-Meetings"
+  },
+  "devices": {
+    "title": "Verknüpfte Geräte",
+    "description": "Verwalten Sie Geräte, die mit Ihrem flowrytr-Konto verbunden sind",
+    "currentDevice": "Aktuelles Gerät",
+    "lastUsed": "Zuletzt verwendet {{time}}",
+    "created": "Erstellt {{time}}",
+    "revoke": "Widerrufen",
+    "revokeConfirm": "Möchten Sie den Zugriff für dieses Gerät wirklich widerrufen?",
+    "revokeCurrentWarning": "Das Widerrufen des aktuellen Geräts meldet Sie ab.",
+    "noDevices": "Keine verknüpften Geräte"
   }
 }

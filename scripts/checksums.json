@@ -1,0 +1,9 @@
+{
+  "_comment": "SHA-256 checksums for downloaded native binaries. Generate with: shasum -a 256 <file>. Keys are asset filenames from GitHub releases.",
+  "whisper-cpp": {},
+  "sherpa-onnx": {},
+  "llama-server": {},
+  "windows-key-listener": {},
+  "windows-fast-paste": {},
+  "linux-fast-paste": {}
+}

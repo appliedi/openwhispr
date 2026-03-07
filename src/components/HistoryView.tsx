@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import { Loader2, Sparkles, Cloud, X } from "lucide-react";
@@ -6,6 +6,7 @@ import TranscriptionItem from "./ui/TranscriptionItem";
 import type { TranscriptionItem as TranscriptionItemType } from "../types/electron";
 import { formatHotkeyLabel } from "../utils/hotkeys";
 import { formatDateGroup } from "../utils/dateFormatting";
+import { loadMoreTranscriptions, useHasMoreTranscriptions } from "../stores/transcriptionStore";
 
 interface HistoryViewProps {
   history: TranscriptionItemType[];
@@ -39,6 +40,17 @@ export default function HistoryView({
   onRetryTranscription,
 }: HistoryViewProps) {
   const { t } = useTranslation();
+  const hasMore = useHasMoreTranscriptions();
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const handleLoadMore = useCallback(async () => {
+    setLoadingMore(true);
+    try {
+      await loadMoreTranscriptions();
+    } finally {
+      setLoadingMore(false);
+    }
+  }, []);
 
   const groupedHistory = useMemo(() => {
     if (history.length === 0) return [];
@@ -268,6 +280,14 @@ export default function HistoryView({
                 </div>
               </div>
             ))}
+            {hasMore && (
+              <div className="flex justify-center py-4">
+                <Button variant="outline" size="sm" onClick={handleLoadMore} disabled={loadingMore}>
+                  {loadingMore ? <Loader2 size={14} className="animate-spin mr-2" /> : null}
+                  {t("controlPanel.history.loadMore")}
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -173,6 +173,9 @@ OPENAI_API_KEY=${apiKey}
 `;
 
     await fsPromises.writeFile(envPath, envContent, "utf8");
+    if (process.platform !== "win32") {
+      await fsPromises.chmod(envPath, 0o600);
+    }
     require("dotenv").config({ path: envPath });
 
     return { success: true, path: envPath };
@@ -190,6 +193,9 @@ OPENAI_API_KEY=${apiKey}
     }
 
     await fsPromises.writeFile(envPath, envContent, "utf8");
+    if (process.platform !== "win32") {
+      await fsPromises.chmod(envPath, 0o600);
+    }
     require("dotenv").config({ path: envPath });
 
     return { success: true, path: envPath };

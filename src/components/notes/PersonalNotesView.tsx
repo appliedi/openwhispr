@@ -1,6 +1,17 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Loader2, FolderOpen, MoreHorizontal, Pencil, Trash2, Check } from "lucide-react";
+import {
+  Plus,
+  Loader2,
+  FolderOpen,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Check,
+  Cloud,
+  CloudOff,
+  RefreshCw,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -40,6 +51,73 @@ const FOLDER_INPUT_CLASS =
 
 function makeContentHash(content: string): string {
   return String(content.length) + "-" + content.slice(0, 50);
+}
+
+function NotesSyncIndicator() {
+  const { t } = useTranslation();
+  const [status, setStatus] = useState<{ syncing: boolean; lastSyncAt: string | null }>({
+    syncing: false,
+    lastSyncAt: null,
+  });
+
+  useEffect(() => {
+    const poll = async () => {
+      if (!window.electronAPI?.cloudNotesSyncStatus) return;
+      try {
+        const s = await window.electronAPI.cloudNotesSyncStatus();
+        setStatus(s);
+      } catch {
+        // ignore
+      }
+    };
+    poll();
+    const interval = setInterval(poll, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleSync = async () => {
+    if (!window.electronAPI?.cloudNotesSync) return;
+    setStatus((s) => ({ ...s, syncing: true }));
+    await window.electronAPI.cloudNotesSync();
+    if (window.electronAPI?.cloudNotesSyncStatus) {
+      const s = await window.electronAPI.cloudNotesSyncStatus();
+      setStatus(s);
+    }
+  };
+
+  if (!window.electronAPI?.cloudNotesSyncStatus) return null;
+
+  return (
+    <div className="px-3 py-2 border-t border-border/10 dark:border-white/4">
+      <button
+        onClick={handleSync}
+        disabled={status.syncing}
+        className="flex items-center gap-1.5 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors w-full"
+      >
+        {status.syncing ? (
+          <>
+            <RefreshCw size={10} className="animate-spin" />
+            {t("notesSync.syncing")}
+          </>
+        ) : status.lastSyncAt ? (
+          <>
+            <Cloud size={10} />
+            {t("notesSync.lastSync", {
+              time: new Date(status.lastSyncAt).toLocaleTimeString(undefined, {
+                hour: "numeric",
+                minute: "2-digit",
+              }),
+            })}
+          </>
+        ) : (
+          <>
+            <CloudOff size={10} />
+            {t("notesSync.syncNow")}
+          </>
+        )}
+      </button>
+    </div>
+  );
 }
 
 interface PersonalNotesViewProps {
@@ -637,6 +715,9 @@ export default function PersonalNotesView({ onOpenSettings }: PersonalNotesViewP
             )}
           </div>
         </>
+
+        {/* Notes sync status */}
+        <NotesSyncIndicator />
       </div>
 
       <div className="flex-1 flex flex-col min-w-0 min-h-0">

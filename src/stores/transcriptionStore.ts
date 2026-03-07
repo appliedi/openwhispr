@@ -3,10 +3,12 @@ import type { TranscriptionItem } from "../types/electron";
 
 interface TranscriptionState {
   transcriptions: TranscriptionItem[];
+  hasMore: boolean;
 }
 
 const useTranscriptionStore = create<TranscriptionState>()(() => ({
   transcriptions: [],
+  hasMore: true,
 }));
 
 let hasBoundIpcListeners = false;
@@ -60,7 +62,18 @@ export async function initializeTranscriptions(limit = DEFAULT_LIMIT) {
   currentLimit = limit;
   ensureIpcListeners();
   const items = await window.electronAPI.getTranscriptions(limit);
-  useTranscriptionStore.setState({ transcriptions: items });
+  useTranscriptionStore.setState({ transcriptions: items, hasMore: items.length >= limit });
+  return items;
+}
+
+export async function loadMoreTranscriptions() {
+  const { transcriptions, hasMore } = useTranscriptionStore.getState();
+  if (!hasMore) return [];
+  const items = await window.electronAPI.getTranscriptions(DEFAULT_LIMIT, transcriptions.length);
+  useTranscriptionStore.setState({
+    transcriptions: [...transcriptions, ...items],
+    hasMore: items.length >= DEFAULT_LIMIT,
+  });
   return items;
 }
 
@@ -95,4 +108,8 @@ export function clearTranscriptions() {
 
 export function useTranscriptions() {
   return useTranscriptionStore((state) => state.transcriptions);
+}
+
+export function useHasMoreTranscriptions() {
+  return useTranscriptionStore((state) => state.hasMore);
 }

@@ -103,6 +103,23 @@ class DatabaseManager {
         if (!err.message.includes("duplicate column")) throw err;
       }
 
+      // Sync-related columns for cloud notes sync
+      try {
+        this.db.exec("ALTER TABLE notes ADD COLUMN last_synced_at DATETIME");
+      } catch (err) {
+        if (!err.message.includes("duplicate column")) throw err;
+      }
+      try {
+        this.db.exec("ALTER TABLE notes ADD COLUMN sync_status TEXT DEFAULT 'pending'");
+      } catch (err) {
+        if (!err.message.includes("duplicate column")) throw err;
+      }
+      try {
+        this.db.exec("ALTER TABLE notes ADD COLUMN deleted_at DATETIME");
+      } catch (err) {
+        if (!err.message.includes("duplicate column")) throw err;
+      }
+
       this.db.exec(`
         CREATE VIRTUAL TABLE IF NOT EXISTS notes_fts USING fts5(
           title,
@@ -246,13 +263,15 @@ class DatabaseManager {
     }
   }
 
-  getTranscriptions(limit = 50) {
+  getTranscriptions(limit = 50, offset = 0) {
     try {
       if (!this.db) {
         throw new Error("Database not initialized");
       }
-      const stmt = this.db.prepare("SELECT * FROM transcriptions ORDER BY timestamp DESC LIMIT ?");
-      const transcriptions = stmt.all(limit);
+      const stmt = this.db.prepare(
+        "SELECT * FROM transcriptions ORDER BY timestamp DESC LIMIT ? OFFSET ?"
+      );
+      const transcriptions = stmt.all(limit, offset);
       return transcriptions;
     } catch (error) {
       debugLogger.error("Error getting transcriptions", { error: error.message }, "database");
@@ -431,7 +450,7 @@ class DatabaseManager {
       if (!this.db) {
         throw new Error("Database not initialized");
       }
-      const conditions = [];
+      const conditions = ["deleted_at IS NULL"];
       const params = [];
       if (noteType) {
         conditions.push("note_type = ?");
@@ -441,7 +460,7 @@ class DatabaseManager {
         conditions.push("folder_id = ?");
         params.push(folderId);
       }
-      const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+      const where = `WHERE ${conditions.join(" AND ")}`;
       const stmt = this.db.prepare(`SELECT * FROM notes ${where} ORDER BY updated_at DESC LIMIT ?`);
       params.push(limit);
       return stmt.all(...params);
@@ -657,6 +676,12 @@ class DatabaseManager {
       if (!this.db) {
         throw new Error("Database not initialized");
       }
+      const note = this.db.prepare("SELECT cloud_id FROM notes WHERE id = ?").get(id);
+      if (note?.cloud_id) {
+        // Soft delete — sync service will handle cloud deletion
+        this.db.prepare("UPDATE notes SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?").run(id);
+        return { success: true, id };
+      }
       const stmt = this.db.prepare("DELETE FROM notes WHERE id = ?");
       const result = stmt.run(id);
       return { success: result.changes > 0, id };
@@ -699,6 +724,166 @@ class DatabaseManager {
       return this.db.prepare("SELECT * FROM notes WHERE id = ?").get(id);
     } catch (error) {
       debugLogger.error("Error updating note cloud_id", { error: error.message }, "database");
+      throw error;
+    }
+  }
+
+  // --- Notes Sync Methods ---
+
+  getUnsyncedNotes() {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      return this.db
+        .prepare(
+          "SELECT * FROM notes WHERE cloud_id IS NULL AND deleted_at IS NULL ORDER BY updated_at ASC"
+        )
+        .all();
+    } catch (error) {
+      debugLogger.error("Error getting unsynced notes", { error: error.message }, "database");
+      throw error;
+    }
+  }
+
+  getNotesUpdatedSince(since) {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      return this.db
+        .prepare(
+          "SELECT * FROM notes WHERE cloud_id IS NOT NULL AND deleted_at IS NULL AND (last_synced_at IS NULL OR updated_at > last_synced_at) ORDER BY updated_at ASC"
+        )
+        .all();
+    } catch (error) {
+      debugLogger.error("Error getting notes updated since", { error: error.message }, "database");
+      throw error;
+    }
+  }
+
+  getDeletedNotes() {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      return this.db
+        .prepare("SELECT * FROM notes WHERE deleted_at IS NOT NULL AND cloud_id IS NOT NULL")
+        .all();
+    } catch (error) {
+      debugLogger.error("Error getting deleted notes", { error: error.message }, "database");
+      throw error;
+    }
+  }
+
+  softDeleteNote(id) {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      this.db.prepare("UPDATE notes SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?").run(id);
+      return { success: true };
+    } catch (error) {
+      debugLogger.error("Error soft-deleting note", { error: error.message }, "database");
+      throw error;
+    }
+  }
+
+  hardDeleteNote(id) {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      this.db.prepare("DELETE FROM notes WHERE id = ?").run(id);
+      return { success: true };
+    } catch (error) {
+      debugLogger.error("Error hard-deleting note", { error: error.message }, "database");
+      throw error;
+    }
+  }
+
+  markNoteSynced(id, cloudId) {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      this.db
+        .prepare(
+          "UPDATE notes SET cloud_id = ?, last_synced_at = CURRENT_TIMESTAMP, sync_status = 'synced' WHERE id = ?"
+        )
+        .run(cloudId, id);
+      return this.db.prepare("SELECT * FROM notes WHERE id = ?").get(id);
+    } catch (error) {
+      debugLogger.error("Error marking note synced", { error: error.message }, "database");
+      throw error;
+    }
+  }
+
+  upsertNoteFromCloud(cloudNote) {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      const existing = this.db.prepare("SELECT * FROM notes WHERE cloud_id = ?").get(cloudNote.id);
+
+      if (existing) {
+        const cloudUpdated = new Date(cloudNote.updated_at);
+        const localUpdated = new Date(existing.updated_at);
+        if (cloudUpdated > localUpdated) {
+          this.db
+            .prepare(
+              "UPDATE notes SET title = ?, content = ?, enhanced_content = ?, updated_at = ?, last_synced_at = CURRENT_TIMESTAMP, sync_status = 'synced' WHERE id = ?"
+            )
+            .run(
+              cloudNote.title ?? existing.title,
+              cloudNote.content ?? existing.content,
+              cloudNote.enhanced_content ?? existing.enhanced_content,
+              cloudNote.updated_at,
+              existing.id
+            );
+          return {
+            action: "updated",
+            note: this.db.prepare("SELECT * FROM notes WHERE id = ?").get(existing.id),
+          };
+        }
+        return { action: "skipped", note: existing };
+      }
+
+      // Insert new note from cloud
+      const folderId =
+        this.db.prepare("SELECT id FROM folders WHERE name = 'Personal' AND is_default = 1").get()
+          ?.id || null;
+
+      const result = this.db
+        .prepare(
+          "INSERT INTO notes (title, content, enhanced_content, note_type, cloud_id, folder_id, created_at, updated_at, last_synced_at, sync_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, 'synced')"
+        )
+        .run(
+          cloudNote.title ?? "Untitled Note",
+          cloudNote.content ?? "",
+          cloudNote.enhanced_content ?? null,
+          cloudNote.note_type ?? "personal",
+          cloudNote.id,
+          folderId,
+          cloudNote.created_at,
+          cloudNote.updated_at
+        );
+
+      return {
+        action: "created",
+        note: this.db.prepare("SELECT * FROM notes WHERE id = ?").get(result.lastInsertRowid),
+      };
+    } catch (error) {
+      debugLogger.error("Error upserting note from cloud", { error: error.message }, "database");
+      throw error;
+    }
+  }
+
+  getNoteByCloudId(cloudId) {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      return this.db.prepare("SELECT * FROM notes WHERE cloud_id = ?").get(cloudId) || null;
+    } catch (error) {
+      debugLogger.error("Error getting note by cloud_id", { error: error.message }, "database");
+      throw error;
+    }
+  }
+
+  getAllCloudIds() {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      return this.db
+        .prepare("SELECT cloud_id FROM notes WHERE cloud_id IS NOT NULL AND deleted_at IS NULL")
+        .all()
+        .map((r) => r.cloud_id);
+    } catch (error) {
+      debugLogger.error("Error getting all cloud IDs", { error: error.message }, "database");
       throw error;
     }
   }

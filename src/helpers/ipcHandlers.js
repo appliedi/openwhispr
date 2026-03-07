@@ -10,6 +10,7 @@ const AssemblyAiStreaming = require("./assemblyAiStreaming");
 const { i18nMain, changeLanguage } = require("./i18nMain");
 const DeepgramStreaming = require("./deepgramStreaming");
 const AudioStorageManager = require("./audioStorage");
+const NotesSyncService = require("./notesSync");
 
 const MISTRAL_TRANSCRIPTION_URL = "https://api.mistral.ai/v1/audio/transcriptions";
 
@@ -349,8 +350,8 @@ class IPCHandlers {
       return result;
     });
 
-    ipcMain.handle("db-get-transcriptions", async (event, limit = 50) => {
-      return this.databaseManager.getTranscriptions(limit);
+    ipcMain.handle("db-get-transcriptions", async (event, limit = 50, offset = 0) => {
+      return this.databaseManager.getTranscriptions(limit, offset);
     });
 
     ipcMain.handle("db-clear-transcriptions", async (event) => {
@@ -1214,6 +1215,10 @@ class IPCHandlers {
 
     ipcMain.handle("open-external", async (event, url) => {
       try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+          return { success: false, error: "Only http and https URLs are allowed" };
+        }
         await shell.openExternal(url);
         return { success: true };
       } catch (error) {
@@ -1882,6 +1887,14 @@ class IPCHandlers {
       this._sessionToken = token;
       this._sessionUser = user;
       debugLogger.debug("Session token updated", { hasToken: !!token }, "auth");
+
+      // Start/stop notes sync based on auth state
+      if (token && this._notesSyncService) {
+        this._notesSyncService.start();
+      } else if (this._notesSyncService) {
+        this._notesSyncService.stop();
+      }
+
       return { success: true };
     });
 
@@ -1916,7 +1929,7 @@ class IPCHandlers {
     // Get auth headers for cloud API requests (Bearer token)
     const getAuthHeader = () => {
       const token = this._sessionToken;
-      if (!token) return null;
+      if (!token || typeof token !== "string" || token.length < 10) return null;
       return `Bearer ${token}`;
     };
 
@@ -2220,9 +2233,58 @@ class IPCHandlers {
         }
 
         const data = await response.json();
-        return { success: true, ...data };
+
+        // Transform web API fields to desktop-expected field names
+        const now = new Date();
+        const trialEndsAt = data.trialEndsAt ? new Date(data.trialEndsAt) : null;
+        const isTrial = data.isTrial ?? (!!trialEndsAt && trialEndsAt > now);
+        const trialDaysLeft =
+          data.trialDaysLeft ??
+          (isTrial ? Math.ceil((trialEndsAt.getTime() - now.getTime()) / 86400000) : null);
+
+        return {
+          success: true,
+          wordsUsed: data.wordsUsed ?? 0,
+          wordsRemaining: data.wordsRemaining ?? 0,
+          limit: data.limit ?? data.wordLimit ?? 5000,
+          plan: data.plan ?? "free",
+          status: data.status ?? "active",
+          isSubscribed: data.isSubscribed ?? false,
+          isTrial,
+          trialDaysLeft,
+          currentPeriodEnd: data.currentPeriodEnd ?? null,
+          billingInterval: data.billingInterval ?? null,
+          resetAt: data.resetAt ?? data.resetPeriod ?? "daily",
+        };
       } catch (error) {
         debugLogger.error("Cloud usage fetch error:", error);
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("cloud-meeting-usage", async (event) => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(`${apiUrl}/api/meetings/usage`, {
+          headers: { Authorization: authHeader },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          }
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, ...data };
+      } catch (error) {
+        debugLogger.error("Cloud meeting usage fetch error:", error);
         return { success: false, error: error.message };
       }
     });
@@ -2509,6 +2571,11 @@ class IPCHandlers {
         try {
           if (!apiKey) throw new Error("No API key configured. Add your key in Settings.");
           if (!baseUrl) throw new Error("No transcription endpoint configured.");
+
+          const parsedBase = new URL(baseUrl);
+          if (parsedBase.protocol !== "https:") {
+            throw new Error("BYOK endpoint must use HTTPS");
+          }
 
           const fileSize = fs.statSync(filePath).size;
           if (fileSize > BYOK_FILE_SIZE_LIMIT) {
@@ -3232,6 +3299,459 @@ class IPCHandlers {
         return { isConnected: false, sessionId: null };
       }
       return this.deepgramStreaming.getStatus();
+    });
+
+    // --- Notes Sync ---
+    this._notesSyncService = new NotesSyncService(this.databaseManager, getApiUrl, getAuthHeader);
+
+    ipcMain.handle("cloud-notes-sync", async () => {
+      return this._notesSyncService.sync();
+    });
+
+    ipcMain.handle("cloud-notes-sync-status", async () => {
+      return this._notesSyncService.getStatus();
+    });
+
+    ipcMain.handle("cloud-notes-sync-start", async () => {
+      this._notesSyncService.start();
+      return { success: true };
+    });
+
+    ipcMain.handle("cloud-notes-sync-stop", async () => {
+      this._notesSyncService.stop();
+      return { success: true };
+    });
+
+    // --- Calendar Integration ---
+    ipcMain.handle("cloud-calendar-connect", async (event, platform) => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(`${apiUrl}/api/calendar/connect`, {
+          method: "POST",
+          headers: { Authorization: authHeader, "Content-Type": "application/json" },
+          body: JSON.stringify({ platform }),
+        });
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, ...data };
+      } catch (error) {
+        debugLogger.error("Calendar connect error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("cloud-calendar-status", async () => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(`${apiUrl}/api/calendar/status`, {
+          headers: { Authorization: authHeader },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, ...data };
+      } catch (error) {
+        debugLogger.error("Calendar status error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("cloud-calendar-events", async () => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(`${apiUrl}/api/calendar/events`, {
+          headers: { Authorization: authHeader },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, ...data };
+      } catch (error) {
+        debugLogger.error("Calendar events error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("cloud-calendar-preferences", async (event, preferences) => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(`${apiUrl}/api/calendar/preferences`, {
+          method: "PUT",
+          headers: { Authorization: authHeader, "Content-Type": "application/json" },
+          body: JSON.stringify(preferences),
+        });
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, ...data };
+      } catch (error) {
+        debugLogger.error("Calendar preferences error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("cloud-calendar-disconnect", async (event, connectionId) => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(`${apiUrl}/api/calendar/disconnect`, {
+          method: "POST",
+          headers: { Authorization: authHeader, "Content-Type": "application/json" },
+          body: JSON.stringify({ connectionId }),
+        });
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        return { success: true };
+      } catch (error) {
+        debugLogger.error("Calendar disconnect error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    // --- Cloud Meetings ---
+    ipcMain.handle("cloud-meetings-list", async (event, opts = {}) => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const params = new URLSearchParams();
+        if (opts.limit) params.set("limit", String(opts.limit));
+        if (opts.before) params.set("before", opts.before);
+
+        const response = await fetch(`${apiUrl}/api/meetings/list?${params}`, {
+          headers: { Authorization: authHeader },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, ...data };
+      } catch (error) {
+        debugLogger.error("Cloud meetings list error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("cloud-meeting-get", async (event, meetingId) => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(`${apiUrl}/api/meetings/${encodeURIComponent(meetingId)}`, {
+          headers: { Authorization: authHeader },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, ...data };
+      } catch (error) {
+        debugLogger.error("Cloud meeting get error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("cloud-meeting-transcript", async (event, meetingId) => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(
+          `${apiUrl}/api/meetings/${encodeURIComponent(meetingId)}/transcript`,
+          {
+            headers: { Authorization: authHeader },
+          }
+        );
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, ...data };
+      } catch (error) {
+        debugLogger.error("Cloud meeting transcript error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("cloud-meeting-recording", async (event, meetingId) => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(
+          `${apiUrl}/api/meetings/${encodeURIComponent(meetingId)}/recording`,
+          {
+            headers: { Authorization: authHeader },
+          }
+        );
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, ...data };
+      } catch (error) {
+        debugLogger.error("Cloud meeting recording error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("cloud-meeting-stop", async (event, meetingId) => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(
+          `${apiUrl}/api/meetings/${encodeURIComponent(meetingId)}/stop`,
+          {
+            method: "POST",
+            headers: { Authorization: authHeader },
+          }
+        );
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        return { success: true };
+      } catch (error) {
+        debugLogger.error("Cloud meeting stop error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("cloud-meeting-delete", async (event, meetingId) => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(
+          `${apiUrl}/api/meetings/${encodeURIComponent(meetingId)}/delete`,
+          {
+            method: "DELETE",
+            headers: { Authorization: authHeader },
+          }
+        );
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        return { success: true };
+      } catch (error) {
+        debugLogger.error("Cloud meeting delete error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("cloud-meetings-search", async (event, query) => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const params = new URLSearchParams({ q: query });
+        const response = await fetch(`${apiUrl}/api/meetings/search?${params}`, {
+          headers: { Authorization: authHeader },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, ...data };
+      } catch (error) {
+        debugLogger.error("Cloud meetings search error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("cloud-meeting-create", async (event, meetingUrl) => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(`${apiUrl}/api/meetings/create`, {
+          method: "POST",
+          headers: { Authorization: authHeader, "Content-Type": "application/json" },
+          body: JSON.stringify({ meeting_url: meetingUrl }),
+        });
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, ...data };
+      } catch (error) {
+        debugLogger.error("Cloud meeting create error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    // --- Device Management ---
+    ipcMain.handle("cloud-list-sessions", async () => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(`${apiUrl}/api/auth/desktop-sessions`, {
+          headers: { Authorization: authHeader },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, ...data };
+      } catch (error) {
+        debugLogger.error("List sessions error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("cloud-revoke-session", async (event, sessionId) => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(`${apiUrl}/api/auth/desktop-session`, {
+          method: "DELETE",
+          headers: { Authorization: authHeader, "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: sessionId }),
+        });
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        return { success: true };
+      } catch (error) {
+        debugLogger.error("Revoke session error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
+    });
+
+    // --- User Init ---
+    ipcMain.handle("cloud-init-user", async () => {
+      try {
+        const apiUrl = getApiUrl();
+        if (!apiUrl) throw new Error("flowrytr API URL not configured");
+        const authHeader = getAuthHeader();
+        if (!authHeader) throw new Error("No session token available");
+
+        const response = await fetch(`${apiUrl}/api/auth/init-user`, {
+          method: "POST",
+          headers: { Authorization: authHeader, "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        });
+
+        if (!response.ok) {
+          if (response.status === 401)
+            return { success: false, error: "Session expired", code: "AUTH_EXPIRED" };
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, ...data };
+      } catch (error) {
+        debugLogger.error("Init user error", { error: error.message }, "cloud-api");
+        return { success: false, error: error.message };
+      }
     });
   }
 

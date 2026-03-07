@@ -57,11 +57,15 @@ class AudioStorageManager {
 
   getAudioPath(transcriptionId) {
     try {
+      const safeId = String(transcriptionId).replace(/[^a-zA-Z0-9_-]/g, "");
+      if (!safeId) return null;
       const files = fs.readdirSync(this.audioDir);
-      const match = files.find(
-        (f) => f.endsWith(`-${transcriptionId}.webm`) || f === `${transcriptionId}.webm`
-      );
-      if (match) return path.join(this.audioDir, match);
+      const match = files.find((f) => f.endsWith(`-${safeId}.webm`) || f === `${safeId}.webm`);
+      if (match) {
+        const resolved = path.resolve(this.audioDir, match);
+        if (!resolved.startsWith(path.resolve(this.audioDir))) return null;
+        return resolved;
+      }
     } catch {}
     return null;
   }

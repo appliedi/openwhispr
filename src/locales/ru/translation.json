@@ -87,7 +87,7 @@
   },
   "upgradePrompt": {
     "paymentFailed": "Не удалось обработать платёж",
-    "weeklyLimit": "Вы достигли дневного лимита",
+    "dailyLimit": "Вы достигли дневного лимита",
     "pastDueDescription": "Сейчас вы на бесплатном плане — не волнуйтесь, у вас есть {{limit}} слов в день.\nОбновите способ оплаты, чтобы вернуться к безлимитному Pro.",
     "limitDescription": "Использовано {{used}} из {{limit}} слов.\nВаша транскрипция сохранена и вставлена.",
     "updatePayment": "Обновить способ оплаты",
@@ -98,7 +98,7 @@
     "useApiKeyDescription": "Свой ключ — без ограничений.",
     "switchToLocal": "Перейти на локальный режим",
     "switchToLocalDescription": "Офлайн-транскрипция. Без ограничений.",
-    "rollingWeeklyLimit": "Дневной лимит"
+    "rollingDailyLimit": "Дневной лимит"
   },
   "windowControls": {
     "minimize": "Свернуть",
@@ -196,8 +196,8 @@
       "availableButton": "Доступно обновление"
     },
     "limit": {
-      "weeklyTitle": "Дневной лимит достигнут",
-      "weeklyDescription": "Ваш лимит обновляется ежедневно. Перейдите на Pro или используйте свой API-ключ для безлимитного использования."
+      "dailyTitle": "Дневной лимит достигнут",
+      "dailyDescription": "Ваш лимит обновляется ежедневно. Перейдите на Pro или используйте свой API-ключ для безлимитного использования."
     },
     "billing": {
       "pastDueTitle": "Не удалось обработать платёж",
@@ -223,7 +223,8 @@
       "dateGroups": {
         "today": "Сегодня",
         "yesterday": "Вчера"
-      }
+      },
+      "loadMore": "Загрузить ещё"
     },
     "cloudMigration": {
       "title": "Добро пожаловать в flowrytr Pro",
@@ -576,9 +577,9 @@
     "waiting": "Ожидание подтверждения..."
   },
   "errorBoundary": {
-    "description": "Произошла непредвиденная ошибка. Перезагрузите, чтобы попробовать снова.",
-    "reload": "Перезагрузить",
-    "title": "Что-то пошло не так"
+    "title": "Что-то пошло не так",
+    "description": "Этот раздел не удалось загрузить. Попробуйте ещё раз или перезапустите приложение.",
+    "retry": "Попробовать снова"
   },
   "forgotPassword": {
     "back": "Назад",
@@ -882,7 +883,7 @@
         "trial": "Пробный"
       },
       "planTitle": "Тариф",
-      "rollingWeeklyLimit": "Дневной лимит",
+      "rollingDailyLimit": "Дневной лимит",
       "signOut": {
         "failedDescription": "Произошла ошибка при выходе. Попробуйте ещё раз.",
         "failedTitle": "Не удалось выйти",
@@ -1535,7 +1536,9 @@
     "upgradeDescription": "Безлимитные транскрипции, транскрипция в реальном времени и многое другое.",
     "learnMore": "Узнать больше",
     "defaultUser": "Пользователь",
-    "notSignedIn": "Не авторизован"
+    "notSignedIn": "Не авторизован",
+    "calendar": "Календарь",
+    "cloudMeetings": "Облачные встречи"
   },
   "usage": {
     "approachingLimit": "Приближается дневной лимит",
@@ -1554,7 +1557,10 @@
     "dailyLimit": "Дневной лимит",
     "upgradeToPro": "Перейти на Pro",
     "useYourOwnKey": "Свой API-ключ",
-    "upgradeUnlimited": "Pro — без ограничений"
+    "upgradeUnlimited": "Pro — без ограничений",
+    "meetingMinutes": "Минуты встреч",
+    "meetingMinutesUsed": "{{used}} / {{limit}} мин использовано в этом месяце",
+    "unlimitedByok": "Без ограничений (BYOK)"
   },
   "support": {
     "joinDiscord": "Присоединиться к Discord",
@@ -1656,5 +1662,68 @@
       "open": "Открыть",
       "dismiss": "Закрыть"
     }
+  },
+  "notesSync": {
+    "syncing": "Синхронизация заметок…",
+    "synced": "Заметки синхронизированы",
+    "lastSync": "Последняя синхронизация {{time}}",
+    "error": "Ошибка синхронизации",
+    "syncNow": "Синхронизировать сейчас",
+    "offline": "Нет сети — синхронизация при подключении"
+  },
+  "calendar": {
+    "title": "Календарь",
+    "connect": "Подключить календарь",
+    "connectGoogle": "Подключить Google Календарь",
+    "connectMicrosoft": "Подключить Microsoft Календарь",
+    "connecting": "Подключение…",
+    "connected": "Подключено",
+    "disconnect": "Отключить",
+    "disconnectConfirm": "Вы уверены, что хотите отключить этот календарь?",
+    "noConnections": "Нет подключённых календарей",
+    "noConnectionsDescription": "Подключите календарь для автоматической записи встреч",
+    "upcomingEvents": "Предстоящие события",
+    "noEvents": "Нет предстоящих событий",
+    "join": "Присоединиться",
+    "autoRecord": "Автозапись",
+    "preferences": "Настройки записи",
+    "recordAll": "Записывать все встречи",
+    "recordHostOnly": "Записывать только когда я организатор",
+    "proRequired": "Перейдите на Pro для интеграции с календарём",
+    "oauthInstructions": "Завершите вход в браузере, чтобы подключить календарь"
+  },
+  "cloudMeetings": {
+    "title": "Облачные встречи",
+    "empty": "Облачных встреч пока нет",
+    "emptyDescription": "Запишите встречу, чтобы увидеть её здесь",
+    "record": "Записать встречу",
+    "recordPlaceholder": "Вставьте URL встречи (Zoom, Teams, Meet…)",
+    "recordStart": "Начать запись",
+    "recording": "Запись",
+    "completed": "Завершено",
+    "error": "Ошибка",
+    "joining": "Подключение…",
+    "processing": "Обработка…",
+    "transcript": "Транскрипция",
+    "participants": "Участники",
+    "downloadRecording": "Скачать запись",
+    "stopRecording": "Остановить запись",
+    "deleteMeeting": "Удалить встречу",
+    "deleteConfirm": "Встреча, транскрипция и запись будут удалены безвозвратно.",
+    "search": "Поиск по транскрипциям…",
+    "noTranscript": "Транскрипция недоступна",
+    "duration": "{{minutes}} мин",
+    "proRequired": "Перейдите на Pro для облачных встреч"
+  },
+  "devices": {
+    "title": "Привязанные устройства",
+    "description": "Управляйте устройствами, подключёнными к вашему аккаунту flowrytr",
+    "currentDevice": "Текущее устройство",
+    "lastUsed": "Последнее использование {{time}}",
+    "created": "Создано {{time}}",
+    "revoke": "Отозвать",
+    "revokeConfirm": "Вы уверены, что хотите отозвать доступ для этого устройства?",
+    "revokeCurrentWarning": "Отзыв текущего устройства приведёт к выходу из аккаунта.",
+    "noDevices": "Нет привязанных устройств"
   }
 }

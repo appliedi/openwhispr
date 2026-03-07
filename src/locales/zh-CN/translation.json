@@ -87,7 +87,7 @@
   },
   "upgradePrompt": {
     "paymentFailed": "我们无法处理你的付款",
-    "weeklyLimit": "你已达到今日的使用上限",
+    "dailyLimit": "你已达到今日的使用上限",
     "pastDueDescription": "你目前使用的是免费版——别担心，每日仍有 {{limit}} 个词的额度。\n更新支付方式即可恢复无限制的 Pro 版。",
     "limitDescription": "已使用 {{used}} / {{limit}} 个词。\n你的转录已保存并粘贴。",
     "updatePayment": "更新支付方式",
@@ -98,7 +98,7 @@
     "useApiKeyDescription": "使用你自己的密钥，无限制使用。",
     "switchToLocal": "切换到本地模式",
     "switchToLocalDescription": "离线转录，无使用限制。",
-    "rollingWeeklyLimit": "每日限额"
+    "rollingDailyLimit": "每日限额"
   },
   "windowControls": {
     "minimize": "最小化",
@@ -196,8 +196,8 @@
       "availableButton": "有可用更新"
     },
     "limit": {
-      "weeklyTitle": "已达到每日限额",
-      "weeklyDescription": "你的额度每天重置。升级到 Pro 或使用自己的 API Key 可不受限制。"
+      "dailyTitle": "已达到每日限额",
+      "dailyDescription": "你的额度每天重置。升级到 Pro 或使用自己的 API Key 可不受限制。"
     },
     "billing": {
       "pastDueTitle": "我们无法处理你的付款",
@@ -223,7 +223,8 @@
       "dateGroups": {
         "today": "今天",
         "yesterday": "昨天"
-      }
+      },
+      "loadMore": "加载更多"
     },
     "cloudMigration": {
       "title": "欢迎使用 flowrytr Pro",
@@ -576,9 +577,9 @@
     "waiting": "正在等待验证..."
   },
   "errorBoundary": {
-    "description": "发生了意外错误，请重新加载后重试。",
-    "reload": "重新加载",
-    "title": "出了点问题"
+    "title": "出了点问题",
+    "description": "此部分加载失败。请重试或重启应用。",
+    "retry": "重试"
   },
   "forgotPassword": {
     "back": "返回",
@@ -882,7 +883,7 @@
         "trial": "试用"
       },
       "planTitle": "套餐",
-      "rollingWeeklyLimit": "每日限额",
+      "rollingDailyLimit": "每日限额",
       "signOut": {
         "failedDescription": "退出登录时出错，请重试。",
         "failedTitle": "无法退出登录",
@@ -1531,7 +1532,9 @@
     "upgradeDescription": "无限转录、实时转录等更多功能。",
     "learnMore": "了解更多",
     "defaultUser": "用户",
-    "notSignedIn": "未登录"
+    "notSignedIn": "未登录",
+    "calendar": "日历",
+    "cloudMeetings": "云会议"
   },
   "usage": {
     "approachingLimit": "即将达到每日限额",
@@ -1550,7 +1553,10 @@
     "dailyLimit": "每日限额",
     "upgradeToPro": "升级到 Pro",
     "useYourOwnKey": "使用自己的 API Key",
-    "upgradeUnlimited": "升级到 Pro — 无限转录"
+    "upgradeUnlimited": "升级到 Pro — 无限转录",
+    "meetingMinutes": "会议分钟",
+    "meetingMinutesUsed": "本月已用 {{used}} / {{limit}} 分钟",
+    "unlimitedByok": "无限制 (BYOK)"
   },
   "support": {
     "joinDiscord": "加入 Discord",
@@ -1652,5 +1658,68 @@
       "open": "打开",
       "dismiss": "关闭"
     }
+  },
+  "notesSync": {
+    "syncing": "正在同步笔记…",
+    "synced": "笔记已同步",
+    "lastSync": "上次同步 {{time}}",
+    "error": "同步错误",
+    "syncNow": "立即同步",
+    "offline": "离线 — 连接后将自动同步"
+  },
+  "calendar": {
+    "title": "日历",
+    "connect": "连接日历",
+    "connectGoogle": "连接 Google 日历",
+    "connectMicrosoft": "连接 Microsoft 日历",
+    "connecting": "正在连接…",
+    "connected": "已连接",
+    "disconnect": "断开连接",
+    "disconnectConfirm": "确定要断开此日历的连接吗？",
+    "noConnections": "未连接任何日历",
+    "noConnectionsDescription": "连接日历以自动录制会议",
+    "upcomingEvents": "即将到来的活动",
+    "noEvents": "没有即将到来的活动",
+    "join": "加入",
+    "autoRecord": "自动录制",
+    "preferences": "录制偏好",
+    "recordAll": "录制所有会议",
+    "recordHostOnly": "仅在我是主持人时录制",
+    "proRequired": "升级到 Pro 以使用日历集成",
+    "oauthInstructions": "在浏览器中完成登录以连接日历"
+  },
+  "cloudMeetings": {
+    "title": "云会议",
+    "empty": "暂无云会议",
+    "emptyDescription": "录制一场会议即可在此查看",
+    "record": "录制会议",
+    "recordPlaceholder": "粘贴会议链接（Zoom、Teams、Meet…）",
+    "recordStart": "开始录制",
+    "recording": "录制中",
+    "completed": "已完成",
+    "error": "错误",
+    "joining": "正在加入…",
+    "processing": "处理中…",
+    "transcript": "转录文本",
+    "participants": "参与者",
+    "downloadRecording": "下载录制",
+    "stopRecording": "停止录制",
+    "deleteMeeting": "删除会议",
+    "deleteConfirm": "此操作将永久删除会议、转录和录制内容。",
+    "search": "搜索转录…",
+    "noTranscript": "暂无转录",
+    "duration": "{{minutes}} 分钟",
+    "proRequired": "升级到 Pro 以使用云会议"
+  },
+  "devices": {
+    "title": "已关联设备",
+    "description": "管理与你的 flowrytr 帐户关联的设备",
+    "currentDevice": "当前设备",
+    "lastUsed": "上次使用 {{time}}",
+    "created": "创建于 {{time}}",
+    "revoke": "撤销",
+    "revokeConfirm": "确定要撤销此设备的访问权限吗？",
+    "revokeCurrentWarning": "撤销当前设备将使你退出登录。",
+    "noDevices": "没有已关联的设备"
   }
 }

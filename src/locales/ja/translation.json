@@ -87,7 +87,7 @@
   },
   "upgradePrompt": {
     "paymentFailed": "お支払いを処理できませんでした",
-    "weeklyLimit": "1日の利用上限に達しました",
+    "dailyLimit": "1日の利用上限に達しました",
     "pastDueDescription": "現在は無料プランをご利用中です。ご安心ください、1日 {{limit}} ワードまで引き続きご利用いただけます。\nお支払い方法を更新して、無制限の Pro に戻しましょう。",
     "limitDescription": "{{used}} / {{limit}} ワード使用済み。\n文字起こしは保存・貼り付けされました。",
     "updatePayment": "お支払い方法を更新",
@@ -98,7 +98,7 @@
     "useApiKeyDescription": "自分のキーで無制限に利用できます。",
     "switchToLocal": "ローカルに切り替え",
     "switchToLocalDescription": "オフライン文字起こし。制限なし。",
-    "rollingWeeklyLimit": "1日の利用上限"
+    "rollingDailyLimit": "1日の利用上限"
   },
   "windowControls": {
     "minimize": "最小化",
@@ -196,8 +196,8 @@
       "availableButton": "アップデートあり"
     },
     "limit": {
-      "weeklyTitle": "1日の利用上限に達しました",
-      "weeklyDescription": "利用上限は毎日リセットされます。Pro にアップグレードするか、自分の API キーを使用して無制限にご利用ください。"
+      "dailyTitle": "1日の利用上限に達しました",
+      "dailyDescription": "利用上限は毎日リセットされます。Pro にアップグレードするか、自分の API キーを使用して無制限にご利用ください。"
     },
     "billing": {
       "pastDueTitle": "お支払いを処理できませんでした",
@@ -223,7 +223,8 @@
       "dateGroups": {
         "today": "今日",
         "yesterday": "昨日"
-      }
+      },
+      "loadMore": "もっと読み込む"
     },
     "cloudMigration": {
       "title": "flowrytr Pro へようこそ",
@@ -576,9 +577,9 @@
     "waiting": "確認を待っています..."
   },
   "errorBoundary": {
-    "description": "予期しないエラーが発生しました。再読み込みしてもう一度お試しください。",
-    "reload": "再読み込み",
-    "title": "問題が発生しました"
+    "title": "問題が発生しました",
+    "description": "このセクションの読み込みに失敗しました。再試行するかアプリを再起動してください。",
+    "retry": "再試行"
   },
   "forgotPassword": {
     "back": "戻る",
@@ -926,7 +927,7 @@
         },
         "currentPlan": "現在のプラン"
       },
-      "rollingWeeklyLimit": "1日の利用上限",
+      "rollingDailyLimit": "1日の利用上限",
       "signOut": {
         "failedDescription": "サインアウト中に問題が発生しました。もう一度お試しください。",
         "failedTitle": "サインアウトできませんでした",
@@ -1531,7 +1532,9 @@
     "upgradeDescription": "無制限の文字起こしと最新の AI モデルをご利用いただけます。",
     "learnMore": "詳しく見る",
     "defaultUser": "ユーザー",
-    "notSignedIn": "未サインイン"
+    "notSignedIn": "未サインイン",
+    "calendar": "カレンダー",
+    "cloudMeetings": "クラウド会議"
   },
   "usage": {
     "approachingLimit": "1日の利用上限に近づいています",
@@ -1550,7 +1553,10 @@
     "dailyLimit": "1日の上限",
     "upgradeToPro": "Proにアップグレード",
     "useYourOwnKey": "自分のAPIキーを使用",
-    "upgradeUnlimited": "Proにアップグレード — 無制限の文字起こし"
+    "upgradeUnlimited": "Proにアップグレード — 無制限の文字起こし",
+    "meetingMinutes": "会議の分数",
+    "meetingMinutesUsed": "今月 {{used}} / {{limit}} 分使用済み",
+    "unlimitedByok": "無制限 (BYOK)"
   },
   "support": {
     "joinDiscord": "Discord に参加",
@@ -1652,5 +1658,68 @@
       "open": "開く",
       "dismiss": "閉じる"
     }
+  },
+  "notesSync": {
+    "syncing": "ノートを同期中…",
+    "synced": "ノート同期完了",
+    "lastSync": "最終同期 {{time}}",
+    "error": "同期エラー",
+    "syncNow": "今すぐ同期",
+    "offline": "オフライン — 接続時に同期されます"
+  },
+  "calendar": {
+    "title": "カレンダー",
+    "connect": "カレンダーを接続",
+    "connectGoogle": "Google カレンダーを接続",
+    "connectMicrosoft": "Microsoft カレンダーを接続",
+    "connecting": "接続中…",
+    "connected": "接続済み",
+    "disconnect": "切断",
+    "disconnectConfirm": "このカレンダーを切断してもよろしいですか？",
+    "noConnections": "接続されたカレンダーはありません",
+    "noConnectionsDescription": "カレンダーを接続して会議を自動的に録画",
+    "upcomingEvents": "今後の予定",
+    "noEvents": "今後の予定はありません",
+    "join": "参加",
+    "autoRecord": "自動録画",
+    "preferences": "録画設定",
+    "recordAll": "すべての会議を録画",
+    "recordHostOnly": "自分が主催者の場合のみ録画",
+    "proRequired": "カレンダー連携には Pro へのアップグレードが必要です",
+    "oauthInstructions": "ブラウザでサインインを完了してカレンダーを接続してください"
+  },
+  "cloudMeetings": {
+    "title": "クラウド会議",
+    "empty": "クラウド会議はまだありません",
+    "emptyDescription": "会議を録画するとここに表示されます",
+    "record": "会議を録画",
+    "recordPlaceholder": "会議のURLを貼り付け（Zoom、Teams、Meet…）",
+    "recordStart": "録画を開始",
+    "recording": "録画中",
+    "completed": "完了",
+    "error": "エラー",
+    "joining": "参加中…",
+    "processing": "処理中…",
+    "transcript": "文字起こし",
+    "participants": "参加者",
+    "downloadRecording": "録画をダウンロード",
+    "stopRecording": "録画を停止",
+    "deleteMeeting": "会議を削除",
+    "deleteConfirm": "会議、文字起こし、録画が完全に削除されます。",
+    "search": "文字起こしを検索…",
+    "noTranscript": "文字起こしはありません",
+    "duration": "{{minutes}} 分",
+    "proRequired": "クラウド会議には Pro へのアップグレードが必要です"
+  },
+  "devices": {
+    "title": "リンクされたデバイス",
+    "description": "flowrytr アカウントに接続されたデバイスを管理",
+    "currentDevice": "現在のデバイス",
+    "lastUsed": "最終使用 {{time}}",
+    "created": "作成日 {{time}}",
+    "revoke": "取り消し",
+    "revokeConfirm": "このデバイスのアクセスを取り消してもよろしいですか？",
+    "revokeCurrentWarning": "現在のデバイスを取り消すとサインアウトされます。",
+    "noDevices": "リンクされたデバイスはありません"
   }
 }

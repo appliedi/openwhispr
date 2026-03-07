@@ -183,3 +183,16 @@ Enable with `--log-level=debug` or `FLOWRYTR_LOG_LEVEL=debug` (legacy: `OPENWHIS
 - Path alias: `@` maps to `src/` directory
 - Renderer builds to `src/dist/`
 - Node/Electron modules are externalized in Rollup config
+
+## Web App Companion (openwhispr-web)
+
+The flowrytr web app is a separate Next.js SaaS at `../openwhispr-web/`. It provides:
+
+- Cloud notes backup (synced from desktop via API)
+- Meeting recording & transcription (Recall.ai cloud bots)
+- Billing (Stripe) and referral management
+- Calendar integration (Google, Microsoft)
+
+The desktop app authenticates to the web API using long-lived Bearer tokens (`desktop_sessions` table). Desktop auth flow: Clerk sign-in → create desktop session token → store in Electron. See `openwhispr-web/lib/api-auth.ts` for the dual-auth pattern.
+
+Note: The desktop app's local Meetings folder (streaming speaker diarization via AssemblyAI/Deepgram) operates independently of the web app's Recall.ai-based cloud meetings.

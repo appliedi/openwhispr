@@ -128,7 +128,8 @@ export function useUsage(): UseUsageResult | null {
     }
 
     const handleFocus = () => {
-      if (pendingRefetchRef.current) {
+      const cacheAge = Date.now() - lastFetchRef.current;
+      if (pendingRefetchRef.current || cacheAge > 300_000) {
         pendingRefetchRef.current = false;
         lastFetchRef.current = 0;
         fetchUsage();

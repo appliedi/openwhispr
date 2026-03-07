@@ -783,6 +783,10 @@ declare global {
       resumeMediaPlayback?: () => Promise<boolean>;
       openWhisperModelsFolder?: () => Promise<{ success: boolean; error?: string }>;
 
+      // Privacy & data settings
+      notifyCloudBackupChanged?: (enabled: boolean) => void;
+      notifyAudioRetentionChanged?: (days: number) => void;
+
       // Windows Push-to-Talk notifications
       notifyActivationModeChanged?: (mode: "tap" | "push") => void;
       notifyHotkeyChanged?: (hotkey: string) => void;

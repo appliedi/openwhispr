@@ -55,12 +55,14 @@ function makeContentHash(content: string): string {
 
 function NotesSyncIndicator() {
   const { t } = useTranslation();
+  const cloudBackupEnabled = useSettingsStore((s) => s.cloudBackupEnabled);
   const [status, setStatus] = useState<{ syncing: boolean; lastSyncAt: string | null }>({
     syncing: false,
     lastSyncAt: null,
   });
 
   useEffect(() => {
+    if (!cloudBackupEnabled) return;
     const poll = async () => {
       if (!window.electronAPI?.cloudNotesSyncStatus) return;
       try {
@@ -73,7 +75,7 @@ function NotesSyncIndicator() {
     poll();
     const interval = setInterval(poll, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [cloudBackupEnabled]);
 
   const handleSync = async () => {
     if (!window.electronAPI?.cloudNotesSync) return;
@@ -85,7 +87,7 @@ function NotesSyncIndicator() {
     }
   };
 
-  if (!window.electronAPI?.cloudNotesSyncStatus) return null;
+  if (!cloudBackupEnabled || !window.electronAPI?.cloudNotesSyncStatus) return null;
 
   return (
     <div className="px-3 py-2 border-t border-border/10 dark:border-white/4">

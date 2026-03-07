@@ -1222,9 +1222,13 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     const audioFormat = audioBlob.type;
     const opts = {};
     if (language) opts.language = language;
-    const reasoningMode = settings.cloudReasoningMode || "flowrytr";
-    if (settings.useReasoningModel && !this.skipReasoning && reasoningMode === "flowrytr") {
+    if (!settings.telemetryEnabled) {
       opts.sendLogs = "false";
+    } else {
+      const reasoningMode = settings.cloudReasoningMode || "flowrytr";
+      if (settings.useReasoningModel && !this.skipReasoning && reasoningMode === "flowrytr") {
+        opts.sendLogs = "false";
+      }
     }
 
     const dictionaryPrompt = this.getCustomDictionaryPrompt();
@@ -2473,7 +2477,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
                 finalText,
                 durationSeconds ?? 0,
                 {
-                  sendLogs: !usedCloudReasoning,
+                  sendLogs: getSettings().telemetryEnabled && !usedCloudReasoning,
                   sttProvider: this.sttConfig?.streamingProvider || "deepgram",
                   sttModel: streamingSttModel,
                   sttProcessingMs: streamingSttProcessingMs,

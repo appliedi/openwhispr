@@ -108,6 +108,8 @@ class IPCHandlers {
     this._autoLearnDebounceTimer = null;
     this._autoLearnLatestData = null;
     this._textEditHandler = null;
+    this._cloudBackupEnabled = false; // Synced from renderer
+    this._audioRetentionDays = 30; // Synced from renderer
     this.audioStorageManager = new AudioStorageManager();
     this._audioCleanupInterval = null;
     this._setupTextEditMonitor();
@@ -142,28 +144,22 @@ class IPCHandlers {
   }
 
   _setupAudioCleanup() {
-    const DEFAULT_RETENTION_DAYS = 30;
     const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
 
-    // Run initial cleanup with default retention
-    try {
-      this.audioStorageManager.cleanupExpiredAudio(DEFAULT_RETENTION_DAYS, this.databaseManager);
-    } catch (error) {
-      debugLogger.error("Initial audio cleanup failed", { error: error.message }, "audio-storage");
-    }
-
-    // Set up periodic cleanup every 6 hours
-    this._audioCleanupInterval = setInterval(() => {
+    const runCleanup = () => {
+      if (this._audioRetentionDays === 0) return; // 0 = disabled
       try {
-        this.audioStorageManager.cleanupExpiredAudio(DEFAULT_RETENTION_DAYS, this.databaseManager);
-      } catch (error) {
-        debugLogger.error(
-          "Periodic audio cleanup failed",
-          { error: error.message },
-          "audio-storage"
+        this.audioStorageManager.cleanupExpiredAudio(
+          this._audioRetentionDays,
+          this.databaseManager
         );
+      } catch (error) {
+        debugLogger.error("Audio cleanup failed", { error: error.message }, "audio-storage");
       }
-    }, SIX_HOURS_MS);
+    };
+
+    runCleanup(); // Initial cleanup
+    this._audioCleanupInterval = setInterval(runCleanup, SIX_HOURS_MS);
   }
 
   _setupTextEditMonitor() {
@@ -461,6 +457,30 @@ class IPCHandlers {
         this._autoLearnLatestData = null;
       }
       debugLogger.debug("[AutoLearn] Setting changed", { enabled: this._autoLearnEnabled });
+    });
+
+    // Privacy & data settings (synced from renderer)
+    ipcMain.on("setting-cloud-backup-changed", (_event, enabled) => {
+      this._cloudBackupEnabled = !!enabled;
+      if (enabled && this._sessionToken && this._notesSyncService) {
+        this._notesSyncService.start();
+      } else if (!enabled && this._notesSyncService) {
+        this._notesSyncService.stop();
+      }
+      debugLogger.debug(
+        "Cloud backup setting changed",
+        { enabled: this._cloudBackupEnabled },
+        "settings"
+      );
+    });
+
+    ipcMain.on("setting-audio-retention-changed", (_event, days) => {
+      this._audioRetentionDays = typeof days === "number" && days >= 0 ? days : 30;
+      debugLogger.debug(
+        "Audio retention setting changed",
+        { days: this._audioRetentionDays },
+        "settings"
+      );
     });
 
     ipcMain.handle("db-get-dictionary", async () => {
@@ -1888,8 +1908,8 @@ class IPCHandlers {
       this._sessionUser = user;
       debugLogger.debug("Session token updated", { hasToken: !!token }, "auth");
 
-      // Start/stop notes sync based on auth state
-      if (token && this._notesSyncService) {
+      // Start/stop notes sync based on auth state and cloud backup setting
+      if (token && this._cloudBackupEnabled && this._notesSyncService) {
         this._notesSyncService.start();
       } else if (this._notesSyncService) {
         this._notesSyncService.stop();
@@ -3305,6 +3325,7 @@ class IPCHandlers {
     this._notesSyncService = new NotesSyncService(this.databaseManager, getApiUrl, getAuthHeader);
 
     ipcMain.handle("cloud-notes-sync", async () => {
+      if (!this._cloudBackupEnabled) return { success: false, error: "Cloud backup disabled" };
       return this._notesSyncService.sync();
     });
 
@@ -3313,6 +3334,7 @@ class IPCHandlers {
     });
 
     ipcMain.handle("cloud-notes-sync-start", async () => {
+      if (!this._cloudBackupEnabled) return { success: false, error: "Cloud backup disabled" };
       this._notesSyncService.start();
       return { success: true };
     });

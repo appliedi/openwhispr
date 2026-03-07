@@ -520,6 +520,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   notifyPanelStartPositionChanged: (position) =>
     ipcRenderer.send("panel-start-position-changed", position),
 
+  // Privacy & data settings (fire-and-forget to main process)
+  notifyCloudBackupChanged: (enabled) => ipcRenderer.send("setting-cloud-backup-changed", enabled),
+  notifyAudioRetentionChanged: (days) => ipcRenderer.send("setting-audio-retention-changed", days),
+
   // Auto-start management
   getAutoStartEnabled: () => ipcRenderer.invoke("get-auto-start-enabled"),
   setAutoStartEnabled: (enabled) => ipcRenderer.invoke("set-auto-start-enabled", enabled),

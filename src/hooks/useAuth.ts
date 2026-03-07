@@ -54,6 +54,13 @@ export function useAuth() {
       if (token && window.electronAPI?.authSetSession) {
         window.electronAPI.authSetSession(token, savedUser as unknown as Record<string, unknown>);
       }
+
+      // Sync privacy settings to main process so it knows current values on startup
+      window.electronAPI?.notifyCloudBackupChanged?.(
+        localStorage.getItem("cloudBackupEnabled") === "true"
+      );
+      const retentionDays = parseInt(localStorage.getItem("audioRetentionDays") || "30", 10);
+      window.electronAPI?.notifyAudioRetentionChanged?.(isNaN(retentionDays) ? 30 : retentionDays);
     }
   }, [isSignedIn, hasToken, gracePeriodActive, isLoaded]);
 

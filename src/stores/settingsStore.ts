@@ -381,11 +381,16 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     set({ theme: value });
   },
 
-  setCloudBackupEnabled: createBooleanSetter("cloudBackupEnabled"),
+  setCloudBackupEnabled: (value: boolean) => {
+    if (isBrowser) localStorage.setItem("cloudBackupEnabled", String(value));
+    set({ cloudBackupEnabled: value });
+    window.electronAPI?.notifyCloudBackupChanged?.(value);
+  },
   setTelemetryEnabled: createBooleanSetter("telemetryEnabled"),
   setAudioRetentionDays: (days: number) => {
     if (isBrowser) localStorage.setItem("audioRetentionDays", String(days));
     set({ audioRetentionDays: days });
+    window.electronAPI?.notifyAudioRetentionChanged?.(days);
   },
   setAudioCuesEnabled: createBooleanSetter("audioCuesEnabled"),
   setPauseMediaOnDictation: createBooleanSetter("pauseMediaOnDictation"),

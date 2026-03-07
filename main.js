@@ -1,6 +1,5 @@
-const { app, globalShortcut, BrowserWindow, dialog, ipcMain, session } = require("electron");
+const { app, globalShortcut, BrowserWindow, dialog, ipcMain } = require("electron");
 const path = require("path");
-const http = require("http");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const VALID_CHANNELS = new Set(["development", "staging", "production"]);
@@ -10,7 +9,8 @@ const DEFAULT_OAUTH_PROTOCOL_BY_CHANNEL = {
   production: "flowrytr",
 };
 const BASE_WINDOWS_APP_ID = "com.flowrytr.app";
-const DEFAULT_AUTH_BRIDGE_PORT = 5199;
+// Auth deep link allow-listed params (security: prevent arbitrary param injection)
+const ALLOWED_AUTH_PARAMS = ["token", "userId", "email", "name", "plan"];
 
 function isElectronBinaryExec() {
   const execPath = (process.execPath || "").toLowerCase();
@@ -69,14 +69,27 @@ function migrateAppDataIfNeeded() {
   const oldPath = path.join(app.getPath("appData"), oldDirName);
 
   if (oldPath === newPath) return;
-  if (!fs.existsSync(oldPath)) return;
+
+  // Verify old path exists and is a real directory (not a symlink)
+  let oldStat;
+  try {
+    oldStat = fs.lstatSync(oldPath);
+  } catch {
+    return;
+  }
+  if (!oldStat.isDirectory()) return;
+
   if (fs.existsSync(newPath) && fs.readdirSync(newPath).length > 0) return;
 
   try {
-    fs.cpSync(oldPath, newPath, { recursive: true });
+    fs.cpSync(oldPath, newPath, { recursive: true, verbatimSymlinks: true });
     console.log(`[Migration] Copied app data from ${oldPath} to ${newPath}`);
   } catch (err) {
     console.error(`[Migration] Failed to copy app data: ${err.message}`);
+    // Clean up partial copy so next launch can retry
+    try {
+      fs.rmSync(newPath, { recursive: true, force: true });
+    } catch {}
   }
 }
 
@@ -220,28 +233,6 @@ let textEditMonitor = null;
 let whisperCudaManager = null;
 let ipcHandlers = null;
 let globeKeyAlertShown = false;
-let authBridgeServer = null;
-
-function parseAuthBridgePort() {
-  const raw = (
-    process.env.FLOWRYTR_AUTH_BRIDGE_PORT ||
-    process.env.OPENWHISPR_AUTH_BRIDGE_PORT ||
-    ""
-  ).trim();
-  if (!raw) return DEFAULT_AUTH_BRIDGE_PORT;
-
-  const parsed = Number(raw);
-  if (!Number.isInteger(parsed) || parsed < 1 || parsed > 65535) {
-    return DEFAULT_AUTH_BRIDGE_PORT;
-  }
-
-  return parsed;
-}
-
-const AUTH_BRIDGE_HOST = "127.0.0.1";
-const AUTH_BRIDGE_PORT = parseAuthBridgePort();
-const AUTH_BRIDGE_PATH = "/oauth/callback";
-
 // Set up PATH for production builds to find system tools (whisper.cpp, ffmpeg)
 function setupProductionPath() {
   if (process.platform === "darwin" && process.env.NODE_ENV !== "development") {
@@ -362,19 +353,21 @@ function handleAuthDeepLink(deepLinkUrl) {
   try {
     const parsed = new URL(deepLinkUrl);
 
-    // Pass all auth params to the control panel
     const token = parsed.searchParams.get("token");
     if (!token) {
-      if (debugLogger) debugLogger.warn("Auth deep link missing token", { url: deepLinkUrl });
+      if (debugLogger)
+        debugLogger.warn("Auth deep link missing token", { protocol: OAUTH_PROTOCOL });
       return;
     }
 
     if (!isLiveWindow(windowManager?.controlPanelWindow)) return;
 
+    // Only forward allow-listed params to prevent injection of arbitrary query params
     const appUrl = DevServerManager.getAppUrl(true);
     const params = new URLSearchParams();
-    for (const [key, value] of parsed.searchParams.entries()) {
-      params.set(key, value);
+    for (const key of ALLOWED_AUTH_PARAMS) {
+      const value = parsed.searchParams.get(key);
+      if (value !== null) params.set(key, value);
     }
 
     if (appUrl) {
@@ -383,8 +376,9 @@ function handleAuthDeepLink(deepLinkUrl) {
     } else {
       const fileInfo = DevServerManager.getAppFilePath(true);
       if (!fileInfo) return;
-      for (const [key, value] of params.entries()) {
-        fileInfo.query[key] = value;
+      for (const key of ALLOWED_AUTH_PARAMS) {
+        const value = params.get(key);
+        if (value !== null) fileInfo.query[key] = value;
       }
       windowManager.controlPanelWindow.loadFile(fileInfo.path, { query: fileInfo.query });
     }
@@ -397,118 +391,15 @@ function handleAuthDeepLink(deepLinkUrl) {
     }
     windowManager.controlPanelWindow.show();
     windowManager.controlPanelWindow.focus();
-  } catch (err) {
-    if (debugLogger) debugLogger.error("Failed to handle auth deep link:", err);
+  } catch {
+    if (debugLogger) debugLogger.error("Failed to handle auth deep link");
   }
-}
-
-function parseJsonBody(req) {
-  return new Promise((resolve, reject) => {
-    let raw = "";
-    req.on("data", (chunk) => {
-      raw += chunk;
-      if (raw.length > 32 * 1024) {
-        reject(new Error("Request body too large"));
-        req.destroy();
-      }
-    });
-    req.on("end", () => {
-      if (!raw) return resolve({});
-      try {
-        resolve(JSON.parse(raw));
-      } catch {
-        reject(new Error("Invalid JSON payload"));
-      }
-    });
-    req.on("error", reject);
-  });
-}
-
-function writeCorsHeaders(res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-}
-
-function startAuthBridgeServer() {
-  if (APP_CHANNEL !== "development" || authBridgeServer) {
-    return;
-  }
-
-  authBridgeServer = http.createServer(async (req, res) => {
-    writeCorsHeaders(res);
-    if (req.method === "OPTIONS") {
-      res.writeHead(204);
-      res.end();
-      return;
-    }
-
-    const requestUrl = new URL(req.url || "/", `http://${AUTH_BRIDGE_HOST}:${AUTH_BRIDGE_PORT}`);
-    if (requestUrl.pathname !== AUTH_BRIDGE_PATH) {
-      res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
-      res.end("Not found");
-      return;
-    }
-
-    let verifier = requestUrl.searchParams.get("neon_auth_session_verifier");
-    if (!verifier && req.method === "POST") {
-      try {
-        const body = await parseJsonBody(req);
-        verifier = body?.neon_auth_session_verifier || body?.verifier || null;
-      } catch (error) {
-        res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" });
-        res.end(error.message || "Invalid request");
-        return;
-      }
-    }
-
-    if (!verifier) {
-      res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" });
-      res.end("Missing neon_auth_session_verifier");
-      return;
-    }
-
-    navigateControlPanelWithVerifier(verifier);
-
-    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-    res.end(
-      "<html><body><h3>flowrytr sign-in complete.</h3><p>You can close this tab.</p></body></html>"
-    );
-  });
-
-  authBridgeServer.on("error", (error) => {
-    if (debugLogger) {
-      debugLogger.error("OAuth auth bridge server failed:", error);
-    }
-  });
-
-  authBridgeServer.listen(AUTH_BRIDGE_PORT, AUTH_BRIDGE_HOST, () => {
-    if (debugLogger) {
-      debugLogger.debug("OAuth auth bridge server started", {
-        url: `http://${AUTH_BRIDGE_HOST}:${AUTH_BRIDGE_PORT}${AUTH_BRIDGE_PATH}`,
-      });
-    }
-  });
 }
 
 // Main application startup
 async function startApp() {
   // Phase 1: Core managers + IPC handlers before windows
   initializeCoreManagers();
-  startAuthBridgeServer();
-
-  // Electron's file:// sends no Origin header, which Neon Auth rejects.
-  session.defaultSession.webRequest.onBeforeSendHeaders(
-    { urls: ["https://*.neon.tech/*"] },
-    (details, callback) => {
-      try {
-        details.requestHeaders["Origin"] = new URL(details.url).origin;
-      } catch {
-        /* malformed URL — leave Origin as-is */
-      }
-      callback({ requestHeaders: details.requestHeaders });
-    }
-  );
 
   windowManager.setActivationModeCache(environmentManager.getActivationMode());
   windowManager.setFloatingIconAutoHide(environmentManager.getFloatingIconAutoHide());
@@ -964,10 +855,6 @@ if (gotSingleInstanceLock) {
   });
 
   app.on("will-quit", () => {
-    if (authBridgeServer) {
-      authBridgeServer.close();
-      authBridgeServer = null;
-    }
     if (hotkeyManager) {
       hotkeyManager.unregisterAll();
     } else {

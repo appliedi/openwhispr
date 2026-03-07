@@ -4,6 +4,14 @@ import { getSettings, useSettingsStore } from "../stores/settingsStore";
 const AGENT_NAME_KEY = "agentName";
 const DEFAULT_AGENT_NAME = "flowrytr";
 
+// One-time migration: update old default "OpenWhispr" → "flowrytr" for existing users
+(function migrateAgentName(): void {
+  const stored = localStorage.getItem(AGENT_NAME_KEY);
+  if (stored === "OpenWhispr") {
+    localStorage.setItem(AGENT_NAME_KEY, DEFAULT_AGENT_NAME);
+  }
+})();
+
 export const getAgentName = (): string => {
   return localStorage.getItem(AGENT_NAME_KEY) || DEFAULT_AGENT_NAME;
 };

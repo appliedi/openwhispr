@@ -1,12 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-CACHE_DIR="$HOME/.cache/openwhispr"
+CACHE_DIR="$HOME/.cache/flowrytr"
 MODELS_DIR="$CACHE_DIR/models"
 
 if [ -d "$MODELS_DIR" ]; then
   rm -rf "$MODELS_DIR"
-  echo "Removed OpenWhispr cached models"
+  echo "Removed flowrytr cached models"
 fi
 
 if [ -d "$CACHE_DIR" ]; then

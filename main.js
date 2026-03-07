@@ -5,11 +5,11 @@ require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const VALID_CHANNELS = new Set(["development", "staging", "production"]);
 const DEFAULT_OAUTH_PROTOCOL_BY_CHANNEL = {
-  development: "openwhispr-dev",
-  staging: "openwhispr-staging",
-  production: "openwhispr",
+  development: "flowrytr-dev",
+  staging: "flowrytr-staging",
+  production: "flowrytr",
 };
-const BASE_WINDOWS_APP_ID = "com.herotools.openwispr";
+const BASE_WINDOWS_APP_ID = "com.flowrytr.app";
 const DEFAULT_AUTH_BRIDGE_PORT = 5199;
 
 function isElectronBinaryExec() {
@@ -29,7 +29,13 @@ function inferDefaultChannel() {
 }
 
 function resolveAppChannel() {
-  const rawChannel = (process.env.OPENWHISPR_CHANNEL || process.env.VITE_OPENWHISPR_CHANNEL || "")
+  const rawChannel = (
+    process.env.FLOWRYTR_CHANNEL ||
+    process.env.OPENWHISPR_CHANNEL ||
+    process.env.VITE_FLOWRYTR_CHANNEL ||
+    process.env.VITE_OPENWHISPR_CHANNEL ||
+    ""
+  )
     .trim()
     .toLowerCase();
 
@@ -41,6 +47,7 @@ function resolveAppChannel() {
 }
 
 const APP_CHANNEL = resolveAppChannel();
+process.env.FLOWRYTR_CHANNEL = APP_CHANNEL;
 process.env.OPENWHISPR_CHANNEL = APP_CHANNEL;
 
 function configureChannelUserDataPath() {
@@ -48,11 +55,32 @@ function configureChannelUserDataPath() {
     return;
   }
 
-  const isolatedPath = path.join(app.getPath("appData"), `OpenWhispr-${APP_CHANNEL}`);
+  const isolatedPath = path.join(app.getPath("appData"), `flowrytr-${APP_CHANNEL}`);
   app.setPath("userData", isolatedPath);
 }
 
 configureChannelUserDataPath();
+
+// Migrate app data from old "OpenWhispr" directory to new "flowrytr" directory
+function migrateAppDataIfNeeded() {
+  const fs = require("fs");
+  const newPath = app.getPath("userData");
+  const oldDirName = APP_CHANNEL === "production" ? app.getName() : `OpenWhispr-${APP_CHANNEL}`;
+  const oldPath = path.join(app.getPath("appData"), oldDirName);
+
+  if (oldPath === newPath) return;
+  if (!fs.existsSync(oldPath)) return;
+  if (fs.existsSync(newPath) && fs.readdirSync(newPath).length > 0) return;
+
+  try {
+    fs.cpSync(oldPath, newPath, { recursive: true });
+    console.log(`[Migration] Copied app data from ${oldPath} to ${newPath}`);
+  } catch (err) {
+    console.error(`[Migration] Failed to copy app data: ${err.message}`);
+  }
+}
+
+migrateAppDataIfNeeded();
 
 // Fix transparent window flickering on Linux: --enable-transparent-visuals requires
 // the compositor to set up an ARGB visual before any windows are created.
@@ -85,7 +113,13 @@ if (process.platform === "win32") {
 }
 
 function getOAuthProtocol() {
-  const fromEnv = (process.env.VITE_OPENWHISPR_PROTOCOL || process.env.OPENWHISPR_PROTOCOL || "")
+  const fromEnv = (
+    process.env.VITE_FLOWRYTR_PROTOCOL ||
+    process.env.VITE_OPENWHISPR_PROTOCOL ||
+    process.env.FLOWRYTR_PROTOCOL ||
+    process.env.OPENWHISPR_PROTOCOL ||
+    ""
+  )
     .trim()
     .toLowerCase();
 
@@ -107,7 +141,7 @@ function shouldRegisterProtocolWithAppArg() {
 // Register custom protocol for OAuth callbacks.
 // In development, always include the app path argument so macOS/Windows/Linux
 // can launch the project app instead of opening bare Electron.
-function registerOpenWhisprProtocol() {
+function registerFlowrytrProtocol() {
   const protocol = OAUTH_PROTOCOL;
 
   if (shouldRegisterProtocolWithAppArg()) {
@@ -118,7 +152,7 @@ function registerOpenWhisprProtocol() {
   return app.setAsDefaultProtocolClient(protocol);
 }
 
-const protocolRegistered = registerOpenWhisprProtocol();
+const protocolRegistered = registerFlowrytrProtocol();
 if (!protocolRegistered) {
   console.warn(`[Auth] Failed to register ${OAUTH_PROTOCOL}:// protocol handler`);
 }
@@ -132,8 +166,8 @@ if (!gotSingleInstanceLock) {
 const isLiveWindow = (window) => window && !window.isDestroyed();
 
 // Ensure macOS menus use the proper casing for the app name
-if (process.platform === "darwin" && app.getName() !== "OpenWhispr") {
-  app.setName("OpenWhispr");
+if (process.platform === "darwin" && app.getName() !== "flowrytr") {
+  app.setName("flowrytr");
 }
 
 // Add global error handling for uncaught exceptions
@@ -189,7 +223,11 @@ let globeKeyAlertShown = false;
 let authBridgeServer = null;
 
 function parseAuthBridgePort() {
-  const raw = (process.env.OPENWHISPR_AUTH_BRIDGE_PORT || "").trim();
+  const raw = (
+    process.env.FLOWRYTR_AUTH_BRIDGE_PORT ||
+    process.env.OPENWHISPR_AUTH_BRIDGE_PORT ||
+    ""
+  ).trim();
   if (!raw) return DEFAULT_AUTH_BRIDGE_PORT;
 
   const parsed = Number(raw);
@@ -434,7 +472,7 @@ function startAuthBridgeServer() {
 
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
     res.end(
-      "<html><body><h3>OpenWhispr sign-in complete.</h3><p>You can close this tab.</p></body></html>"
+      "<html><body><h3>flowrytr sign-in complete.</h3><p>You can close this tab.</p></body></html>"
     );
   });
 

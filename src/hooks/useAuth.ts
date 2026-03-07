@@ -29,7 +29,7 @@ export function useAuth() {
 
     // Listen for storage changes (e.g., after auth callback sets token)
     const handleStorage = (e: StorageEvent) => {
-      if (e.key === "openwhispr:sessionToken" || e.key === "openwhispr:sessionUser") {
+      if (e.key === "flowrytr:sessionToken" || e.key === "flowrytr:sessionUser") {
         refreshAuth();
       }
     };

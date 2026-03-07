@@ -5,62 +5,73 @@ Enable verbose logging to diagnose issues like "no audio detected" or transcript
 ## Enable Debug Logging
 
 ### Option 1: Command Line
+
 ```bash
 # macOS
-/Applications/OpenWhispr.app/Contents/MacOS/OpenWhispr --log-level=debug
+/Applications/flowrytr.app/Contents/MacOS/flowrytr --log-level=debug
 
 # Windows
-OpenWhispr.exe --log-level=debug
+flowrytr.exe --log-level=debug
 ```
 
 ### Option 2: Environment File
+
 Add to your `.env` file and restart:
+
 ```
-OPENWHISPR_LOG_LEVEL=debug
+FLOWRYTR_LOG_LEVEL=debug
 ```
 
 **Env file locations:**
-- macOS: `~/Library/Application Support/OpenWhispr/.env`
-- Windows: `%APPDATA%\OpenWhispr\.env`
-- Linux: `~/.config/OpenWhispr/.env`
+
+- macOS: `~/Library/Application Support/flowrytr/.env`
+- Windows: `%APPDATA%\flowrytr\.env`
+- Linux: `~/.config/flowrytr/.env`
 
 ## Log File Locations
 
-- **macOS**: `~/Library/Application Support/OpenWhispr/logs/debug-*.log`
-- **Windows**: `%APPDATA%\OpenWhispr\logs\debug-*.log`
-- **Linux**: `~/.config/OpenWhispr/logs/debug-*.log`
+- **macOS**: `~/Library/Application Support/flowrytr/logs/debug-*.log`
+- **Windows**: `%APPDATA%\flowrytr\logs\debug-*.log`
+- **Linux**: `~/.config/flowrytr/logs/debug-*.log`
 
 ## What Gets Logged
 
-| Stage | Details |
-|-------|---------|
-| FFmpeg | Path resolution, permissions, ASAR unpacking |
-| Audio Recording | Permission requests, chunk sizes, audio levels |
+| Stage            | Details                                        |
+| ---------------- | ---------------------------------------------- |
+| FFmpeg           | Path resolution, permissions, ASAR unpacking   |
+| Audio Recording  | Permission requests, chunk sizes, audio levels |
 | Audio Processing | File creation, Whisper command, process output |
-| IPC | Messages between renderer and main process |
+| IPC              | Messages between renderer and main process     |
 
 ## Common Issues
 
 ### "No Audio Detected"
+
 Look for:
+
 - `maxLevel < 0.01` → Audio too quiet
 - `Audio appears to be silent` → Microphone issue
 - `FFmpeg not available` → Path resolution failed
 
 ### Transcription Fails
+
 Look for:
+
 - `Whisper stderr:` → whisper.cpp/FFmpeg errors
 - `Process closed with code: [non-zero]` → Process failure
 - `Failed to parse Whisper output` → Invalid JSON
 
 ### Permission Issues
+
 Look for:
+
 - `Microphone Access Denied`
 - `isExecutable: false` → FFmpeg permission issue
 
 ## Sharing Logs
 
 When reporting issues:
+
 1. Enable debug mode and reproduce the issue
 2. Locate the log file
 3. Redact any sensitive information
@@ -69,5 +80,6 @@ When reporting issues:
 ## Disable Debug Mode
 
 Debug mode is off by default. To ensure it's disabled:
+
 - Remove `--log-level=debug` from command
-- Remove `OPENWHISPR_LOG_LEVEL` from `.env`
+- Remove `FLOWRYTR_LOG_LEVEL` from `.env`

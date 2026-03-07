@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-OpenWhispr is an Electron desktop dictation app using whisper.cpp and NVIDIA Parakeet (sherpa-onnx) for local speech-to-text, with cloud options via OpenAI API. Built with React 19, TypeScript, Tailwind CSS v4, Vite, and Electron 36.
+flowrytr is an Electron desktop dictation app using whisper.cpp and NVIDIA Parakeet (sherpa-onnx) for local speech-to-text, with cloud options via OpenAI API. Built with React 19, TypeScript, Tailwind CSS v4, Vite, and Electron 36.
 
 ## Development Commands
 
@@ -64,19 +64,23 @@ There is no test suite. Quality checks are `npm run quality-check` (lint + typec
 ## Architecture
 
 ### Dual Window System
+
 - **Main Window**: Minimal always-on-top overlay for dictation (draggable)
 - **Control Panel**: Full settings/history window (normal window)
 - Both render from the same React codebase, differentiated by URL parameters
 
 ### Process Separation
+
 - **Main process** (`main.js`): Electron lifecycle, IPC handlers, database, all manager modules
 - **Renderer process** (`src/`): React app with Vite, context isolation enforced
 - **Preload script** (`preload.js`): Secure IPC bridge exposing `window.api`
 
 ### Audio Pipeline
+
 MediaRecorder API → Blob → ArrayBuffer → IPC → temp file → whisper.cpp/sherpa-onnx → result → clipboard + auto-paste → temp file cleanup
 
 ### Key Directories
+
 - `src/helpers/` — Main process modules (audio, clipboard, database, hotkeys, whisper, IPC, windows)
 - `src/components/` — React components (App.jsx is main overlay, ControlPanel.tsx is settings)
 - `src/hooks/` — React hooks (audio recording, settings, permissions, clipboard)
@@ -87,17 +91,21 @@ MediaRecorder API → Blob → ArrayBuffer → IPC → temp file → whisper.cpp
 - `scripts/` — Build/download scripts for native dependencies
 
 ### Model Registry
+
 All AI model definitions live in `src/models/modelRegistryData.json` as the single source of truth. `ModelRegistry.ts` wraps it. Config files (`src/config/aiProvidersConfig.ts`, `src/utils/languages.ts`) derive from the registry — never hardcode model lists elsewhere.
 
 ### IPC Pattern
+
 New IPC channels must be added in **both** `src/helpers/ipcHandlers.js` (handler) and `preload.js` (exposed method). The renderer accesses IPC via `window.api.*`.
 
 ### Anthropic API Routing
+
 Anthropic calls route through IPC to the main process (to avoid CORS). OpenAI and Gemini call directly from the renderer.
 
 ## Critical Rules
 
 ### Internationalization (i18n) — MANDATORY
+
 All user-facing strings must use the i18n system. Never hardcode UI text.
 
 ```tsx
@@ -108,11 +116,12 @@ const { t } = useTranslation();
 ```
 
 - Every new string needs keys in `en/translation.json` AND all 8 other language files
-- Do NOT translate: brand names (OpenWhispr, Pro), technical terms (Markdown), format names (MP3, WAV), AI system prompts
+- Do NOT translate: brand names (flowrytr, Pro), technical terms (Markdown), format names (MP3, WAV), AI system prompts
 - Group keys by feature area (e.g., `notes.editor.*`, `referral.toasts.*`)
 - Run `npm run i18n:check` to verify completeness
 
 ### Adding Features Checklist
+
 1. **New IPC channel** → add to both `ipcHandlers.js` and `preload.js`
 2. **New setting** → update `src/hooks/useSettings.ts` and `src/components/SettingsPage.tsx`
 3. **New UI component** → follow shadcn/ui patterns in `src/components/ui/`
@@ -120,21 +129,25 @@ const { t } = useTranslation();
 5. **New UI strings** → add translation keys to all 9 locale files
 
 ### TypeScript
+
 New React components should be TypeScript (`.tsx`). Main process helpers remain `.js`.
 
 ## Platform-Specific Details
 
 ### macOS
+
 - Requires accessibility permissions for auto-paste (AppleScript)
 - Globe/Fn key listener compiled from Swift source (`resources/globe-listener.swift`)
 - System settings opened via `x-apple.systempreferences:` URL scheme
 
 ### Windows
+
 - Native `windows-key-listener.exe` enables true push-to-talk (low-level keyboard hook)
 - Native `windows-fast-paste.exe` for reliable paste via Win32 SendInput
 - Both binaries auto-downloaded from GitHub releases; fallback to tap mode if unavailable
 
 ### Linux
+
 - Native `linux-fast-paste` binary (XTest/uinput) is primary paste mechanism
 - Fallback chain: native binary → wtype → ydotool → xdotool
 - GNOME Wayland: global hotkeys via D-Bus + gsettings (push-to-talk unavailable, tap-only)
@@ -156,13 +169,16 @@ CREATE TABLE transcriptions (
 ```
 
 ## Settings Storage
+
 - **localStorage**: UI settings (whisperModel, useLocalWhisper, language, hotkey, agentName, customDictionary, etc.)
 - **`.env` file**: API keys and engine preferences (persisted via `saveAllKeysToEnvFile()`)
 
 ## Debug Mode
-Enable with `--log-level=debug` or `OPENWHISPR_LOG_LEVEL=debug` in `.env`. Logs written to platform-specific app data directory.
+
+Enable with `--log-level=debug` or `FLOWRYTR_LOG_LEVEL=debug` (legacy: `OPENWHISPR_LOG_LEVEL` also accepted) in `.env`. Logs written to platform-specific app data directory.
 
 ## Vite Configuration
+
 - Dev server runs on port 5183 (configurable via `VITE_DEV_SERVER_PORT`)
 - Path alias: `@` maps to `src/` directory
 - Renderer builds to `src/dist/`

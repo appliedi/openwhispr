@@ -360,7 +360,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   authSetSession: (token, user) => ipcRenderer.invoke("auth-set-session", token, user),
   authGetSession: () => ipcRenderer.invoke("auth-get-session"),
 
-  // OpenWhispr Cloud API
+  // flowrytr Cloud API
   cloudTranscribe: (audioBuffer, opts) => ipcRenderer.invoke("cloud-transcribe", audioBuffer, opts),
   cloudReason: (text, opts) => ipcRenderer.invoke("cloud-reason", text, opts),
   cloudStreamingUsage: (text, audioDurationSeconds, opts) =>

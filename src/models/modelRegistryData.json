@@ -590,7 +590,7 @@
       ]
     }
   ],
-  "openwhisprCloudModels": {
+  "flowrytrCloudModels": {
     "tiers": [
       {
         "id": "fast",

@@ -130,15 +130,14 @@ export default function UploadAudioView({ onNoteCreated, onOpenSettings }: Uploa
   );
   const useReasoningModel = useSettingsStore((s) => s.useReasoningModel);
 
-  const isOpenWhisprCloud =
-    isSignedIn && cloudTranscriptionMode === "openwhispr" && !useLocalWhisper;
+  const isFlowrytrCloud = isSignedIn && cloudTranscriptionMode === "flowrytr" && !useLocalWhisper;
   const usageLoaded = usage?.hasLoaded ?? false;
   const showSetup = usageLoaded && !isProUser && !setupDismissed && state === "idle";
   const showModelPicker = !isSignedIn || cloudTranscriptionMode === "byok" || useLocalWhisper;
   const shouldCenter = !showSetup && !advancedOpen;
 
   // Mode detection
-  const isByok = !useLocalWhisper && !isOpenWhisprCloud;
+  const isByok = !useLocalWhisper && !isFlowrytrCloud;
 
   // Mode-aware file size validation
   // Local: no limits at all
@@ -160,7 +159,7 @@ export default function UploadAudioView({ onNoteCreated, onOpenSettings }: Uploa
         requiresAccount = true;
       }
     } else {
-      // Cloud (OpenWhispr) — user is always signed in here
+      // Cloud (flowrytr) — user is always signed in here
       fileTooLarge = file.sizeBytes > CLOUD_PRO_MAX_FILE_SIZE;
       requiresUpgrade = !isProUser && file.sizeBytes > CLOUD_FREE_MAX_FILE_SIZE;
       isLargeFile = file.sizeBytes > CLOUD_FREE_MAX_FILE_SIZE;
@@ -184,7 +183,7 @@ export default function UploadAudioView({ onNoteCreated, onOpenSettings }: Uploa
   useEffect(() => {
     let cancelled = false;
     const checkProviderReady = async () => {
-      if (isOpenWhisprCloud) {
+      if (isFlowrytrCloud) {
         setProviderReady(true);
         return;
       }
@@ -219,7 +218,7 @@ export default function UploadAudioView({ onNoteCreated, onOpenSettings }: Uploa
       cancelled = true;
     };
   }, [
-    isOpenWhisprCloud,
+    isFlowrytrCloud,
     useLocalWhisper,
     localTranscriptionProvider,
     cloudTranscriptionProvider,
@@ -230,7 +229,7 @@ export default function UploadAudioView({ onNoteCreated, onOpenSettings }: Uploa
   ]);
 
   const getActiveModelLabel = (): string => {
-    if (isOpenWhisprCloud) return t("notes.upload.openwhisprCloud");
+    if (isFlowrytrCloud) return t("notes.upload.flowrytrCloud");
     if (useLocalWhisper) {
       if (localTranscriptionProvider === "nvidia")
         return `Parakeet · ${parakeetModel || "default"}`;
@@ -329,7 +328,7 @@ export default function UploadAudioView({ onNoteCreated, onOpenSettings }: Uploa
     setProgress(0);
     setChunkProgress(null);
 
-    const useChunkProgress = isOpenWhisprCloud && isLargeFile;
+    const useChunkProgress = isFlowrytrCloud && isLargeFile;
 
     if (useChunkProgress) {
       progressCleanupRef.current =
@@ -357,7 +356,7 @@ export default function UploadAudioView({ onNoteCreated, onOpenSettings }: Uploa
     try {
       let res: { success: boolean; text?: string; error?: string; code?: string };
 
-      if (isOpenWhisprCloud) {
+      if (isFlowrytrCloud) {
         res = await withSessionRefresh(async () => {
           const r = await window.electronAPI.transcribeAudioFileCloud!(file.path);
           if (!r.success && r.code) {
@@ -463,13 +462,13 @@ export default function UploadAudioView({ onNoteCreated, onOpenSettings }: Uploa
   };
 
   const switchToCloud = () => {
-    setCloudTranscriptionMode("openwhispr");
+    setCloudTranscriptionMode("flowrytr");
     setUseLocalWhisper(false);
     updateTranscriptionSettings({ useLocalWhisper: false });
   };
 
   const getTranscribingLabel = (): string => {
-    if (isOpenWhisprCloud) return t("notes.upload.transcribingCloud");
+    if (isFlowrytrCloud) return t("notes.upload.transcribingCloud");
     if (useLocalWhisper) return t("notes.upload.transcribingLocal");
     return t("notes.upload.transcribingProvider", { provider: cloudTranscriptionProvider });
   };
@@ -478,25 +477,25 @@ export default function UploadAudioView({ onNoteCreated, onOpenSettings }: Uploa
     <div className="flex items-center rounded-md border border-foreground/6 dark:border-white/6 bg-surface-1/30 dark:bg-white/[0.02] p-0.5 mb-3">
       <button
         onClick={() => {
-          setCloudTranscriptionMode("openwhispr");
+          setCloudTranscriptionMode("flowrytr");
           setUseLocalWhisper(false);
           updateTranscriptionSettings({ useLocalWhisper: false });
         }}
         className={cn(
           "flex-1 flex items-center justify-center gap-1.5 h-7 rounded text-xs font-medium transition-colors duration-150",
-          isOpenWhisprCloud
+          isFlowrytrCloud
             ? "bg-foreground/[0.06] dark:bg-white/8 text-foreground/70"
             : "text-foreground/30 hover:text-foreground/50"
         )}
       >
         <Cloud size={11} />
-        {t("notes.upload.openwhisprCloud")}
+        {t("notes.upload.flowrytrCloud")}
       </button>
       <button
         onClick={() => setCloudTranscriptionMode("byok")}
         className={cn(
           "flex-1 flex items-center justify-center gap-1.5 h-7 rounded text-xs font-medium transition-colors duration-150",
-          !isOpenWhisprCloud
+          !isFlowrytrCloud
             ? "bg-foreground/[0.06] dark:bg-white/8 text-foreground/70"
             : "text-foreground/30 hover:text-foreground/50"
         )}
@@ -609,7 +608,7 @@ export default function UploadAudioView({ onNoteCreated, onOpenSettings }: Uploa
               requiresUpgrade={!!requiresUpgrade}
               fileTooLarge={fileTooLarge}
               isLargeFile={isLargeFile}
-              isOpenWhisprCloud={isOpenWhisprCloud}
+              isFlowrytrCloud={isFlowrytrCloud}
               byokTooLarge={byokTooLarge}
               requiresAccount={requiresAccount}
               isProUser={!!isProUser}
@@ -875,7 +874,7 @@ interface SelectedViewProps {
   requiresUpgrade: boolean;
   fileTooLarge: boolean;
   isLargeFile: boolean;
-  isOpenWhisprCloud: boolean;
+  isFlowrytrCloud: boolean;
   byokTooLarge: boolean;
   requiresAccount: boolean;
   isProUser: boolean;
@@ -893,7 +892,7 @@ function SelectedView({
   requiresUpgrade,
   fileTooLarge,
   isLargeFile,
-  isOpenWhisprCloud,
+  isFlowrytrCloud,
   byokTooLarge,
   requiresAccount,
   isProUser,
@@ -962,7 +961,7 @@ function SelectedView({
       )}
 
       {/* Cloud large file info (Pro user, will be chunked) */}
-      {isLargeFile && !requiresUpgrade && !fileTooLarge && isOpenWhisprCloud && (
+      {isLargeFile && !requiresUpgrade && !fileTooLarge && isFlowrytrCloud && (
         <p className="text-xs text-foreground/20 text-center mb-3">
           {t("notes.upload.largeFileNote")}
         </p>

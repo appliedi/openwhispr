@@ -1,4 +1,4 @@
-# OpenWhispr Complete Cleanup Instructions
+# flowrytr Complete Cleanup Instructions
 
 ## The Problem
 
@@ -11,6 +11,7 @@ If you've installed both the **production DMG** and tried to run **development m
 - Same system preferences
 
 This can lead to issues like:
+
 - Microphone not working in dev but working in production
 - Settings not persisting correctly
 - Database conflicts
@@ -26,7 +27,8 @@ bash scripts/complete-uninstall.sh
 ```
 
 This script will:
-- Stop all OpenWhispr processes
+
+- Stop all flowrytr processes
 - Remove the production app
 - Delete all application data
 - Clear caches and logs
@@ -36,12 +38,14 @@ This script will:
 ### Step 2: Start fresh
 
 **For Production:**
+
 ```bash
 # Download fresh DMG from releases
 # Install and run normally
 ```
 
 **For Development:**
+
 ```bash
 # Make sure you have ARM64 Node.js
 node -p "process.arch"  # Should output: arm64
@@ -58,11 +62,11 @@ npm run dev
 
 ## Manual Cleanup (if script doesn't work)
 
-### 1. Stop all OpenWhispr processes
+### 1. Stop all flowrytr processes
 
 ```bash
 # Kill production app
-pkill -f "OpenWhispr"
+pkill -f "flowrytr"
 
 # Kill dev processes
 pkill -f "open-whispr"
@@ -72,38 +76,43 @@ pkill -f "electron"
 ### 2. Remove the Application
 
 ```bash
-rm -rf /Applications/OpenWhispr.app
+rm -rf /Applications/flowrytr.app
 ```
 
 ### 3. Remove Application Data
 
 **Application Support** (contains databases, settings, logs):
+
 ```bash
-rm -rf "$HOME/Library/Application Support/OpenWhispr"
+rm -rf "$HOME/Library/Application Support/flowrytr"
 rm -rf "$HOME/Library/Application Support/open-whispr"
 ```
 
 **Preferences** (system-level settings):
+
 ```bash
-rm -rf "$HOME/Library/Preferences/com.openwhispr.app.plist"
-rm -rf "$HOME/Library/Preferences/com.electron.openwhispr.plist"
+rm -rf "$HOME/Library/Preferences/com.flowrytr.app.plist"
+rm -rf "$HOME/Library/Preferences/com.electron.flowrytr.plist"
 ```
 
 **Caches**:
+
 ```bash
-rm -rf "$HOME/Library/Caches/OpenWhispr"
+rm -rf "$HOME/Library/Caches/flowrytr"
 rm -rf "$HOME/Library/Caches/open-whispr"
 ```
 
 **Logs**:
+
 ```bash
-rm -rf "$HOME/Library/Logs/OpenWhispr"
+rm -rf "$HOME/Library/Logs/flowrytr"
 rm -rf "$HOME/Library/Logs/open-whispr"
 ```
 
 **Saved Application State**:
+
 ```bash
-rm -rf "$HOME/Library/Saved Application State/com.openwhispr.app.savedState"
+rm -rf "$HOME/Library/Saved Application State/com.flowrytr.app.savedState"
 ```
 
 ### 4. Remove Whisper Models (optional, ~2-3GB)
@@ -117,7 +126,7 @@ rm -rf "$HOME/.cache/huggingface"
 
 ```bash
 find /tmp -name "whisper_audio_*" -delete
-find /tmp -name "openwhispr_*" -delete
+find /tmp -name "flowrytr_*" -delete
 ```
 
 ### 6. Clean Development Environment
@@ -146,10 +155,10 @@ The cleanup script **cannot** remove macOS system permissions. These persist eve
 
 ```bash
 # Reset microphone permission
-tccutil reset Microphone com.openwhispr.app
+tccutil reset Microphone com.flowrytr.app
 
 # Reset accessibility permission
-tccutil reset Accessibility com.openwhispr.app
+tccutil reset Accessibility com.flowrytr.app
 
 # For dev mode (Terminal)
 tccutil reset Microphone com.apple.Terminal
@@ -159,6 +168,7 @@ tccutil reset Accessibility com.apple.Terminal
 After running these commands, macOS will prompt for permissions again when you run the app.
 
 **When to reset permissions:**
+
 - Microphone not working after reinstall
 - "Permission denied" errors even though you granted access
 - Troubleshooting strange permission issues
@@ -226,6 +236,7 @@ npm run dev
 ### Issue: "better-sqlite3 architecture mismatch"
 
 **Solution:**
+
 ```bash
 # Your Node is running in x64 mode via Rosetta
 # Follow "Verify ARM64 Node.js" section above
@@ -234,6 +245,7 @@ npm run dev
 ### Issue: "Microphone prints 'you' instead of transcription"
 
 **Solution:**
+
 ```bash
 # Corrupted database or settings - run cleanup script
 bash scripts/complete-uninstall.sh
@@ -244,9 +256,10 @@ bash scripts/complete-uninstall.sh
 ### Issue: "Database initialization failed"
 
 **Solution:**
+
 ```bash
 # Remove database files specifically
-rm -rf "$HOME/Library/Application Support/OpenWhispr"
+rm -rf "$HOME/Library/Application Support/flowrytr"
 rm -rf "$HOME/Library/Application Support/open-whispr"
 
 # Rebuild dependencies
@@ -258,6 +271,7 @@ npm run postinstall
 **Cause:** They're sharing data directories but using different configurations.
 
 **Solution:**
+
 1. Run complete cleanup script
 2. Choose either production OR development (don't mix)
 3. If developing, uninstall production app first
@@ -266,20 +280,20 @@ npm run postinstall
 
 ## Data Locations Reference
 
-All OpenWhispr data is stored in these locations:
+All flowrytr data is stored in these locations:
 
-| Type | Location |
-|------|----------|
-| **Databases** | `~/Library/Application Support/OpenWhispr/transcriptions.db` |
-| **Dev Database** | `~/Library/Application Support/OpenWhispr/transcriptions-dev.db` |
-| **Settings** | Browser localStorage (in Electron's userData) |
-| **API Keys** | `.env` file in project root (dev) |
-| **Logs** | `~/Library/Application Support/OpenWhispr/logs/` |
-| **Debug Logs** | `~/Library/Logs/OpenWhispr/` |
-| **Whisper Models** | `~/.cache/whisper/` |
-| **Preferences** | `~/Library/Preferences/com.openwhispr.app.plist` |
-| **Caches** | `~/Library/Caches/OpenWhispr/` |
-| **Temp Audio** | `/tmp/whisper_audio_*.wav` |
+| Type               | Location                                                       |
+| ------------------ | -------------------------------------------------------------- |
+| **Databases**      | `~/Library/Application Support/flowrytr/transcriptions.db`     |
+| **Dev Database**   | `~/Library/Application Support/flowrytr/transcriptions-dev.db` |
+| **Settings**       | Browser localStorage (in Electron's userData)                  |
+| **API Keys**       | `.env` file in project root (dev)                              |
+| **Logs**           | `~/Library/Application Support/flowrytr/logs/`                 |
+| **Debug Logs**     | `~/Library/Logs/flowrytr/`                                     |
+| **Whisper Models** | `~/.cache/whisper/`                                            |
+| **Preferences**    | `~/Library/Preferences/com.flowrytr.app.plist`                 |
+| **Caches**         | `~/Library/Caches/flowrytr/`                                   |
+| **Temp Audio**     | `/tmp/whisper_audio_*.wav`                                     |
 
 ---
 
@@ -301,6 +315,6 @@ If cleanup doesn't solve your issue:
 2. Check Node version: `node -v`
 3. Check Electron version: `npm list electron`
 4. Run with debug mode: `npm run dev -- --debug`
-5. Check logs in: `~/Library/Application Support/OpenWhispr/logs/`
+5. Check logs in: `~/Library/Application Support/flowrytr/logs/`
 
 Report issues with this information at: [GitHub Issues](https://github.com/your-repo/open-whispr/issues)

@@ -7,7 +7,7 @@ import {
   updateLastSignInTime,
   isAuthenticated,
 } from "../lib/clerkAuth";
-import { OPENWHISPR_API_URL } from "../config/constants";
+import { FLOWRYTR_API_URL } from "../config/constants";
 import { Button } from "./ui/button";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
 import logoIcon from "../assets/icon.png";
@@ -84,10 +84,10 @@ export default function AuthenticationStep({
     if (!isLoaded || !isSignedIn) return;
 
     const initAndComplete = async () => {
-      if (OPENWHISPR_API_URL && user) {
+      if (FLOWRYTR_API_URL && user) {
         try {
           const { getAuthHeaders } = await import("../lib/clerkAuth");
-          const res = await fetch(`${OPENWHISPR_API_URL}/api/auth/init-user`, {
+          const res = await fetch(`${FLOWRYTR_API_URL}/api/auth/init-user`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -138,13 +138,13 @@ export default function AuthenticationStep({
   }, [t]);
 
   // Auth not configured state
-  if (!OPENWHISPR_API_URL) {
+  if (!FLOWRYTR_API_URL) {
     return (
       <div className="space-y-3">
         <div className="text-center mb-4">
           <img
             src={logoIcon}
-            alt="OpenWhispr"
+            alt="flowrytr"
             className="w-12 h-12 mx-auto mb-2.5 rounded-lg shadow-sm"
           />
           <p className="text-lg font-semibold text-foreground tracking-tight leading-tight">
@@ -176,7 +176,7 @@ export default function AuthenticationStep({
         <div className="text-center mb-4">
           <img
             src={logoIcon}
-            alt="OpenWhispr"
+            alt="flowrytr"
             className="w-12 h-12 mx-auto mb-2.5 rounded-lg shadow-sm"
           />
           <div className="w-5 h-5 mx-auto bg-success/10 rounded-full flex items-center justify-center mb-2">
@@ -205,7 +205,7 @@ export default function AuthenticationStep({
       <div className="text-center mb-4">
         <img
           src={logoIcon}
-          alt="OpenWhispr"
+          alt="flowrytr"
           className="w-12 h-12 mx-auto mb-2.5 rounded-lg shadow-sm"
         />
         <p className="text-lg font-semibold text-foreground tracking-tight leading-tight">
@@ -258,7 +258,7 @@ export default function AuthenticationStep({
       <p className="text-xs text-muted-foreground/80 leading-tight text-center">
         {t("auth.legal.prefix")}{" "}
         <a
-          href="https://openwhispr.com/terms"
+          href="https://flowrytr.com/terms"
           target="_blank"
           rel="noopener noreferrer"
           className="text-link underline decoration-link/30 hover:decoration-link/60 transition-colors"
@@ -267,7 +267,7 @@ export default function AuthenticationStep({
         </a>{" "}
         {t("auth.legal.and")}{" "}
         <a
-          href="https://openwhispr.com/privacy"
+          href="https://flowrytr.com/privacy"
           target="_blank"
           rel="noopener noreferrer"
           className="text-link underline decoration-link/30 hover:decoration-link/60 transition-colors"

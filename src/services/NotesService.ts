@@ -1,4 +1,4 @@
-import { OPENWHISPR_API_URL } from "../config/constants.js";
+import { FLOWRYTR_API_URL } from "../config/constants.js";
 import { getAuthHeaders } from "../lib/clerkAuth.js";
 
 interface NoteInput {
@@ -37,7 +37,7 @@ function authHeaders(): Record<string, string> {
 }
 
 async function create(note: NoteInput): Promise<CloudNote> {
-  const res = await fetch(`${OPENWHISPR_API_URL}/api/notes/create`, {
+  const res = await fetch(`${FLOWRYTR_API_URL}/api/notes/create`, {
     method: "POST",
     headers: authHeaders(),
     body: JSON.stringify(note),
@@ -49,7 +49,7 @@ async function create(note: NoteInput): Promise<CloudNote> {
 async function batchCreate(
   notes: NoteInput[]
 ): Promise<{ created: { client_note_id: string; id: string }[] }> {
-  const res = await fetch(`${OPENWHISPR_API_URL}/api/notes/batch-create`, {
+  const res = await fetch(`${FLOWRYTR_API_URL}/api/notes/batch-create`, {
     method: "POST",
     headers: authHeaders(),
     body: JSON.stringify({ notes }),
@@ -59,7 +59,7 @@ async function batchCreate(
 }
 
 async function update(id: string, updates: Partial<NoteInput>): Promise<CloudNote> {
-  const res = await fetch(`${OPENWHISPR_API_URL}/api/notes/update`, {
+  const res = await fetch(`${FLOWRYTR_API_URL}/api/notes/update`, {
     method: "PATCH",
     headers: authHeaders(),
     body: JSON.stringify({ id, ...updates }),
@@ -69,7 +69,7 @@ async function update(id: string, updates: Partial<NoteInput>): Promise<CloudNot
 }
 
 async function deleteNote(id: string): Promise<void> {
-  const res = await fetch(`${OPENWHISPR_API_URL}/api/notes/delete`, {
+  const res = await fetch(`${FLOWRYTR_API_URL}/api/notes/delete`, {
     method: "DELETE",
     headers: authHeaders(),
     body: JSON.stringify({ id }),
@@ -82,7 +82,7 @@ async function list(limit?: number, before?: string): Promise<{ notes: CloudNote
   if (limit !== undefined) params.set("limit", String(limit));
   if (before !== undefined) params.set("before", before);
   const query = params.toString();
-  const res = await fetch(`${OPENWHISPR_API_URL}/api/notes/list${query ? `?${query}` : ""}`, {
+  const res = await fetch(`${FLOWRYTR_API_URL}/api/notes/list${query ? `?${query}` : ""}`, {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error(await res.text());
@@ -90,7 +90,7 @@ async function list(limit?: number, before?: string): Promise<{ notes: CloudNote
 }
 
 async function search(query: string, limit?: number): Promise<{ notes: SearchResult[] }> {
-  const res = await fetch(`${OPENWHISPR_API_URL}/api/notes/search`, {
+  const res = await fetch(`${FLOWRYTR_API_URL}/api/notes/search`, {
     method: "POST",
     headers: authHeaders(),
     body: JSON.stringify({ query, ...(limit !== undefined ? { limit } : {}) }),

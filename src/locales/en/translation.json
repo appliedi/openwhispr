@@ -4,7 +4,7 @@
       "sectionTitle": "Language",
       "sectionDescription": "Set interface and transcription languages independently",
       "uiLabel": "Interface language",
-      "uiDescription": "Choose the language used throughout OpenWhispr's interface",
+      "uiDescription": "Choose the language used throughout flowrytr's interface",
       "transcriptionLabel": "Transcription language",
       "transcriptionDescription": "Choose the language you speak for more accurate transcription"
     }
@@ -15,12 +15,12 @@
       "hide": "Hide Dictation Panel"
     },
     "openControlPanel": "Open Control Panel",
-    "quit": "Quit OpenWhispr",
-    "tooltip": "OpenWhispr - Voice Dictation"
+    "quit": "Quit flowrytr",
+    "tooltip": "flowrytr - Voice Dictation"
   },
   "menu": {
-    "appLabel": "OpenWhispr",
-    "quit": "Quit OpenWhispr",
+    "appLabel": "flowrytr",
+    "quit": "Quit flowrytr",
     "speech": "Speech",
     "help": "Help",
     "learnMore": "Learn More",
@@ -37,8 +37,8 @@
       "message": "Failed to open the link in your browser:\n{{url}}\n\nError: {{error}}"
     },
     "loadFailure": {
-      "title": "OpenWhispr failed to load",
-      "message": "OpenWhispr could not load its UI.",
+      "title": "flowrytr failed to load",
+      "message": "flowrytr could not load its UI.",
       "detail": {
         "window": "Window: {{windowName}}",
         "error": "Error {{errorCode}}: {{errorDescription}}",
@@ -49,17 +49,17 @@
   },
   "startup": {
     "error": {
-      "title": "OpenWhispr Startup Error",
+      "title": "flowrytr Startup Error",
       "message": "Failed to start the application:\n\n{{error}}\n\nPlease report this issue."
     },
     "globeHotkey": {
       "title": "Globe Hotkey Unavailable",
-      "message": "OpenWhispr could not activate the Globe key hotkey.",
+      "message": "flowrytr could not activate the Globe key hotkey.",
       "details": {
         "unknown": "Unknown error occurred while starting the Globe listener.",
         "fallback": "The Globe key shortcut will remain disabled; existing keyboard shortcuts continue to work.",
         "devHint": "Run `npm run compile:globe` and rebuild the app to regenerate the listener binary.",
-        "reinstallHint": "Try reinstalling OpenWhispr or contact support if the issue persists."
+        "reinstallHint": "Try reinstalling flowrytr or contact support if the issue persists."
       }
     }
   },
@@ -79,9 +79,9 @@
     "accessibility": "Accessibility settings are not available on this platform."
   },
   "titleBar": {
-    "quitTitle": "Quit OpenWhispr",
-    "quitConfirmTitle": "Quit OpenWhispr?",
-    "quitConfirmDescription": "This will close OpenWhispr and stop background processes.",
+    "quitTitle": "Quit flowrytr",
+    "quitConfirmTitle": "Quit flowrytr?",
+    "quitConfirmDescription": "This will close flowrytr and stop background processes.",
     "quit": "Quit",
     "cancel": "Cancel"
   },
@@ -157,7 +157,7 @@
       "accessibilityTitle": "Accessibility",
       "accessibilityDescription": "Enable in System Settings by toggling it on",
       "testAndGrant": "Test & Grant",
-      "requiredForApp": "Required for OpenWhispr to work",
+      "requiredForApp": "Required for flowrytr to work",
       "microphoneRequired": "Microphone access required",
       "openSystemSettings": "Open System Settings"
     },
@@ -186,7 +186,7 @@
       "problemTitle": "Update ran into a problem",
       "problemDescription": "We couldn't complete the update. Please try again later.",
       "installTitle": "Install Update",
-      "installDescription": "OpenWhispr will restart to apply the update. Any in-progress work will be saved.",
+      "installDescription": "flowrytr will restart to apply the update. Any in-progress work will be saved.",
       "couldNotInstallTitle": "Couldn't install update",
       "couldNotInstallDescription": "Something went wrong. Please try again.",
       "couldNotDownloadTitle": "Couldn't download update",
@@ -239,8 +239,8 @@
       "rawTranscript": "Raw Transcript"
     },
     "cloudMigration": {
-      "title": "Welcome to OpenWhispr Pro",
-      "description": "Your 7-day free trial is active! We've switched your transcription to OpenWhispr Cloud for faster, more accurate results. Your previous settings are saved - switch back anytime in Settings.",
+      "title": "Welcome to flowrytr Pro",
+      "description": "Your 7-day free trial is active! We've switched your transcription to flowrytr Cloud for faster, more accurate results. Your previous settings are saved - switch back anytime in Settings.",
       "viewSettings": "View Settings"
     },
     "aiCta": {
@@ -392,7 +392,7 @@
       "micErrors": {
         "accessFailed": "Microphone access failed. Please try again.",
         "noMicrophones": "No microphones were detected. Connect or select a microphone in {{settingsPath}}.",
-        "permissionDenied": "Permission was denied. Open {{privacyPath}} and allow OpenWhispr.",
+        "permissionDenied": "Permission was denied. Open {{privacyPath}} and allow flowrytr.",
         "couldNotStart": "Could not start the selected microphone. Choose an input device in {{settingsPath}}, then rerun the test.",
         "noActiveInput": "No active audio input was found. Pick a microphone in {{settingsPath}}.",
         "unknown": "Microphone access failed: {{error}}. Select a different input device and try again.",
@@ -421,8 +421,8 @@
         "accessibilityNeeded": "Please grant accessibility permissions in System Settings to enable automatic text pasting.",
         "windowsReady": "Windows does not require special permissions for automatic pasting. You're all set!",
         "linuxReadyWithMethod": "Automatic pasting is available using {{method}}. You are all set!",
-        "waylandClipboardMode": "Automatic pasting is not available on this Wayland session. OpenWhispr will copy text to your clipboard and you can paste with Ctrl+V.",
-        "optionalPasteTool": "For automatic pasting, install {{tool}}:\n\n{{installCmd}}{{waylandNote}}\n\nWithout this, you can still use OpenWhispr - text will be copied to your clipboard and you can paste with Ctrl+V."
+        "waylandClipboardMode": "Automatic pasting is not available on this Wayland session. flowrytr will copy text to your clipboard and you can paste with Ctrl+V.",
+        "optionalPasteTool": "For automatic pasting, install {{tool}}:\n\n{{installCmd}}{{waylandNote}}\n\nWithout this, you can still use flowrytr - text will be copied to your clipboard and you can paste with Ctrl+V."
       },
       "alerts": {
         "accessibilityNeeded": "Accessibility permissions needed! Please grant them in System Settings."
@@ -435,7 +435,7 @@
         "defaultPasteTool": "xdotool",
         "xdotoolXwayland": "xdotool (XWayland apps)"
       },
-      "accessibilityTestText": "OpenWhispr accessibility test",
+      "accessibilityTestText": "flowrytr accessibility test",
       "warning": {
         "messages": {
           "macos": "Check Sound settings to select your input device",
@@ -505,7 +505,7 @@
       "continueWithGoogle": "Continue with Google"
     },
     "welcomeSubtitle": "Dictate anywhere using your voice",
-    "welcomeTitle": "Welcome to OpenWhispr",
+    "welcomeTitle": "Welcome to flowrytr",
     "sessionExpired": "Session expired. Please restart the sign-up process."
   },
   "cleanupPrompt": "Cleanup",
@@ -711,10 +711,10 @@
     "recheckChecking": "Checking...",
     "title": "Automatic Pasting",
     "usingMethodPrefix": "Using",
-    "waylandClipboardDescription": "Automatic pasting isn't available on this Wayland session. OpenWhispr will copy text to your clipboard so you can paste manually with Ctrl+V.",
+    "waylandClipboardDescription": "Automatic pasting isn't available on this Wayland session. flowrytr will copy text to your clipboard so you can paste manually with Ctrl+V.",
     "waylandClipboardTitle": "Clipboard Mode on Wayland",
     "windowsReady": "Windows supports automatic pasting out of the box. No setup required!",
-    "withoutToolPrefix": "Without this tool, OpenWhispr will copy text to your clipboard. You can then paste manually with Ctrl+V.",
+    "withoutToolPrefix": "Without this tool, flowrytr will copy text to your clipboard. You can then paste manually with Ctrl+V.",
     "xwaylandAppsOnly": "automatic pasting works for XWayland apps only"
   },
   "promptStudio": {
@@ -764,7 +764,7 @@
       "none": "None",
       "outputLabel": "Output",
       "processing": "Processing...",
-      "openwhisprCloud": "OpenWhispr Cloud",
+      "flowrytrCloud": "flowrytr Cloud",
       "providerLabel": "Provider",
       "run": "Run Test",
       "customEndpoint": "Custom endpoint"
@@ -873,7 +873,7 @@
       },
       "disabled": "Disabled",
       "featuresDisabled": "Account Features Disabled",
-      "featuresDisabledDescription": "Set VITE_OPENWHISPR_API_URL in your .env file to enable account features.",
+      "featuresDisabledDescription": "Set VITE_FLOWRYTR_API_URL in your .env file to enable account features.",
       "notConfigured": "Authentication is not configured",
       "notSignedIn": "Not signed in",
       "notSignedInDescription": "Create an account to unlock premium features.",
@@ -994,13 +994,13 @@
       "description": "Clean up transcriptions, handle commands, and fix errors while preserving your tone.",
       "enableTextCleanup": "Enable text cleanup",
       "enableTextCleanupDescription": "AI improves transcription quality",
-      "openwhisprCloud": "OpenWhispr Cloud",
-      "openwhisprCloudDescription": "Just works. No configuration needed.",
+      "flowrytrCloud": "flowrytr Cloud",
+      "flowrytrCloudDescription": "Just works. No configuration needed.",
       "title": "AI Text Enhancement",
       "toasts": {
         "switchedCloud": {
-          "description": "Text enhancement will use OpenWhispr's cloud service.",
-          "title": "Switched to OpenWhispr Cloud"
+          "description": "Text enhancement will use flowrytr's cloud service.",
+          "title": "Switched to flowrytr Cloud"
         },
         "switchedCustom": {
           "description": "Configure your own provider and API key.",
@@ -1063,7 +1063,7 @@
       "appearance": {
         "auto": "Auto",
         "dark": "Dark",
-        "description": "Control how OpenWhispr looks",
+        "description": "Control how flowrytr looks",
         "light": "Light",
         "theme": "Theme",
         "themeDescription": "Choose light, dark, or match your system",
@@ -1099,7 +1099,7 @@
       },
       "startup": {
         "launchAtLogin": "Launch at login",
-        "launchAtLoginDescription": "Start OpenWhispr automatically when you log in",
+        "launchAtLoginDescription": "Start flowrytr automatically when you log in",
         "title": "Startup"
       },
       "updates": {
@@ -1131,7 +1131,7 @@
           },
           "installUpdate": {
             "confirmText": "Install & Restart",
-            "description": "OpenWhispr will restart to apply the update.",
+            "description": "flowrytr will restart to apply the update.",
             "title": "Install Update"
           },
           "noUpdates": {
@@ -1162,13 +1162,13 @@
     "permissions": {
       "accessibilityDescription": "Required for auto-paste to work after transcription",
       "accessibilityTitle": "Accessibility",
-      "description": "Test and manage system permissions required for OpenWhispr to function correctly",
+      "description": "Test and manage system permissions required for flowrytr to function correctly",
       "microphoneDescription": "Required for voice recording and dictation",
       "microphoneTitle": "Microphone",
       "resetAccessibility": {
-        "description": "This will remove OpenWhispr from accessibility permissions. You'll need to re-grant access in System Settings > Privacy & Security > Accessibility.",
+        "description": "This will remove flowrytr from accessibility permissions. You'll need to re-grant access in System Settings > Privacy & Security > Accessibility.",
         "label": "Reset accessibility permissions",
-        "rowDescription": "Fix issues after reinstalling or rebuilding the app by removing and re-adding OpenWhispr in System Settings",
+        "rowDescription": "Fix issues after reinstalling or rebuilding the app by removing and re-adding flowrytr in System Settings",
         "title": "Reset Accessibility Permissions"
       },
       "test": "Test",
@@ -1185,7 +1185,7 @@
       "description": "Control what data leaves your device. Everything is off by default.",
       "title": "Privacy",
       "usageAnalytics": "Usage analytics",
-      "usageAnalyticsDescription": "Help us improve OpenWhispr by sharing anonymous performance metrics. We never send transcription content — only timing and error data.",
+      "usageAnalyticsDescription": "Help us improve flowrytr by sharing anonymous performance metrics. We never send transcription content — only timing and error data.",
       "audioRetention": "Audio Retention",
       "audioRetentionDescription": "Store audio recordings locally for re-transcription and download. Files are automatically deleted after the retention period.",
       "audioRetentionDisabled": "Disabled",
@@ -1204,14 +1204,14 @@
     "transcription": {
       "customSetup": "Custom Setup",
       "customSetupDescription": "Use your own provider and API key.",
-      "description": "Choose how OpenWhispr transcribes your voice",
-      "openwhisprCloud": "OpenWhispr Cloud",
-      "openwhisprCloudDescription": "Just works. No configuration needed.",
+      "description": "Choose how flowrytr transcribes your voice",
+      "flowrytrCloud": "flowrytr Cloud",
+      "flowrytrCloudDescription": "Just works. No configuration needed.",
       "title": "Speech to Text",
       "toasts": {
         "switchedCloud": {
-          "description": "Transcription will use OpenWhispr's cloud service.",
-          "title": "Switched to OpenWhispr Cloud"
+          "description": "Transcription will use flowrytr's cloud service.",
+          "title": "Switched to flowrytr Cloud"
         },
         "switchedCustom": {
           "description": "Configure your own provider and API key.",
@@ -1369,7 +1369,7 @@
     },
     "tryAgain": "Try Again",
     "card": {
-      "brand": "OpenWhispr",
+      "brand": "flowrytr",
       "signalId": "Signal ID",
       "audioSignature": "Your audio signature",
       "stop": "Stop",
@@ -1454,7 +1454,7 @@
       "setupTitle": "Set up transcription",
       "setupDescription": "Choose how to transcribe your audio. This also applies to live dictation.",
       "continue": "Continue",
-      "openwhisprCloud": "OpenWhispr Cloud",
+      "flowrytrCloud": "flowrytr Cloud",
       "custom": "Custom",
       "selectFolder": "Select folder",
       "transcriptionFailed": "Transcription failed",
@@ -1463,17 +1463,17 @@
       "noProviderDescription": "Add an API key or download a local model to start transcribing.",
       "noProviderAction": "Open Transcription Settings",
       "fileTooLarge": "This file exceeds the 500 MB limit.",
-      "paidPlanRequired": "Cloud transcription for files over 25 MB requires a paid plan. Large files are processed with OpenWhispr Cloud for reliable, high-quality results.",
+      "paidPlanRequired": "Cloud transcription for files over 25 MB requires a paid plan. Large files are processed with flowrytr Cloud for reliable, high-quality results.",
       "largeFileNote": "Large files are split and transcribed in parallel.",
       "chunkProgress": "Transcribing part {{completed}} of {{total}}...",
       "byokTooLarge": "Third-party API keys only support files up to 25 MB.",
-      "byokTooLargeDetail": "For files over 25 MB, OpenWhispr Cloud handles splitting, parallel processing, and reassembly — so you get reliable results without depending on third-party provider limits.",
-      "byokTooLargeNeedsAccount": "Create an account and upgrade to a paid plan to transcribe larger files with OpenWhispr Cloud.",
-      "byokTooLargeNeedsUpgrade": "Upgrade to a paid plan to transcribe larger files with OpenWhispr Cloud.",
-      "switchToCloudForLargeFiles": "Switch to OpenWhispr Cloud to transcribe this file.",
+      "byokTooLargeDetail": "For files over 25 MB, flowrytr Cloud handles splitting, parallel processing, and reassembly — so you get reliable results without depending on third-party provider limits.",
+      "byokTooLargeNeedsAccount": "Create an account and upgrade to a paid plan to transcribe larger files with flowrytr Cloud.",
+      "byokTooLargeNeedsUpgrade": "Upgrade to a paid plan to transcribe larger files with flowrytr Cloud.",
+      "switchToCloudForLargeFiles": "Switch to flowrytr Cloud to transcribe this file.",
       "createAccount": "Create Account",
       "upgrade": "Upgrade",
-      "switchToCloud": "OpenWhispr Cloud"
+      "switchToCloud": "flowrytr Cloud"
     },
     "meeting": {
       "title": "Meeting Notes",

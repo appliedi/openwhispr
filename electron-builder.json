@@ -1,9 +1,9 @@
 {
-  "appId": "com.herotools.openwispr",
-  "productName": "OpenWhispr",
+  "appId": "com.flowrytr.app",
+  "productName": "flowrytr",
   "protocols": {
-    "name": "OpenWhispr Protocol",
-    "schemes": ["openwhispr"]
+    "name": "flowrytr Protocol",
+    "schemes": ["flowrytr"]
   },
   "directories": {
     "output": "dist"
@@ -119,8 +119,8 @@
     "notarize": true,
     "extendInfo": {
       "LSUIElement": false,
-      "NSMicrophoneUsageDescription": "OpenWhispr needs microphone access for speech-to-text transcription.",
-      "NSAccessibilityUsageDescription": "OpenWhispr needs accessibility permissions to paste transcribed text into other applications."
+      "NSMicrophoneUsageDescription": "flowrytr needs microphone access for speech-to-text transcription.",
+      "NSAccessibilityUsageDescription": "flowrytr needs accessibility permissions to paste transcribed text into other applications."
     }
   },
   "win": {
@@ -190,7 +190,7 @@
     "include": "resources/nsis/cleanup-models.nsh"
   },
   "dmg": {
-    "title": "OpenWhispr",
+    "title": "flowrytr",
     "icon": "src/assets/icon.icns",
     "window": {
       "width": 540,

@@ -208,9 +208,9 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   ),
   cloudTranscriptionMode: readString(
     "cloudTranscriptionMode",
-    hasStoredByokKey() ? "byok" : "openwhispr"
+    hasStoredByokKey() ? "byok" : "flowrytr"
   ),
-  cloudReasoningMode: readString("cloudReasoningMode", "openwhispr"),
+  cloudReasoningMode: readString("cloudReasoningMode", "flowrytr"),
   cloudReasoningBaseUrl: readString("cloudReasoningBaseUrl", API_ENDPOINTS.OPENAI_BASE),
   customDictionary: readStringArray("customDictionary", []),
   assemblyAiStreaming: readBoolean("assemblyAiStreaming", true),
@@ -468,10 +468,10 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
 // --- Selectors (derived state, not stored) ---
 
 export const selectIsCloudReasoningMode = (state: SettingsState) =>
-  state.isSignedIn && state.cloudReasoningMode === "openwhispr";
+  state.isSignedIn && state.cloudReasoningMode === "flowrytr";
 
 export const selectEffectiveReasoningProvider = (state: SettingsState) =>
-  selectIsCloudReasoningMode(state) ? "openwhispr" : state.reasoningProvider;
+  selectIsCloudReasoningMode(state) ? "flowrytr" : state.reasoningProvider;
 
 // --- Convenience getters for non-React code ---
 

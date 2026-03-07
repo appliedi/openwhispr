@@ -1,4 +1,4 @@
-import { OPENWHISPR_API_URL } from "../config/constants";
+import { FLOWRYTR_API_URL } from "../config/constants";
 import { openExternalLink } from "../utils/externalLinks";
 import logger from "../utils/logger";
 
@@ -6,10 +6,29 @@ import logger from "../utils/logger";
 // Token is a long-lived session token (90 days) created by the web backend
 // after Clerk authentication completes in the browser.
 
-const SESSION_TOKEN_KEY = "openwhispr:sessionToken";
-const SESSION_USER_KEY = "openwhispr:sessionUser";
-const LAST_SIGN_IN_STORAGE_KEY = "openwhispr:lastSignInTime";
+const SESSION_TOKEN_KEY = "flowrytr:sessionToken";
+const SESSION_USER_KEY = "flowrytr:sessionUser";
+const LAST_SIGN_IN_STORAGE_KEY = "flowrytr:lastSignInTime";
 const GRACE_PERIOD_MS = 60_000;
+
+// Migrate old localStorage keys on first access
+function migrateLocalStorageKeys(): void {
+  const storage = getLocalStorageSafe();
+  if (!storage) return;
+  const migrations: [string, string][] = [
+    ["openwhispr:sessionToken", SESSION_TOKEN_KEY],
+    ["openwhispr:sessionUser", SESSION_USER_KEY],
+    ["openwhispr:lastSignInTime", LAST_SIGN_IN_STORAGE_KEY],
+  ];
+  for (const [oldKey, newKey] of migrations) {
+    if (oldKey === newKey) continue;
+    const oldVal = storage.getItem(oldKey);
+    if (oldVal && !storage.getItem(newKey)) {
+      storage.setItem(newKey, oldVal);
+      storage.removeItem(oldKey);
+    }
+  }
+}
 
 export interface SessionUser {
   id: string;
@@ -28,9 +47,18 @@ function getLocalStorageSafe(): Storage | null {
   }
 }
 
+let _migrated = false;
+function ensureMigrated(): void {
+  if (!_migrated) {
+    _migrated = true;
+    migrateLocalStorageKeys();
+  }
+}
+
 // --- Session Token ---
 
 export function getSessionToken(): string | null {
+  ensureMigrated();
   const storage = getLocalStorageSafe();
   return storage?.getItem(SESSION_TOKEN_KEY) ?? null;
 }
@@ -108,7 +136,7 @@ export function getAuthHeaders(): Record<string, string> {
 }
 
 export async function signInWithBrowser(): Promise<{ error?: Error }> {
-  if (!OPENWHISPR_API_URL) {
+  if (!FLOWRYTR_API_URL) {
     return { error: new Error("API URL not configured") };
   }
 
@@ -117,14 +145,18 @@ export async function signInWithBrowser(): Promise<{ error?: Error }> {
 
     if (isElectron) {
       // Determine protocol based on environment
-      const protocol = (import.meta.env.VITE_OPENWHISPR_PROTOCOL || "openwhispr").trim();
-      const signInUrl = `${OPENWHISPR_API_URL}/sign-in?redirect_url=/auth/electron-callback?protocol=${encodeURIComponent(protocol)}`;
+      const protocol = (
+        import.meta.env.VITE_FLOWRYTR_PROTOCOL ||
+        import.meta.env.VITE_OPENWHISPR_PROTOCOL ||
+        "flowrytr"
+      ).trim();
+      const signInUrl = `${FLOWRYTR_API_URL}/sign-in?redirect_url=/auth/electron-callback?protocol=${encodeURIComponent(protocol)}`;
       openExternalLink(signInUrl);
       return {};
     }
 
     // Non-Electron: redirect directly
-    window.location.href = `${OPENWHISPR_API_URL}/sign-in`;
+    window.location.href = `${FLOWRYTR_API_URL}/sign-in`;
     return {};
   } catch (error) {
     return { error: error instanceof Error ? error : new Error("Sign-in failed") };
@@ -135,8 +167,8 @@ export async function signOut(): Promise<void> {
   try {
     // Revoke server-side session
     const token = getSessionToken();
-    if (token && OPENWHISPR_API_URL) {
-      fetch(`${OPENWHISPR_API_URL}/api/auth/desktop-session`, {
+    if (token && FLOWRYTR_API_URL) {
+      fetch(`${FLOWRYTR_API_URL}/api/auth/desktop-session`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       }).catch(() => {});
@@ -165,7 +197,7 @@ export async function signOut(): Promise<void> {
 
 /**
  * Handle the callback from the browser OAuth flow.
- * Called when Electron captures the openwhispr://auth/callback URL.
+ * Called when Electron captures the flowrytr://auth/callback URL.
  */
 export function handleAuthCallback(params: URLSearchParams): {
   success: boolean;

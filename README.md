@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="src/assets/logo.svg" alt="OpenWhispr" width="120" />
+  <img src="src/assets/logo.svg" alt="flowrytr" width="120" />
 </p>
 
-<h1 align="center">OpenWhispr</h1>
+<h1 align="center">flowrytr</h1>
 
 <p align="center">
   <a href="https://github.com/OpenWhispr/openwhispr/blob/main/LICENSE"><img src="https://img.shields.io/github/license/OpenWhispr/openwhispr?style=flat" alt="License" /></a>
@@ -24,7 +24,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Features
 
-- ☁️ **OpenWhispr Cloud**: Sign in and transcribe instantly — no API keys needed, with free and Pro plans
+- ☁️ **flowrytr Cloud**: Sign in and transcribe instantly — no API keys needed, with free and Pro plans
 - 🔐 **Account System**: Google OAuth and email/password sign-in with email verification
 - 💳 **Subscription Management**: Free tier (2,000 words/week), Pro tier (unlimited), 7-day free trial
 - 🎤 **Global Hotkey**: Customizable hotkey to start/stop dictation from anywhere (default: backtick `)
@@ -126,9 +126,9 @@ If you want to build a standalone app for personal use:
 # Build without code signing (no certificates required)
 npm run pack
 
-# The unsigned app will be in: dist/mac-arm64/OpenWhispr.app (macOS)
-# or dist/win-unpacked/OpenWhispr.exe (Windows)
-# or dist/linux-unpacked/open-whispr (Linux)
+# The unsigned app will be in: dist/mac-arm64/flowrytr.app (macOS)
+# or dist/win-unpacked/flowrytr.exe (Windows)
+# or dist/linux-unpacked/flowrytr (Linux)
 ```
 
 **Note**: On macOS, you may see a security warning when first opening the unsigned app. Right-click and select "Open" to bypass this.
@@ -137,7 +137,7 @@ npm run pack
 
 **Native Paste Binary (`windows-fast-paste`)**:
 
-OpenWhispr ships a native C binary for pasting text on Windows, using the Win32 `SendInput` API. This is the **primary** paste mechanism — `nircmd` and PowerShell are only used as fallbacks if the native binary fails.
+flowrytr ships a native C binary for pasting text on Windows, using the Win32 `SendInput` API. This is the **primary** paste mechanism — `nircmd` and PowerShell are only used as fallbacks if the native binary fails.
 
 How it works:
 
@@ -162,7 +162,7 @@ The build script (`scripts/build-windows-fast-paste.js`) first attempts to downl
 
 #### Linux (Multiple Package Formats)
 
-OpenWhispr now supports multiple Linux package formats for maximum compatibility:
+flowrytr now supports multiple Linux package formats for maximum compatibility:
 
 **Available Formats**:
 
@@ -179,10 +179,10 @@ OpenWhispr now supports multiple Linux package formats for maximum compatibility
 npm run build:linux
 
 # Find packages in dist/:
-# - OpenWhispr-x.x.x-linux-x64.AppImage
-# - OpenWhispr-x.x.x-linux-x64.deb
-# - OpenWhispr-x.x.x-linux-x64.rpm
-# - OpenWhispr-x.x.x-linux-x64.tar.gz
+# - flowrytr-x.x.x-linux-x64.AppImage
+# - flowrytr-x.x.x-linux-x64.deb
+# - flowrytr-x.x.x-linux-x64.rpm
+# - flowrytr-x.x.x-linux-x64.tar.gz
 ```
 
 **Optional: Building Flatpak** (requires additional setup):
@@ -205,27 +205,27 @@ npm run build:linux
 
 ```bash
 # Debian/Ubuntu
-sudo apt install ./dist/OpenWhispr-*-linux-x64.deb
+sudo apt install ./dist/flowrytr-*-linux-x64.deb
 
 # Fedora/RHEL
-sudo dnf install ./dist/OpenWhispr-*-linux-x64.rpm
+sudo dnf install ./dist/flowrytr-*-linux-x64.rpm
 
 # Universal tar.gz (no root required)
-tar -xzf dist/OpenWhispr-*-linux-x64.tar.gz
-cd OpenWhispr-*/
-./openwhispr
+tar -xzf dist/flowrytr-*-linux-x64.tar.gz
+cd flowrytr-*/
+./flowrytr
 
 # Flatpak
-flatpak install --user ./dist/OpenWhispr-*-linux-x64.flatpak
+flatpak install --user ./dist/flowrytr-*-linux-x64.flatpak
 
 # AppImage (existing method)
-chmod +x dist/OpenWhispr-*.AppImage
-./dist/OpenWhispr-*.AppImage
+chmod +x dist/flowrytr-*.AppImage
+./dist/flowrytr-*.AppImage
 ```
 
 **Native Paste Binary (`linux-fast-paste`)**:
 
-OpenWhispr ships a native C binary for pasting text on Linux, compiled automatically at build time. This is the **primary** paste mechanism — external tools like `xdotool` and `wtype` are only used as fallbacks if the native binary fails.
+flowrytr ships a native C binary for pasting text on Linux, compiled automatically at build time. This is the **primary** paste mechanism — external tools like `xdotool` and `wtype` are only used as fallbacks if the native binary fails.
 
 How it works:
 
@@ -254,7 +254,7 @@ The build script (`scripts/build-linux-fast-paste.js`) runs during `npm run comp
 3. Caches the binary and skips rebuilds unless the source or flags change
 4. Gracefully falls back to system tools if compilation fails
 
-If the native binary isn't available, OpenWhispr falls back to external paste tools in this order:
+If the native binary isn't available, flowrytr falls back to external paste tools in this order:
 
 **Fallback Dependencies for Automatic Paste**:
 
@@ -324,13 +324,13 @@ sudo dnf install kdotool  # Fedora/RHEL
 sudo pacman -S kdotool    # Arch
 ```
 
-> ℹ️ **Note**: OpenWhispr automatically tries paste methods in this order: native `linux-fast-paste` binary (XTest or uinput) → `wtype` → `ydotool` → `xdotool` (for XWayland apps). If no paste method works, text will still be copied to the clipboard - you'll just need to paste manually with Ctrl+V.
+> ℹ️ **Note**: flowrytr automatically tries paste methods in this order: native `linux-fast-paste` binary (XTest or uinput) → `wtype` → `ydotool` → `xdotool` (for XWayland apps). If no paste method works, text will still be copied to the clipboard - you'll just need to paste manually with Ctrl+V.
 
 > ⚠️ **ydotool Requirements**: The `ydotoold` daemon must be running for ydotool to work. Start it manually with `sudo ydotoold &` or enable the systemd service as shown above.
 
 **GNOME Wayland Global Hotkeys**:
 
-On GNOME Wayland, Electron's standard global shortcuts don't work due to Wayland's security model. OpenWhispr automatically uses native GNOME keyboard shortcuts via D-Bus and gsettings:
+On GNOME Wayland, Electron's standard global shortcuts don't work due to Wayland's security model. flowrytr automatically uses native GNOME keyboard shortcuts via D-Bus and gsettings:
 
 - Hotkeys are registered as GNOME custom shortcuts (visible in Settings → Keyboard → Shortcuts)
 - Default hotkey is `Alt+R` (backtick not supported on GNOME Wayland)
@@ -356,7 +356,7 @@ npm run build:linux  # Linux
 ### First Time Setup
 
 1. **Choose Processing Method**:
-   - **OpenWhispr Cloud**: Sign in for instant cloud transcription with free and Pro plans
+   - **flowrytr Cloud**: Sign in for instant cloud transcription with free and Pro plans
    - **Bring Your Own Key**: Use your own OpenAI/Groq/AssemblyAI API keys
    - **Local Processing**: Download Whisper or Parakeet models for completely private transcription
 
@@ -392,10 +392,10 @@ npm run build:linux  # Linux
 
 ### Uninstall & Cache Cleanup
 
-- **In-App**: Use _Settings → General → Local Model Storage → Remove Downloaded Models_ to clear `~/.cache/openwhispr/whisper-models` (or `%USERPROFILE%\.cache\openwhispr\whisper-models` on Windows).
+- **In-App**: Use _Settings → General → Local Model Storage → Remove Downloaded Models_ to clear `~/.cache/flowrytr/whisper-models` (or `%USERPROFILE%\.cache\flowrytr\whisper-models` on Windows).
 - **Windows Uninstall**: The NSIS uninstaller automatically deletes the same cache directory.
 - **Linux Packages**: `deb`/`rpm` post-uninstall scripts also remove cached models.
-- **macOS**: If you uninstall manually, remove `~/Library/Caches` or `~/.cache/openwhispr/whisper-models` if desired.
+- **macOS**: If you uninstall manually, remove `~/Library/Caches` or `~/.cache/flowrytr/whisper-models` if desired.
 
 ### Agent Naming & AI Processing
 
@@ -436,12 +436,12 @@ Improve transcription accuracy for specific words, names, or technical terms:
 
 - Uncommon names (e.g., "Sergey", "Xanthe")
 - Technical jargon (e.g., "Kubernetes", "OAuth")
-- Brand names (e.g., "OpenWhispr", "whisper.cpp")
+- Brand names (e.g., "flowrytr", "whisper.cpp")
 - Domain-specific terms (e.g., "amortization", "polymerase")
 
 ### Processing Options
 
-- **OpenWhispr Cloud**:
+- **flowrytr Cloud**:
   - Sign in with Google or email — no API keys needed
   - Free plan: 2,000 words/week with 7-day Pro trial for new accounts
   - Pro plan: unlimited transcriptions
@@ -456,7 +456,7 @@ Improve transcription accuracy for specific words, names, or technical terms:
 ## Project Structure
 
 ```
-open-whispr/
+flowrytr/
 ├── main.js              # Electron main process & IPC handlers
 ├── preload.js           # Electron preload script & API bridge
 ├── setup.js             # First-time setup script
@@ -605,10 +605,10 @@ DEBUG=false
 
 ### Local Whisper Setup
 
-For local processing, OpenWhispr uses OpenAI's Whisper model via whisper.cpp - a high-performance C++ implementation:
+For local processing, flowrytr uses OpenAI's Whisper model via whisper.cpp - a high-performance C++ implementation:
 
 1. **Bundled Binary**: whisper.cpp is bundled with the app for all platforms
-2. **GGML Models**: Downloads optimized GGML models on first use to `~/.cache/openwhispr/whisper-models/`
+2. **GGML Models**: Downloads optimized GGML models on first use to `~/.cache/flowrytr/whisper-models/`
 3. **No Dependencies**: No Python or other runtime required
 
 **System Fallback**: If the bundled binary fails, install via package manager:
@@ -622,15 +622,15 @@ For local processing, OpenWhispr uses OpenAI's Whisper model via whisper.cpp - a
 
 - Sufficient disk space for models (75MB - 3GB depending on model)
 
-**Upgrading from Python-based version**: If you previously used the Python-based Whisper, you'll need to re-download models in GGML format. You can safely delete the old Python environment (`~/.openwhispr/python/`) and PyTorch models (`~/.cache/whisper/`) to reclaim disk space.
+**Upgrading from Python-based version**: If you previously used the Python-based Whisper, you'll need to re-download models in GGML format. You can safely delete the old Python environment (`~/.flowrytr/python/`) and PyTorch models (`~/.cache/whisper/`) to reclaim disk space.
 
 ### Local Parakeet Setup (Alternative)
 
-OpenWhispr also supports NVIDIA Parakeet models via sherpa-onnx - a fast alternative to Whisper:
+flowrytr also supports NVIDIA Parakeet models via sherpa-onnx - a fast alternative to Whisper:
 
 1. **Bundled Binary**: sherpa-onnx is bundled with the app for all platforms
 2. **INT8 Quantized Models**: Efficient CPU inference
-3. **Models stored in**: `~/.cache/openwhispr/parakeet-models/`
+3. **Models stored in**: `~/.cache/flowrytr/parakeet-models/`
 
 **Available Models**:
 
@@ -670,7 +670,7 @@ We welcome contributions! Please follow these steps:
 
 ## Security
 
-OpenWhispr is designed with privacy and security in mind:
+flowrytr is designed with privacy and security in mind:
 
 - **Local Processing Option**: Keep your voice data completely private
 - **No Analytics**: We don't collect any usage data or telemetry
@@ -685,7 +685,7 @@ OpenWhispr is designed with privacy and security in mind:
 1. **Microphone permissions**: Grant permissions in System Preferences/Settings
 2. **Accessibility permissions (macOS)**: Required for automatic text pasting
    - Go to System Settings → Privacy & Security → Accessibility
-   - Add OpenWhispr and enable the checkbox
+   - Add flowrytr and enable the checkbox
    - Use "Fix Permission Issues" in Control Panel if needed
 3. **API key errors** (cloud processing only): Ensure your OpenAI API key is valid and has credits
    - Set key through Control Panel or .env file
@@ -720,8 +720,8 @@ OpenWhispr is designed with privacy and security in mind:
 
 ## FAQ
 
-**Q: Is OpenWhispr really free?**
-A: Yes! OpenWhispr is open source and free to use. The free plan includes 2,000 words/week of cloud transcription, and local processing is completely free with no limits. Paid plans start from as little as $8/month.
+**Q: Is flowrytr really free?**
+A: Yes! flowrytr is open source and free to use. The free plan includes 2,000 words/week of cloud transcription, and local processing is completely free with no limits. Paid plans start from as little as $8/month.
 
 **Q: Which processing method should I use?**
 A: Use local processing for privacy and offline use. Use cloud processing for speed and convenience.
@@ -736,15 +736,15 @@ A: Open the Control Panel (right-click tray icon) and go to Settings. You can se
 A: With local processing, your audio never leaves your device. With cloud processing, audio is sent to OpenAI's servers (see their privacy policy).
 
 **Q: What languages are supported?**
-A: OpenWhispr supports 58 languages including English, Spanish, French, German, Chinese, Japanese, and more. Set your preferred language in the .env file or use auto-detect.
+A: flowrytr supports 58 languages including English, Spanish, French, German, Chinese, Japanese, and more. Set your preferred language in the .env file or use auto-detect.
 
 ## Project Status
 
-OpenWhispr is actively maintained and ready for production use. Current version: 1.5.4
+flowrytr is actively maintained and ready for production use. Current version: 1.5.4
 
 - ✅ Core functionality complete
 - ✅ Cross-platform support (macOS, Windows, Linux)
-- ✅ OpenWhispr Cloud with account system and usage tracking
+- ✅ flowrytr Cloud with account system and usage tracking
 - ✅ Free and Pro plans with Stripe billing
 - ✅ Local and cloud processing
 - ✅ Multi-provider AI (OpenAI, Anthropic, Gemini, Groq, Mistral, Local)

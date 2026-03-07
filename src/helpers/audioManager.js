@@ -453,8 +453,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       const cloudTranscriptionMode = s.cloudTranscriptionMode;
       const isSignedIn = s.isSignedIn;
 
-      const isOpenWhisprCloudMode = !useLocalWhisper && cloudTranscriptionMode === "openwhispr";
-      const useCloud = isOpenWhisprCloudMode && isSignedIn;
+      const isFlowrytrCloudMode = !useLocalWhisper && cloudTranscriptionMode === "flowrytr";
+      const useCloud = isFlowrytrCloudMode && isSignedIn;
       logger.debug(
         "Transcription routing",
         { useLocalWhisper, useCloud, isSignedIn, cloudTranscriptionMode },
@@ -471,16 +471,16 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
           activeModel = whisperModel;
           result = await this.processWithLocalWhisper(audioBlob, whisperModel, metadata);
         }
-      } else if (isOpenWhisprCloudMode) {
+      } else if (isFlowrytrCloudMode) {
         if (!isSignedIn) {
           const err = new Error(
-            "OpenWhispr Cloud requires sign-in. Please sign in again or switch to BYOK mode."
+            "flowrytr Cloud requires sign-in. Please sign in again or switch to BYOK mode."
           );
           err.code = "AUTH_REQUIRED";
           throw err;
         }
-        activeModel = "openwhispr-cloud";
-        result = await this.processWithOpenWhisprCloud(audioBlob, metadata);
+        activeModel = "flowrytr-cloud";
+        result = await this.processWithFlowrytrCloud(audioBlob, metadata);
       } else {
         activeModel = this.getTranscriptionModel();
         result = await this.processWithOpenAIAPI(audioBlob, metadata);
@@ -500,7 +500,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
 
       this.onTranscriptionComplete?.(result);
 
-      if (result?.source === "openwhispr") {
+      if (result?.source === "flowrytr") {
         window.dispatchEvent(new Event("usage-changed"));
       }
 
@@ -1206,7 +1206,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     return result;
   }
 
-  async processWithOpenWhisprCloud(audioBlob, metadata = {}) {
+  async processWithFlowrytrCloud(audioBlob, metadata = {}) {
     if (!navigator.onLine) {
       const err = new Error("You're offline. Cloud transcription requires an internet connection.");
       err.code = "OFFLINE";
@@ -1222,8 +1222,8 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     const audioFormat = audioBlob.type;
     const opts = {};
     if (language) opts.language = language;
-    const reasoningMode = settings.cloudReasoningMode || "openwhispr";
-    if (settings.useReasoningModel && !this.skipReasoning && reasoningMode === "openwhispr") {
+    const reasoningMode = settings.cloudReasoningMode || "flowrytr";
+    if (settings.useReasoningModel && !this.skipReasoning && reasoningMode === "flowrytr") {
       opts.sendLogs = "false";
     }
 
@@ -1249,9 +1249,9 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     if (settings.useReasoningModel && processedText && !this.skipReasoning) {
       const reasoningStart = performance.now();
       const agentName = localStorage.getItem("agentName") || "";
-      const cloudReasoningMode = settings.cloudReasoningMode || "openwhispr";
+      const cloudReasoningMode = settings.cloudReasoningMode || "flowrytr";
 
-      if (cloudReasoningMode === "openwhispr") {
+      if (cloudReasoningMode === "flowrytr") {
         const reasonResult = await withSessionRefresh(async () => {
           const res = await window.electronAPI.cloudReason(processedText, {
             agentName,
@@ -1299,7 +1299,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       success: true,
       text: processedText,
       rawText,
-      source: "openwhispr",
+      source: "flowrytr",
       timings,
       limitReached: result.limitReached,
       wordsUsed: result.wordsUsed,
@@ -1882,7 +1882,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
   shouldUseStreaming(isSignedInOverride) {
     const s = getSettings();
     const isSignedIn = isSignedInOverride ?? s.isSignedIn;
-    if (s.useLocalWhisper || s.cloudTranscriptionMode !== "openwhispr" || !isSignedIn) {
+    if (s.useLocalWhisper || s.cloudTranscriptionMode !== "flowrytr" || !isSignedIn) {
       return false;
     }
 
@@ -2215,7 +2215,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       } else if (error.code === "AUTH_EXPIRED" || error.code === "AUTH_REQUIRED") {
         errorTitle = "Sign-in Required";
         errorDescription =
-          "Your OpenWhispr Cloud session is unavailable. Please sign in again from Settings.";
+          "Your flowrytr Cloud session is unavailable. Please sign in again from Settings.";
       }
 
       this.onError?.({
@@ -2356,10 +2356,10 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     if (stSettings.useReasoningModel && finalText && !this.skipReasoning) {
       const reasoningStart = performance.now();
       const agentName = localStorage.getItem("agentName") || "";
-      const cloudReasoningMode = stSettings.cloudReasoningMode || "openwhispr";
+      const cloudReasoningMode = stSettings.cloudReasoningMode || "flowrytr";
 
       try {
-        if (cloudReasoningMode === "openwhispr") {
+        if (cloudReasoningMode === "flowrytr") {
           const reasonResult = await withSessionRefresh(async () => {
             const res = await window.electronAPI.cloudReason(finalText, {
               agentName,
@@ -2434,7 +2434,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         "streaming"
       );
       try {
-        const batchResult = await this.processWithOpenWhisprCloud(fallbackBlob, {
+        const batchResult = await this.processWithFlowrytrCloud(fallbackBlob, {
           durationSeconds,
         });
         if (batchResult?.text) {

@@ -729,7 +729,7 @@ declare global {
         user: Record<string, unknown> | null;
       }>;
 
-      // OpenWhispr Cloud API
+      // flowrytr Cloud API
       cloudTranscribe?: (
         audioBuffer: ArrayBuffer,
         opts: { language?: string; prompt?: string }

@@ -93,8 +93,8 @@ export function useModelDownload({
 
   useEffect(() => {
     const handleModelsCleared = () => onModelsClearedRef.current?.();
-    window.addEventListener("openwhispr-models-cleared", handleModelsCleared);
-    return () => window.removeEventListener("openwhispr-models-cleared", handleModelsCleared);
+    window.addEventListener("flowrytr-models-cleared", handleModelsCleared);
+    return () => window.removeEventListener("flowrytr-models-cleared", handleModelsCleared);
   }, []);
 
   const handleWhisperProgress = useCallback(

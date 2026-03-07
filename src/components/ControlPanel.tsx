@@ -165,7 +165,7 @@ export default function ControlPanel() {
 
     cloudMigrationProcessed.current = true;
     setUseLocalWhisper(false);
-    setCloudTranscriptionMode("openwhispr");
+    setCloudTranscriptionMode("flowrytr");
     localStorage.removeItem("pendingCloudMigration");
     setShowCloudMigrationBanner(true);
   }, [authLoaded, isSignedIn, setUseLocalWhisper, setCloudTranscriptionMode]);

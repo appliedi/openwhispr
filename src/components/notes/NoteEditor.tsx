@@ -155,7 +155,7 @@ export default function NoteEditor({
   const isSignedIn = useSettingsStore((s) => s.isSignedIn);
   const cloudMode = useSettingsStore((s) => s.cloudTranscriptionMode);
   const useLocalWhisper = useSettingsStore((s) => s.useLocalWhisper);
-  const canStream = isSignedIn && cloudMode === "openwhispr" && !useLocalWhisper;
+  const canStream = isSignedIn && cloudMode === "flowrytr" && !useLocalWhisper;
 
   const [liveMode, setLiveMode] = useState(() => {
     const pref = localStorage.getItem("notesStreamingPreference");

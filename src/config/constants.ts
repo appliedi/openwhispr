@@ -50,12 +50,17 @@ const computeBaseUrl = (candidates: Array<string | undefined>, fallback: string)
 };
 
 const DEFAULT_OPENAI_BASE = computeBaseUrl(
-  [env.OPENWHISPR_OPENAI_BASE_URL as string | undefined, env.OPENAI_BASE_URL as string | undefined],
+  [
+    env.FLOWRYTR_OPENAI_BASE_URL as string | undefined,
+    env.OPENWHISPR_OPENAI_BASE_URL as string | undefined,
+    env.OPENAI_BASE_URL as string | undefined,
+  ],
   "https://api.openai.com/v1"
 );
 
 const DEFAULT_TRANSCRIPTION_BASE = computeBaseUrl(
   [
+    env.FLOWRYTR_TRANSCRIPTION_BASE_URL as string | undefined,
     env.OPENWHISPR_TRANSCRIPTION_BASE_URL as string | undefined,
     env.WHISPER_BASE_URL as string | undefined,
   ],
@@ -106,8 +111,10 @@ export const CACHE_CONFIG = {
   PASTE_DELAY_MS: 50, // Delay before paste simulation to allow clipboard to settle
 } as const;
 
-// OpenWhispr Cloud API
-export const OPENWHISPR_API_URL = (env.VITE_OPENWHISPR_API_URL as string) || "";
+// flowrytr Cloud API
+export const FLOWRYTR_API_URL =
+  (env.VITE_FLOWRYTR_API_URL as string) || (env.VITE_OPENWHISPR_API_URL as string) || "";
+export const OPENWHISPR_API_URL = FLOWRYTR_API_URL;
 
 // Retry Configuration
 export const RETRY_CONFIG = {

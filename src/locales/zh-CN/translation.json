@@ -1413,8 +1413,19 @@
     },
     "meeting": {
       "title": "会议笔记",
-      "description": "说话人识别与结构化摘要",
-      "comingSoon": "即将推出"
+      "description": "录制并转录带有说话人识别的会议"
+    },
+    "meetings": {
+      "recording": "正在录制会议...",
+      "speakersDetected": "检测到 {{count}} 位说话人",
+      "diarization": {
+        "unsupportedEngine": "当前引擎不支持说话人识别",
+        "unsupportedTitle": "无说话人识别",
+        "unsupportedMessage": "{{engine}} 无法识别多个说话人。是否继续录制而不进行说话人识别？",
+        "continueAnyway": "仍然继续",
+        "changeEngine": "更换引擎",
+        "dontAskAgain": "不再询问"
+      }
     },
     "context": {
       "moveToFolder": "移动到文件夹",

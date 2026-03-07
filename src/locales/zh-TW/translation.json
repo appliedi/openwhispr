@@ -1413,8 +1413,19 @@
     },
     "meeting": {
       "title": "會議筆記",
-      "description": "說話者辨識與結構化摘要",
-      "comingSoon": "即將推出"
+      "description": "錄製並轉錄帶有說話人識別的會議"
+    },
+    "meetings": {
+      "recording": "正在錄製會議...",
+      "speakersDetected": "偵測到 {{count}} 位說話人",
+      "diarization": {
+        "unsupportedEngine": "目前的引擎不支援說話人識別",
+        "unsupportedTitle": "無說話人識別",
+        "unsupportedMessage": "{{engine}} 無法識別多位說話人。是否繼續錄製而不進行說話人識別？",
+        "continueAnyway": "仍然繼續",
+        "changeEngine": "更換引擎",
+        "dontAskAgain": "不再詢問"
+      }
     },
     "context": {
       "moveToFolder": "移動到資料夾",

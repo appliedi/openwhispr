@@ -1416,9 +1416,20 @@
       "switchToCloud": "OpenWhispr Cloud"
     },
     "meeting": {
-      "title": "Заметки со встреч",
-      "description": "Определение говорящих и структурированные резюме",
-      "comingSoon": "Скоро"
+      "title": "Заметки совещания",
+      "description": "Записывайте и транскрибируйте совещания с определением говорящих"
+    },
+    "meetings": {
+      "recording": "Запись совещания...",
+      "speakersDetected": "Обнаружено говорящих: {{count}}",
+      "diarization": {
+        "unsupportedEngine": "Определение говорящих недоступно с текущим движком",
+        "unsupportedTitle": "Нет определения говорящих",
+        "unsupportedMessage": "{{engine}} не может определить нескольких говорящих. Продолжить запись без определения говорящих?",
+        "continueAnyway": "Всё равно продолжить",
+        "changeEngine": "Сменить движок",
+        "dontAskAgain": "Больше не спрашивать"
+      }
     },
     "context": {
       "moveToFolder": "Переместить в папку",

@@ -1453,8 +1453,19 @@
     },
     "meeting": {
       "title": "Notes de réunion",
-      "description": "Identification des intervenants et résumés structurés",
-      "comingSoon": "Bientôt disponible"
+      "description": "Enregistrez et transcrivez les réunions avec identification des intervenants"
+    },
+    "meetings": {
+      "recording": "Enregistrement de la réunion...",
+      "speakersDetected": "{{count}} intervenants détectés",
+      "diarization": {
+        "unsupportedEngine": "L'identification des intervenants n'est pas disponible avec votre moteur actuel",
+        "unsupportedTitle": "Pas d'identification des intervenants",
+        "unsupportedMessage": "{{engine}} ne peut pas identifier plusieurs intervenants. Continuer l'enregistrement sans identification des intervenants ?",
+        "continueAnyway": "Continuer quand même",
+        "changeEngine": "Changer de moteur",
+        "dontAskAgain": "Ne plus demander"
+      }
     },
     "empty": {
       "title": "Aucune note ici pour l'instant",

@@ -17,6 +17,7 @@ class AssemblyAiStreaming {
     this.isConnected = false;
     this.onPartialTranscript = null;
     this.onFinalTranscript = null;
+    this.onDiarizedTranscript = null;
     this.onError = null;
     this.onSessionEnd = null;
     this.pendingResolve = null;
@@ -25,6 +26,8 @@ class AssemblyAiStreaming {
     this.accumulatedText = "";
     this.lastTurnText = "";
     this.turns = [];
+    this.speakerSegments = [];
+    this.diarizeEnabled = false;
     this.terminationResolve = null;
     this.cachedToken = null;
     this.tokenFetchedAt = null;
@@ -51,6 +54,9 @@ class AssemblyAiStreaming {
     }
     if (options.keyterms && options.keyterms.length > 0) {
       params.set("keyterms_prompt", JSON.stringify(options.keyterms.slice(0, 100)));
+    }
+    if (options.diarize) {
+      params.set("speaker_labels", "true");
     }
     return `wss://streaming.assemblyai.com/v3/ws?${params.toString()}`;
   }
@@ -294,6 +300,8 @@ class AssemblyAiStreaming {
     this.accumulatedText = "";
     this.lastTurnText = "";
     this.turns = [];
+    this.speakerSegments = [];
+    this.diarizeEnabled = !!options.diarize;
 
     // Try to use pre-warmed connection for instant start
     if (this.hasWarmConnection()) {
@@ -388,6 +396,13 @@ class AssemblyAiStreaming {
                   this.lastTurnText = trimmedTranscript;
                   this.accumulatedText = this.turns.map((turn) => turn.text).join(" ");
                   this.onFinalTranscript?.(this.accumulatedText);
+
+                  if (this.diarizeEnabled && this.speakerSegments.length > 0) {
+                    const lastSeg = this.speakerSegments[this.speakerSegments.length - 1];
+                    lastSeg.text = trimmedTranscript;
+                    this.onDiarizedTranscript?.(this.speakerSegments);
+                  }
+
                   debugLogger.debug("AssemblyAI formatted turn update applied", {
                     text: trimmedTranscript.slice(0, 100),
                     totalAccumulated: this.accumulatedText.length,
@@ -400,16 +415,32 @@ class AssemblyAiStreaming {
                 break;
               }
 
-              this.turns.push({
+              const turnEntry = {
                 text: trimmedTranscript,
                 normalized: normalizedTranscript,
-              });
+              };
+              if (this.diarizeEnabled && message.speaker != null) {
+                turnEntry.speaker = `Speaker ${message.speaker}`;
+              }
+              this.turns.push(turnEntry);
               this.lastTurnText = trimmedTranscript;
               this.accumulatedText = this.turns.map((turn) => turn.text).join(" ");
               this.onFinalTranscript?.(this.accumulatedText);
+
+              if (this.diarizeEnabled && message.speaker != null) {
+                this.speakerSegments.push({
+                  speaker: `Speaker ${message.speaker}`,
+                  text: trimmedTranscript,
+                  start: message.start ?? null,
+                  end: message.end ?? null,
+                });
+                this.onDiarizedTranscript?.(this.speakerSegments);
+              }
+
               debugLogger.debug("AssemblyAI final transcript (end_of_turn)", {
                 text: message.transcript.slice(0, 100),
                 totalAccumulated: this.accumulatedText.length,
+                speaker: message.speaker,
               });
             } else if (message.turn_is_formatted) {
               // Formatted but turn not ended yet - show as preview without accumulating
@@ -430,12 +461,14 @@ class AssemblyAiStreaming {
             this.terminationResolve({
               audioDuration: message.audio_duration_seconds,
               text: this.accumulatedText,
+              speakerSegments: this.speakerSegments,
             });
             this.terminationResolve = null;
           }
           this.onSessionEnd?.({
             audioDuration: message.audio_duration_seconds,
             text: this.accumulatedText,
+            speakerSegments: this.speakerSegments,
           });
           this.cleanup();
           break;
@@ -481,7 +514,7 @@ class AssemblyAiStreaming {
   }
 
   async disconnect(terminate = true) {
-    if (!this.ws) return { text: this.accumulatedText };
+    if (!this.ws) return { text: this.accumulatedText, speakerSegments: this.speakerSegments };
 
     this.isDisconnecting = true;
 
@@ -512,7 +545,7 @@ class AssemblyAiStreaming {
       }
     }
 
-    const result = { text: this.accumulatedText };
+    const result = { text: this.accumulatedText, speakerSegments: this.speakerSegments };
     this.cleanup();
     this.isDisconnecting = false;
     return result;

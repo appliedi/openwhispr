@@ -4,10 +4,19 @@ import AudioManager from "../helpers/audioManager";
 import logger from "../utils/logger";
 import { getRecordingErrorTitle } from "../utils/recordingErrors";
 
+interface SpeakerSegment {
+  speaker: string;
+  text: string;
+  start: number | null;
+  end: number | null;
+}
+
 interface UseNoteRecordingOptions {
-  onTranscriptionComplete: (text: string) => void;
+  onTranscriptionComplete: (text: string, speakerSegments?: SpeakerSegment[]) => void;
   onPartialTranscript?: (text: string) => void;
+  onDiarizedTranscript?: (segments: SpeakerSegment[]) => void;
   onError?: (error: { title: string; description: string }) => void;
+  diarize?: boolean;
 }
 
 interface UseNoteRecordingReturn {
@@ -25,7 +34,9 @@ interface UseNoteRecordingReturn {
 export function useNoteRecording({
   onTranscriptionComplete,
   onPartialTranscript,
+  onDiarizedTranscript,
   onError,
+  diarize = false,
 }: UseNoteRecordingOptions): UseNoteRecordingReturn {
   const { t } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
@@ -35,8 +46,18 @@ export function useNoteRecording({
   const [streamingCommits, setStreamingCommits] = useState<string[]>([]);
   const audioManagerRef = useRef<InstanceType<typeof AudioManager> | null>(null);
 
-  const callbacksRef = useRef({ onTranscriptionComplete, onPartialTranscript, onError });
-  callbacksRef.current = { onTranscriptionComplete, onPartialTranscript, onError };
+  const callbacksRef = useRef({
+    onTranscriptionComplete,
+    onPartialTranscript,
+    onDiarizedTranscript,
+    onError,
+  });
+  callbacksRef.current = {
+    onTranscriptionComplete,
+    onPartialTranscript,
+    onDiarizedTranscript,
+    onError,
+  };
 
   useEffect(() => {
     const manager = new AudioManager();
@@ -79,17 +100,22 @@ export function useNoteRecording({
         limitReached?: boolean;
         wordsUsed?: number;
         wordsRemaining?: number;
+        speakerSegments?: SpeakerSegment[];
       }) => {
         if (result.success) {
-          callbacksRef.current.onTranscriptionComplete(result.text);
+          callbacksRef.current.onTranscriptionComplete(result.text, result.speakerSegments);
           if (manager.shouldUseStreaming()) {
             manager.warmupStreamingConnection();
           }
         }
       },
+      onDiarizedTranscript: (segments: SpeakerSegment[]) => {
+        callbacksRef.current.onDiarizedTranscript?.(segments);
+      },
     });
 
     manager.setContext("notes");
+    manager.setDiarize(diarize);
     window.electronAPI.getSttConfig?.().then((config) => {
       if (config && audioManagerRef.current) {
         audioManagerRef.current.setSttConfig(config);
@@ -104,6 +130,10 @@ export function useNoteRecording({
       audioManagerRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    audioManagerRef.current?.setDiarize(diarize);
+  }, [diarize]);
 
   const startRecording = useCallback(async () => {
     const manager = audioManagerRef.current;

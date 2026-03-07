@@ -24,6 +24,7 @@ export interface NoteItem {
   audio_duration_seconds: number | null;
   folder_id: number | null;
   cloud_id: string | null;
+  speaker_segments: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -347,6 +348,7 @@ declare global {
           enhancement_prompt?: string | null;
           enhanced_at_content_hash?: string | null;
           folder_id?: number | null;
+          speaker_segments?: string | null;
         }
       ) => Promise<{ success: boolean; note?: NoteItem }>;
       deleteNote: (id: number) => Promise<{ success: boolean }>;
@@ -871,6 +873,16 @@ declare global {
       onAssemblyAiSessionEnd?: (
         callback: (data: { audioDuration?: number; text?: string }) => void
       ) => () => void;
+      onAssemblyAiDiarizedTranscript?: (
+        callback: (
+          segments: Array<{
+            speaker: string;
+            text: string;
+            start: number | null;
+            end: number | null;
+          }>
+        ) => void
+      ) => () => void;
 
       // Referral stats
       getReferralStats?: () => Promise<{
@@ -941,6 +953,16 @@ declare global {
       onDeepgramError?: (callback: (error: string) => void) => () => void;
       onDeepgramSessionEnd?: (
         callback: (data: { audioDuration?: number; text?: string }) => void
+      ) => () => void;
+      onDeepgramDiarizedTranscript?: (
+        callback: (
+          segments: Array<{
+            speaker: string;
+            text: string;
+            start: number | null;
+            end: number | null;
+          }>
+        ) => void
       ) => () => void;
     };
 

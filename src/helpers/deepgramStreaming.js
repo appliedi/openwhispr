@@ -105,6 +105,9 @@ class DeepgramStreaming {
     this.replayBuffer = [];
     this.replayBufferSize = 0;
     this.connectionOptions = null;
+    this.onDiarizedTranscript = null;
+    this.speakerSegments = [];
+    this.diarizeEnabled = false;
   }
 
   setTokenRefreshFn(fn) {
@@ -140,6 +143,9 @@ class DeepgramStreaming {
       for (const term of options.keyterms) {
         if (term) params.append(paramName, term);
       }
+    }
+    if (options.diarize) {
+      params.set("diarize", "true");
     }
     return `wss://api.deepgram.com/v1/listen?${params.toString()}`;
   }
@@ -552,9 +558,12 @@ class DeepgramStreaming {
       sampleRate: options.sampleRate,
       language: options.language,
       keyterms: options.keyterms,
+      diarize: options.diarize,
     };
     this.accumulatedText = "";
     this.finalSegments = [];
+    this.speakerSegments = [];
+    this.diarizeEnabled = !!options.diarize;
     this.audioBytesSent = 0;
     this.resultsReceived = 0;
 
@@ -677,7 +686,8 @@ class DeepgramStreaming {
             this.replayBuffer = [];
             this.replayBufferSize = 0;
           }
-          const transcript = message.channel?.alternatives?.[0]?.transcript;
+          const alt = message.channel?.alternatives?.[0];
+          const transcript = alt?.transcript;
           if (!transcript) break;
 
           if (message.is_final || message.from_finalize) {
@@ -686,6 +696,13 @@ class DeepgramStreaming {
               this.finalSegments.push(trimmed);
               this.accumulatedText = this.finalSegments.join(" ");
               this.onFinalTranscript?.(this.accumulatedText);
+
+              if (this.diarizeEnabled && alt.words && alt.words.length > 0) {
+                const segments = this._groupWordsBySpeaker(alt.words);
+                this.speakerSegments.push(...segments);
+                this.onDiarizedTranscript?.(this.speakerSegments);
+              }
+
               debugLogger.debug("Deepgram final transcript", {
                 text: trimmed.slice(0, 100),
                 totalAccumulated: this.accumulatedText.length,
@@ -716,6 +733,29 @@ class DeepgramStreaming {
     } catch (err) {
       debugLogger.error("Deepgram message parse error", { error: err.message });
     }
+  }
+
+  _groupWordsBySpeaker(words) {
+    const segments = [];
+    let current = null;
+
+    for (const word of words) {
+      const speaker = word.speaker != null ? `Speaker ${word.speaker}` : "Speaker 0";
+      if (!current || current.speaker !== speaker) {
+        if (current) segments.push(current);
+        current = {
+          speaker,
+          text: word.punctuated_word || word.word,
+          start: word.start ?? null,
+          end: word.end ?? null,
+        };
+      } else {
+        current.text += " " + (word.punctuated_word || word.word);
+        current.end = word.end ?? current.end;
+      }
+    }
+    if (current) segments.push(current);
+    return segments;
   }
 
   sendAudio(pcmBuffer) {
@@ -783,13 +823,14 @@ class DeepgramStreaming {
       textLength: this.accumulatedText.length,
     });
 
-    if (!this.ws) return { text: this.accumulatedText };
+    if (!this.ws) return { text: this.accumulatedText, speakerSegments: this.speakerSegments };
 
     this.isDisconnecting = true;
 
     if (closeStream && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({ type: "CloseStream" }));
 
+      const savedSegments = [...this.speakerSegments];
       let timeoutId;
       const result = await Promise.race([
         new Promise((resolve) => {
@@ -804,19 +845,22 @@ class DeepgramStreaming {
       ]);
       clearTimeout(timeoutId);
 
+      result.speakerSegments = savedSegments;
       this.closeResolve = null;
       this.cleanup();
       this.isDisconnecting = false;
       this.accumulatedText = "";
       this.finalSegments = [];
+      this.speakerSegments = [];
       return result;
     }
 
-    const result = { text: this.accumulatedText };
+    const result = { text: this.accumulatedText, speakerSegments: this.speakerSegments };
     this.cleanup();
     this.isDisconnecting = false;
     this.accumulatedText = "";
     this.finalSegments = [];
+    this.speakerSegments = [];
     return result;
   }
 

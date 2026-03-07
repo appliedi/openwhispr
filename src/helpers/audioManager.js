@@ -38,6 +38,7 @@ const STREAMING_PROVIDERS = {
     onFinal: (cb) => window.electronAPI.onDeepgramFinalTranscript(cb),
     onError: (cb) => window.electronAPI.onDeepgramError(cb),
     onSessionEnd: (cb) => window.electronAPI.onDeepgramSessionEnd(cb),
+    onDiarized: (cb) => window.electronAPI.onDeepgramDiarizedTranscript(cb),
   },
   assemblyai: {
     warmup: (opts) => window.electronAPI.assemblyAiStreamingWarmup(opts),
@@ -50,6 +51,7 @@ const STREAMING_PROVIDERS = {
     onFinal: (cb) => window.electronAPI.onAssemblyAiFinalTranscript(cb),
     onError: (cb) => window.electronAPI.onAssemblyAiError(cb),
     onSessionEnd: (cb) => window.electronAPI.onAssemblyAiSessionEnd(cb),
+    onDiarized: (cb) => window.electronAPI.onAssemblyAiDiarizedTranscript(cb),
   },
 };
 
@@ -98,6 +100,8 @@ class AudioManager {
     this.skipReasoning = false;
     this.context = "dictation";
     this.sttConfig = null;
+    this.diarize = false;
+    this.latestSpeakerSegments = null;
     this.lastAudioBlob = null;
     this.lastAudioMetadata = null;
   }
@@ -157,12 +161,14 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
     onTranscriptionComplete,
     onPartialTranscript,
     onStreamingCommit,
+    onDiarizedTranscript,
   }) {
     this.onStateChange = onStateChange;
     this.onError = onError;
     this.onTranscriptionComplete = onTranscriptionComplete;
     this.onPartialTranscript = onPartialTranscript;
     this.onStreamingCommit = onStreamingCommit;
+    this.onDiarizedTranscript = onDiarizedTranscript;
   }
 
   setSkipReasoning(skip) {
@@ -171,6 +177,10 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
 
   setContext(context) {
     this.context = context;
+  }
+
+  setDiarize(enabled) {
+    this.diarize = enabled;
   }
 
   setSttConfig(config) {
@@ -2065,6 +2075,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
       this.streamingPartialText = "";
       this.streamingTextResolve = null;
       this.streamingTextDebounce = null;
+      this.latestSpeakerSegments = null;
 
       const partialCleanup = provider.onPartial((text) => {
         this.streamingPartialText = text;
@@ -2106,9 +2117,26 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         if (data.text) {
           this.streamingFinalText = data.text;
         }
+        if (data.speakerSegments) {
+          this.latestSpeakerSegments = data.speakerSegments;
+        }
       });
 
-      this.streamingCleanupFns = [partialCleanup, finalCleanup, errorCleanup, sessionEndCleanup];
+      let diarizedCleanup = () => {};
+      if (this.diarize && provider.onDiarized) {
+        diarizedCleanup = provider.onDiarized((segments) => {
+          this.latestSpeakerSegments = segments;
+          this.onDiarizedTranscript?.(segments);
+        });
+      }
+
+      this.streamingCleanupFns = [
+        partialCleanup,
+        finalCleanup,
+        errorCleanup,
+        sessionEndCleanup,
+        diarizedCleanup,
+      ];
       this.isRecording = true;
       this.recordingStartTime = Date.now();
       this.onStateChange?.({ isRecording: true, isProcessing: false, isStreaming: true });
@@ -2121,6 +2149,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
           sampleRate: 16000,
           language: preferredLang && preferredLang !== "auto" ? preferredLang : undefined,
           keyterms: this.getKeyterms(),
+          diarize: this.diarize || undefined,
         });
 
         if (!res.success) {
@@ -2433,6 +2462,7 @@ registerProcessor("pcm-streaming-processor", PCMStreamingProcessor);
         text: finalText,
         rawText: finalText,
         source: `${this.sttConfig?.streamingProvider || "deepgram"}-streaming`,
+        speakerSegments: this.latestSpeakerSegments || undefined,
       });
 
       if (!usedBatchFallback) {

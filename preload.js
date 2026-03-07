@@ -409,6 +409,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
     "assemblyai-session-end",
     (callback) => (_event, data) => callback(data)
   ),
+  onAssemblyAiDiarizedTranscript: registerListener(
+    "assemblyai-diarized-transcript",
+    (callback) => (_event, segments) => callback(segments)
+  ),
 
   // Deepgram Streaming
   deepgramStreamingWarmup: (options) => ipcRenderer.invoke("deepgram-streaming-warmup", options),
@@ -432,6 +436,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   onDeepgramSessionEnd: registerListener(
     "deepgram-session-end",
     (callback) => (_event, data) => callback(data)
+  ),
+  onDeepgramDiarizedTranscript: registerListener(
+    "deepgram-diarized-transcript",
+    (callback) => (_event, segments) => callback(segments)
   ),
 
   // Usage limit events (for showing UpgradePrompt in ControlPanel)

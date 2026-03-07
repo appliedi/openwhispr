@@ -111,9 +111,26 @@ export default function PersonalNotesView({ onOpenSettings }: PersonalNotesViewP
     startRecording,
     stopRecording,
   } = useNoteRecording({
-    onTranscriptionComplete: useCallback((text: string) => {
-      setFinalTranscript(text);
-    }, []),
+    diarize: isMeetingsFolder || false,
+    onTranscriptionComplete: useCallback(
+      (
+        text: string,
+        speakerSegments?: Array<{
+          speaker: string;
+          text: string;
+          start: number | null;
+          end: number | null;
+        }>
+      ) => {
+        setFinalTranscript(text);
+        if (speakerSegments && speakerSegments.length > 0 && activeNoteId) {
+          window.electronAPI.updateNote(activeNoteId, {
+            speaker_segments: JSON.stringify(speakerSegments),
+          });
+        }
+      },
+      [activeNoteId]
+    ),
     onError: useCallback(
       (error: { title: string; description: string }) => {
         toast({ title: error.title, description: error.description, variant: "destructive" });
@@ -191,11 +208,12 @@ export default function PersonalNotesView({ onOpenSettings }: PersonalNotesViewP
   );
 
   const handleNewNote = useCallback(async () => {
-    if (!activeFolderId || isMeetingsFolder) return;
+    if (!activeFolderId) return;
+    const noteType = isMeetingsFolder ? "meeting" : "personal";
     const result = await window.electronAPI.saveNote(
       t("notes.list.untitledNote"),
       "",
-      "personal",
+      noteType,
       null,
       null,
       activeFolderId
@@ -348,7 +366,6 @@ export default function PersonalNotesView({ onOpenSettings }: PersonalNotesViewP
         <div className="px-1.5 space-y-px">
           {folders.map((folder) => {
             const isActive = folder.id === activeFolderId;
-            const isMeetings = folder.name === MEETINGS_FOLDER_NAME;
             const count = folderCounts[folder.id] || 0;
             const isRenaming = renamingFolderId === folder.id;
 
@@ -388,7 +405,6 @@ export default function PersonalNotesView({ onOpenSettings }: PersonalNotesViewP
                     ? "bg-primary/8 dark:bg-primary/10"
                     : "hover:bg-foreground/4 dark:hover:bg-white/4",
                   isDragOver &&
-                    !isMeetings &&
                     "bg-primary/12 dark:bg-primary/15 ring-1 ring-primary/25 scale-[1.02]",
                   isDropSuccess &&
                     "bg-emerald-500/10 dark:bg-emerald-400/10 ring-1 ring-emerald-500/20"
@@ -417,69 +433,63 @@ export default function PersonalNotesView({ onOpenSettings }: PersonalNotesViewP
                   {folder.name}
                 </span>
 
-                {isMeetings ? (
-                  <span className="text-[7px] font-semibold uppercase tracking-wider text-foreground/20 bg-foreground/4 dark:bg-white/6 px-1.5 py-px rounded shrink-0">
-                    {t("notes.folders.soon")}
-                  </span>
-                ) : (
-                  <>
-                    {isDropSuccess ? (
-                      <Check
-                        size={10}
-                        className="text-emerald-500 dark:text-emerald-400 shrink-0 animate-[scale-in_200ms_ease-out]"
-                      />
-                    ) : (
-                      <span
-                        className={cn(
-                          "text-xs tabular-nums shrink-0 transition-colors group-hover:opacity-0",
-                          isActive
-                            ? "text-foreground/50 dark:text-foreground/30"
-                            : "text-foreground/35 dark:text-foreground/15"
-                        )}
-                      >
-                        {count > 0 ? count : ""}
-                      </span>
-                    )}
-                    {!folder.is_default && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <span
-                            role="button"
-                            tabIndex={-1}
-                            onClick={(e) => e.stopPropagation()}
-                            className="h-4 w-4 flex items-center justify-center rounded-sm opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100 transition-opacity absolute right-1.5 text-foreground/25 hover:text-foreground/50 cursor-pointer"
-                          >
-                            <MoreHorizontal size={11} />
-                          </span>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" sideOffset={4} className="min-w-32">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setRenamingFolderId(folder.id);
-                              setRenameValue(folder.name);
-                            }}
-                            className="text-xs gap-2 rounded-md px-2 py-1"
-                          >
-                            <Pencil size={11} className="text-muted-foreground/60" />
-                            {t("notes.context.rename")}
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteFolder(folder.id);
-                            }}
-                            className="text-xs gap-2 rounded-md px-2 py-1 text-destructive focus:text-destructive focus:bg-destructive/10"
-                          >
-                            <Trash2 size={11} />
-                            {t("notes.context.delete")}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-                  </>
-                )}
+                <>
+                  {isDropSuccess ? (
+                    <Check
+                      size={10}
+                      className="text-emerald-500 dark:text-emerald-400 shrink-0 animate-[scale-in_200ms_ease-out]"
+                    />
+                  ) : (
+                    <span
+                      className={cn(
+                        "text-xs tabular-nums shrink-0 transition-colors group-hover:opacity-0",
+                        isActive
+                          ? "text-foreground/50 dark:text-foreground/30"
+                          : "text-foreground/35 dark:text-foreground/15"
+                      )}
+                    >
+                      {count > 0 ? count : ""}
+                    </span>
+                  )}
+                  {!folder.is_default && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <span
+                          role="button"
+                          tabIndex={-1}
+                          onClick={(e) => e.stopPropagation()}
+                          className="h-4 w-4 flex items-center justify-center rounded-sm opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100 transition-opacity absolute right-1.5 text-foreground/25 hover:text-foreground/50 cursor-pointer"
+                        >
+                          <MoreHorizontal size={11} />
+                        </span>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" sideOffset={4} className="min-w-32">
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRenamingFolderId(folder.id);
+                            setRenameValue(folder.name);
+                          }}
+                          className="text-xs gap-2 rounded-md px-2 py-1"
+                        >
+                          <Pencil size={11} className="text-muted-foreground/60" />
+                          {t("notes.context.rename")}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteFolder(folder.id);
+                          }}
+                          className="text-xs gap-2 rounded-md px-2 py-1 text-destructive focus:text-destructive focus:bg-destructive/10"
+                        >
+                          <Trash2 size={11} />
+                          {t("notes.context.delete")}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </>
               </button>
             );
           })}
@@ -508,129 +518,125 @@ export default function PersonalNotesView({ onOpenSettings }: PersonalNotesViewP
         <div className="mx-3 h-px bg-border/10 dark:bg-white/4 my-2" />
 
         {/* Notes list */}
-        {!isMeetingsFolder && (
-          <>
-            <div className="flex items-center justify-between px-3 py-1">
-              <span className="text-xs font-medium uppercase tracking-wider text-foreground/50 dark:text-foreground/25">
-                {t("notes.list.title")}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleNewNote}
-                aria-label={t("notes.list.newNote")}
-                className="h-5 w-5 rounded-md text-muted-foreground/50 dark:text-muted-foreground/30 hover:text-foreground/60 hover:bg-foreground/5"
-              >
-                <Plus size={13} />
-              </Button>
-            </div>
+        <>
+          <div className="flex items-center justify-between px-3 py-1">
+            <span className="text-xs font-medium uppercase tracking-wider text-foreground/50 dark:text-foreground/25">
+              {t("notes.list.title")}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleNewNote}
+              aria-label={t("notes.list.newNote")}
+              className="h-5 w-5 rounded-md text-muted-foreground/50 dark:text-muted-foreground/30 hover:text-foreground/60 hover:bg-foreground/5"
+            >
+              <Plus size={13} />
+            </Button>
+          </div>
 
-            <div className="flex-1 overflow-y-auto">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 size={12} className="animate-spin text-foreground/15" />
-                </div>
-              ) : notes.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 px-4">
-                  <svg
-                    className="text-foreground dark:text-white mb-3"
-                    width="40"
-                    height="36"
-                    viewBox="0 0 40 36"
-                    fill="none"
-                  >
-                    <rect
-                      x="12"
-                      y="1"
-                      width="20"
-                      height="26"
-                      rx="2"
-                      transform="rotate(5 22 14)"
-                      fill="currentColor"
-                      fillOpacity={0.025}
-                      stroke="currentColor"
-                      strokeOpacity={0.06}
-                    />
-                    <rect
-                      x="8"
-                      y="3"
-                      width="20"
-                      height="26"
-                      rx="2"
-                      fill="currentColor"
-                      fillOpacity={0.04}
-                      stroke="currentColor"
-                      strokeOpacity={0.08}
-                    />
-                    <rect
-                      x="12"
-                      y="9"
-                      width="10"
-                      height="1.5"
-                      rx="0.75"
-                      fill="currentColor"
-                      fillOpacity={0.07}
-                    />
-                    <rect
-                      x="12"
-                      y="13"
-                      width="12"
-                      height="1.5"
-                      rx="0.75"
-                      fill="currentColor"
-                      fillOpacity={0.05}
-                    />
-                    <rect
-                      x="12"
-                      y="17"
-                      width="8"
-                      height="1.5"
-                      rx="0.75"
-                      fill="currentColor"
-                      fillOpacity={0.04}
-                    />
-                  </svg>
-                  <p className="text-xs text-foreground/50 dark:text-foreground/25 mb-3">
-                    {t("notes.empty.emptyFolder")}
-                  </p>
-                  <div className="flex flex-col gap-1.5 w-full max-w-36">
-                    <button
-                      onClick={handleNewNote}
-                      className="flex items-center justify-center gap-1.5 h-6 rounded-md bg-primary/8 dark:bg-primary/10 border border-primary/12 dark:border-primary/15 text-xs font-medium text-primary/70 hover:bg-primary/12 hover:text-primary hover:border-primary/20 transition-colors"
-                    >
-                      <Plus size={10} />
-                      {t("notes.empty.createNote")}
-                    </button>
-                    <button
-                      onClick={() => setShowAddNotesDialog(true)}
-                      className="flex items-center justify-center gap-1.5 h-6 rounded-md border border-foreground/8 dark:border-white/8 text-xs text-foreground/40 hover:text-foreground/60 hover:border-foreground/15 hover:bg-foreground/3 dark:hover:bg-white/3 transition-colors"
-                    >
-                      {t("notes.addToFolder.addExisting")}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                notes.map((note) => (
-                  <NoteListItem
-                    key={note.id}
-                    note={note}
-                    isActive={note.id === activeNoteId}
-                    onClick={() => setActiveNoteId(note.id)}
-                    onDelete={handleDelete}
-                    folders={folders}
-                    currentFolderId={activeFolderId}
-                    onMoveToFolder={handleMoveToFolder}
-                    onCreateFolderAndMove={handleCreateFolderAndMove}
-                    dragHandlers={noteDragHandlers(note.id, note.title)}
-                    isDragging={dragState.draggingNoteId === note.id}
+          <div className="flex-1 overflow-y-auto">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 size={12} className="animate-spin text-foreground/15" />
+              </div>
+            ) : notes.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 px-4">
+                <svg
+                  className="text-foreground dark:text-white mb-3"
+                  width="40"
+                  height="36"
+                  viewBox="0 0 40 36"
+                  fill="none"
+                >
+                  <rect
+                    x="12"
+                    y="1"
+                    width="20"
+                    height="26"
+                    rx="2"
+                    transform="rotate(5 22 14)"
+                    fill="currentColor"
+                    fillOpacity={0.025}
+                    stroke="currentColor"
+                    strokeOpacity={0.06}
                   />
-                ))
-              )}
-            </div>
-          </>
-        )}
-
-        {isMeetingsFolder && <div className="flex-1" />}
+                  <rect
+                    x="8"
+                    y="3"
+                    width="20"
+                    height="26"
+                    rx="2"
+                    fill="currentColor"
+                    fillOpacity={0.04}
+                    stroke="currentColor"
+                    strokeOpacity={0.08}
+                  />
+                  <rect
+                    x="12"
+                    y="9"
+                    width="10"
+                    height="1.5"
+                    rx="0.75"
+                    fill="currentColor"
+                    fillOpacity={0.07}
+                  />
+                  <rect
+                    x="12"
+                    y="13"
+                    width="12"
+                    height="1.5"
+                    rx="0.75"
+                    fill="currentColor"
+                    fillOpacity={0.05}
+                  />
+                  <rect
+                    x="12"
+                    y="17"
+                    width="8"
+                    height="1.5"
+                    rx="0.75"
+                    fill="currentColor"
+                    fillOpacity={0.04}
+                  />
+                </svg>
+                <p className="text-xs text-foreground/50 dark:text-foreground/25 mb-3">
+                  {t("notes.empty.emptyFolder")}
+                </p>
+                <div className="flex flex-col gap-1.5 w-full max-w-36">
+                  <button
+                    onClick={handleNewNote}
+                    className="flex items-center justify-center gap-1.5 h-6 rounded-md bg-primary/8 dark:bg-primary/10 border border-primary/12 dark:border-primary/15 text-xs font-medium text-primary/70 hover:bg-primary/12 hover:text-primary hover:border-primary/20 transition-colors"
+                  >
+                    <Plus size={10} />
+                    {t("notes.empty.createNote")}
+                  </button>
+                  <button
+                    onClick={() => setShowAddNotesDialog(true)}
+                    className="flex items-center justify-center gap-1.5 h-6 rounded-md border border-foreground/8 dark:border-white/8 text-xs text-foreground/40 hover:text-foreground/60 hover:border-foreground/15 hover:bg-foreground/3 dark:hover:bg-white/3 transition-colors"
+                  >
+                    {t("notes.addToFolder.addExisting")}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              notes.map((note) => (
+                <NoteListItem
+                  key={note.id}
+                  note={note}
+                  isActive={note.id === activeNoteId}
+                  onClick={() => setActiveNoteId(note.id)}
+                  onDelete={handleDelete}
+                  folders={folders}
+                  currentFolderId={activeFolderId}
+                  onMoveToFolder={handleMoveToFolder}
+                  onCreateFolderAndMove={handleCreateFolderAndMove}
+                  dragHandlers={noteDragHandlers(note.id, note.title)}
+                  isDragging={dragState.draggingNoteId === note.id}
+                />
+              ))
+            )}
+          </div>
+        </>
       </div>
 
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
@@ -639,109 +645,7 @@ export default function PersonalNotesView({ onOpenSettings }: PersonalNotesViewP
             onUpgrade={onOpenSettings ? () => onOpenSettings("plansBilling") : undefined}
           />
         )}
-        {isMeetingsFolder ? (
-          <div className="flex flex-col items-center justify-center h-full -mt-6">
-            <svg
-              className="text-foreground dark:text-white mb-5"
-              width="72"
-              height="56"
-              viewBox="0 0 72 56"
-              fill="none"
-            >
-              <ellipse cx="36" cy="48" rx="24" ry="2" fill="currentColor" fillOpacity={0.03} />
-              <circle
-                cx="24"
-                cy="20"
-                r="7"
-                fill="currentColor"
-                fillOpacity={0.04}
-                stroke="currentColor"
-                strokeOpacity={0.08}
-              />
-              <path
-                d="M13 40c0-6 5-11 11-11s11 5 11 11"
-                fill="currentColor"
-                fillOpacity={0.03}
-                stroke="currentColor"
-                strokeOpacity={0.06}
-              />
-              <circle
-                cx="48"
-                cy="20"
-                r="7"
-                fill="currentColor"
-                fillOpacity={0.04}
-                stroke="currentColor"
-                strokeOpacity={0.08}
-              />
-              <path
-                d="M37 40c0-6 5-11 11-11s11 5 11 11"
-                fill="currentColor"
-                fillOpacity={0.03}
-                stroke="currentColor"
-                strokeOpacity={0.06}
-              />
-              <rect
-                x="16"
-                y="6"
-                width="14"
-                height="8"
-                rx="3"
-                fill="currentColor"
-                fillOpacity={0.04}
-                stroke="currentColor"
-                strokeOpacity={0.07}
-              />
-              <rect
-                x="18.5"
-                y="8.5"
-                width="5"
-                height="1"
-                rx="0.5"
-                fill="currentColor"
-                fillOpacity={0.06}
-              />
-              <rect
-                x="18.5"
-                y="11"
-                width="8"
-                height="1"
-                rx="0.5"
-                fill="currentColor"
-                fillOpacity={0.04}
-              />
-              <rect
-                x="44"
-                y="9"
-                width="12"
-                height="7"
-                rx="2.5"
-                fill="currentColor"
-                fillOpacity={0.03}
-                stroke="currentColor"
-                strokeOpacity={0.06}
-              />
-              <rect
-                x="46.5"
-                y="11.5"
-                width="4"
-                height="1"
-                rx="0.5"
-                fill="currentColor"
-                fillOpacity={0.05}
-              />
-            </svg>
-            <h3 className="text-xs font-semibold text-foreground/60 mb-1">
-              {t("notes.meeting.title")}
-            </h3>
-            <p className="text-xs text-foreground/50 dark:text-foreground/25 text-center max-w-52 mb-3">
-              {t("notes.meeting.description")}
-            </p>
-            <span className="text-[8px] font-semibold uppercase tracking-widest text-primary/40 bg-primary/5 dark:bg-primary/8 px-2.5 py-1 rounded-md border border-primary/8 dark:border-primary/12">
-              {t("notes.meeting.comingSoon")}
-            </span>
-          </div>
-        ) : editorNote ? (
+        {editorNote ? (
           <>
             <NoteEditor
               note={editorNote}

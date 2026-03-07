@@ -2894,6 +2894,12 @@ class IPCHandlers {
           }
         };
 
+        this.assemblyAiStreaming.onDiarizedTranscript = (segments) => {
+          if (win && !win.isDestroyed()) {
+            win.webContents.send("assemblyai-diarized-transcript", segments);
+          }
+        };
+
         await this.assemblyAiStreaming.connect({ ...options, token });
         debugLogger.debug("AssemblyAI streaming started", {}, "streaming");
 
@@ -3134,6 +3140,12 @@ class IPCHandlers {
         this.deepgramStreaming.onSessionEnd = (data) => {
           if (win && !win.isDestroyed()) {
             win.webContents.send("deepgram-session-end", data);
+          }
+        };
+
+        this.deepgramStreaming.onDiarizedTranscript = (segments) => {
+          if (win && !win.isDestroyed()) {
+            win.webContents.send("deepgram-diarized-transcript", segments);
           }
         };
 

@@ -1477,8 +1477,19 @@
     },
     "meeting": {
       "title": "Meeting Notes",
-      "description": "Speaker identification & structured summaries",
-      "comingSoon": "Coming Soon"
+      "description": "Record and transcribe meetings with speaker identification"
+    },
+    "meetings": {
+      "recording": "Recording meeting...",
+      "speakersDetected": "{{count}} speakers detected",
+      "diarization": {
+        "unsupportedEngine": "Speaker identification is not available with your current engine",
+        "unsupportedTitle": "No speaker identification",
+        "unsupportedMessage": "{{engine}} cannot identify multiple speakers. Continue recording without speaker identification?",
+        "continueAnyway": "Continue anyway",
+        "changeEngine": "Change engine",
+        "dontAskAgain": "Don't ask again"
+      }
     },
     "empty": {
       "title": "No notes here yet",

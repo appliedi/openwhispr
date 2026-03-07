@@ -97,6 +97,11 @@ class DatabaseManager {
       } catch (err) {
         if (!err.message.includes("duplicate column")) throw err;
       }
+      try {
+        this.db.exec("ALTER TABLE notes ADD COLUMN speaker_segments TEXT");
+      } catch (err) {
+        if (!err.message.includes("duplicate column")) throw err;
+      }
 
       this.db.exec(`
         CREATE VIRTUAL TABLE IF NOT EXISTS notes_fts USING fts5(
@@ -456,6 +461,7 @@ class DatabaseManager {
         "enhancement_prompt",
         "enhanced_at_content_hash",
         "folder_id",
+        "speaker_segments",
       ];
       const fields = [];
       const values = [];

@@ -1391,9 +1391,20 @@
       "switchToCloud": "OpenWhispr Cloud"
     },
     "meeting": {
-      "title": "議事録",
-      "description": "話者識別と構造化されたサマリー",
-      "comingSoon": "近日公開"
+      "title": "会議メモ",
+      "description": "話者識別付きで会議を録音・文字起こし"
+    },
+    "meetings": {
+      "recording": "会議を録音中...",
+      "speakersDetected": "{{count}}人の話者を検出",
+      "diarization": {
+        "unsupportedEngine": "現在のエンジンでは話者識別を利用できません",
+        "unsupportedTitle": "話者識別なし",
+        "unsupportedMessage": "{{engine}}は複数の話者を識別できません。話者識別なしで録音を続けますか？",
+        "continueAnyway": "そのまま続ける",
+        "changeEngine": "エンジンを変更",
+        "dontAskAgain": "今後表示しない"
+      }
     },
     "onboarding": {
       "llm": {

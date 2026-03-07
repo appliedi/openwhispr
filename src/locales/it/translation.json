@@ -1416,9 +1416,20 @@
       "switchToCloud": "OpenWhispr Cloud"
     },
     "meeting": {
-      "title": "Note delle riunioni",
-      "description": "Identificazione degli interlocutori e riassunti strutturati",
-      "comingSoon": "Prossimamente"
+      "title": "Note della riunione",
+      "description": "Registra e trascrivi le riunioni con identificazione dei partecipanti"
+    },
+    "meetings": {
+      "recording": "Registrazione della riunione...",
+      "speakersDetected": "{{count}} partecipanti rilevati",
+      "diarization": {
+        "unsupportedEngine": "L'identificazione dei partecipanti non è disponibile con il motore attuale",
+        "unsupportedTitle": "Nessuna identificazione dei partecipanti",
+        "unsupportedMessage": "{{engine}} non può identificare più partecipanti. Continuare la registrazione senza identificazione dei partecipanti?",
+        "continueAnyway": "Continua comunque",
+        "changeEngine": "Cambia motore",
+        "dontAskAgain": "Non chiedere più"
+      }
     },
     "context": {
       "moveToFolder": "Sposta nella cartella",

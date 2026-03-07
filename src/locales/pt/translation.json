@@ -1417,8 +1417,19 @@
     },
     "meeting": {
       "title": "Notas de reunião",
-      "description": "Identificação de falantes e resumos estruturados",
-      "comingSoon": "Em breve"
+      "description": "Grave e transcreva reuniões com identificação de falantes"
+    },
+    "meetings": {
+      "recording": "Gravando reunião...",
+      "speakersDetected": "{{count}} falantes detectados",
+      "diarization": {
+        "unsupportedEngine": "A identificação de falantes não está disponível com o seu motor atual",
+        "unsupportedTitle": "Sem identificação de falantes",
+        "unsupportedMessage": "{{engine}} não consegue identificar múltiplos falantes. Continuar a gravação sem identificação de falantes?",
+        "continueAnyway": "Continuar mesmo assim",
+        "changeEngine": "Alterar motor",
+        "dontAskAgain": "Não perguntar novamente"
+      }
     },
     "context": {
       "moveToFolder": "Mover para pasta",

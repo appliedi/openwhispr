@@ -1413,8 +1413,19 @@
     },
     "meeting": {
       "title": "Besprechungsnotizen",
-      "description": "Sprechererkennung und strukturierte Zusammenfassungen",
-      "comingSoon": "Demnächst verfügbar"
+      "description": "Besprechungen aufnehmen und mit Sprecherkennung transkribieren"
+    },
+    "meetings": {
+      "recording": "Besprechung wird aufgenommen...",
+      "speakersDetected": "{{count}} Sprecher erkannt",
+      "diarization": {
+        "unsupportedEngine": "Sprecherkennung ist mit Ihrer aktuellen Engine nicht verfügbar",
+        "unsupportedTitle": "Keine Sprecherkennung",
+        "unsupportedMessage": "{{engine}} kann keine mehreren Sprecher identifizieren. Aufnahme ohne Sprecherkennung fortsetzen?",
+        "continueAnyway": "Trotzdem fortfahren",
+        "changeEngine": "Engine ändern",
+        "dontAskAgain": "Nicht erneut fragen"
+      }
     },
     "context": {
       "moveToFolder": "In Ordner verschieben",
